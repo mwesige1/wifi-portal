@@ -29,8 +29,6 @@ COPY . .
 RUN mkdir -p /app/logs && \
     touch /app/logs/error.log
 
-# ── Collect static files ───────────────────────────────
-RUN python manage.py collectstatic --noinput
 
 # ── Expose port ────────────────────────────────────────
 # ── Install netcat for entrypoint health check ─────────

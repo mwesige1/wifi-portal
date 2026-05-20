@@ -74,20 +74,17 @@ services:
     networks:
       - wifiportal_network
 
-  # ── Nginx ─────────────────────────────────────────────
+# ── Nginx ─────────────────────────────────────────────
   nginx:
     image: nginx:alpine
     container_name: wifiportal_nginx
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "8081:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-      - certbot_certs:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
     depends_on:
       - web
     networks:
