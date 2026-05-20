@@ -236,5 +236,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+# ── Login URL ──────────────────────────────────────────
+LOGIN_URL = '/dashboard/login/'
 # ── Default Primary Key ────────────────────────────────
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
