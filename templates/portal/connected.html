@@ -1,0 +1,407 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Connected — Enjoy Your WiFi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #F5A623; --gold-dark: #D4880A; --gold-light: #FFD07A;
+      --navy-deep: #060915; --navy-card: #0D1222; --navy-border: #1E2A45;
+      --txt: #F0F4FF; --txt-sec: #8B97B8; --txt-muted: #5A6790;
+      --success: #22C55E;
+    }
+    html { font-size: 16px; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--navy-deep); color: var(--txt);
+      min-height: 100vh; min-height: 100dvh;
+      width: 100%; overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input, textarea { font-family: inherit; -webkit-appearance: none; }
+
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .bg-canvas::before {
+      content: ''; position: absolute;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%);
+      top: -200px; left: -150px;
+      animation: driftA 20s ease-in-out infinite alternate;
+    }
+    .bg-canvas::after {
+      content: ''; position: absolute;
+      width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%);
+      bottom: -150px; right: -100px;
+      animation: driftB 16s ease-in-out infinite alternate;
+    }
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(34,197,94,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,0.02) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+    @keyframes driftA { from{transform:translate(0,0)} to{transform:translate(60px,80px) scale(1.15)} }
+    @keyframes driftB { from{transform:translate(0,0)} to{transform:translate(-50px,-60px) scale(1.12)} }
+
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh; min-height: 100dvh;
+      display: flex; flex-direction: column;
+      width: 100%; max-width: 480px; margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      padding: 20px 16px 14px;
+      display: flex; justify-content: center; align-items: center;
+      animation: fadeDown .7s ease both;
+    }
+    .logo-pill {
+      display: flex; align-items: center; gap: 12px;
+      background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.03));
+      border: 1px solid rgba(34,197,94,0.25); border-radius: 100px;
+      padding: 11px 26px;
+    }
+    .wifi-bars { display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+    .wifi-bars span {
+      display: block; background: var(--success); border-radius: 2px; width: 5px;
+      animation: barPulse 1.5s ease-in-out infinite;
+    }
+    .wifi-bars span:nth-child(1){height:8px;animation-delay:0s}
+    .wifi-bars span:nth-child(2){height:13px;animation-delay:.2s}
+    .wifi-bars span:nth-child(3){height:19px;animation-delay:.4s}
+    .wifi-bars span:nth-child(4){height:25px;animation-delay:.6s}
+    @keyframes barPulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .logo-txt {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem;
+      letter-spacing: .06em;
+      background: linear-gradient(135deg, #86efac, var(--success));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Main ── */
+    .main-content { flex: 1; padding-bottom: 24px; }
+
+    /* ── Success banner ── */
+    .success-banner {
+      margin: 0 14px 14px;
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(21,128,61,0.08));
+      border: 1px solid rgba(34,197,94,0.25); border-radius: 20px;
+      padding: 24px 20px; text-align: center;
+      animation: fadeUp .6s ease both;
+    }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 14px;
+      background: rgba(34,197,94,0.18); border: 2px solid rgba(34,197,94,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; animation: popIn .6s ease;
+    }
+    @keyframes popIn{0%{transform:scale(0);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+    .success-banner h2 {
+      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800;
+      color: var(--success); margin-bottom: 5px;
+    }
+    .success-banner p { font-size: .82rem; color: var(--txt-sec); }
+
+    /* ── Card sections ── */
+    .section-card {
+      margin: 0 14px 12px;
+      background: rgba(13,18,34,0.85);
+      border: 1px solid var(--navy-border); border-radius: 18px;
+      overflow: hidden;
+    }
+    .section-head {
+      padding: 13px 16px 0;
+      font-size: .62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .13em; color: var(--txt-muted);
+    }
+    .section-body { padding: 12px 16px 16px; }
+
+    /* ── Session grid ── */
+    .sess-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .sess-cell {
+      background: rgba(0,0,0,.3); border: 1px solid var(--navy-border);
+      border-radius: 14px; padding: 14px; text-align: center;
+    }
+    .sess-cell.green { background: rgba(34,197,94,.07); border-color: rgba(34,197,94,.25); }
+    .sess-cell.full  { grid-column: span 2; }
+    .sess-lbl { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--txt-muted); margin-bottom: 6px; }
+    .sess-val { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 800; color: var(--txt); }
+    .sess-cell.green .sess-val { color: var(--success); }
+
+    /* ── Countdown ── */
+    .countdown-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: .75rem; color: var(--txt-sec); font-weight: 600; }
+    .timer {
+      font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 900;
+      color: var(--txt); text-align: center; letter-spacing: 4px;
+      margin-bottom: 12px; font-variant-numeric: tabular-nums;
+    }
+    .timer.warn   { color: var(--gold); animation: blink 1s infinite; }
+    .timer.crit   { color: #ef4444;    animation: blink .5s infinite; }
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+    .bar-track { height: 6px; background: var(--navy-border); border-radius: 6px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--success), #86efac); transition: width 1s linear, background 1s; }
+
+    /* ── Stars ── */
+    .stars { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+    .star  { font-size: 28px; cursor: pointer; transition: transform .15s; filter: grayscale(1); opacity: .35; }
+    .star:hover, .star.on { filter: grayscale(0); opacity: 1; transform: scale(1.18); }
+    .feedback-ta {
+      width: 100%; padding: 11px 14px;
+      background: rgba(0,0,0,.3); border: 1.5px solid var(--navy-border);
+      border-radius: 12px; font-size: .88rem; color: var(--txt);
+      outline: none; resize: none; margin-bottom: 10px;
+      transition: border-color .2s;
+    }
+    .feedback-ta::placeholder { color: var(--txt-muted); }
+    .feedback-ta:focus { border-color: var(--gold); }
+    .btn-submit {
+      width: 100%; height: 48px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      border: none; border-radius: 60px;
+      font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700;
+      color: var(--navy-deep); cursor: pointer; transition: all .2s;
+    }
+    .btn-submit:disabled { background: var(--navy-border); color: var(--txt-muted); cursor: not-allowed; }
+    .fb-success {
+      background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.3);
+      border-radius: 12px; padding: 14px; text-align: center;
+      color: var(--success); font-weight: 700; font-size: .9rem; display: none;
+    }
+
+    /* ── Renew ── */
+    .btn-renew {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; height: 50px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--navy-deep); border: none; border-radius: 60px;
+      font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700;
+      text-decoration: none; transition: all .2s; margin-bottom: 10px;
+    }
+    .btn-renew:active { transform: scale(.98); filter: brightness(.96); }
+
+    /* ── Footer ── */
+    .app-footer { padding: 10px 16px 28px; text-align: center; font-size: .62rem; color: var(--txt-muted); }
+
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp  {from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+<div class="bg-grid"></div>
+
+<div class="page">
+
+  <header class="app-header">
+    <div class="logo-pill">
+      <div class="wifi-bars"><span></span><span></span><span></span><span></span></div>
+      <div class="logo-txt">You're Connected!</div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- Success Banner -->
+    <div class="success-banner">
+      <div class="success-icon">✅</div>
+      <h2>Internet Active</h2>
+      <p>
+        {% if session %}
+          {{ session.package.name }} — {{ session.package.duration }} {{ session.package.duration_unit }}
+        {% else %}
+          Your session is active
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Session Details -->
+    <div class="section-card">
+      <div class="section-head">📦 Session Details</div>
+      <div class="section-body">
+        {% if session %}
+        <div class="sess-grid">
+          <div class="sess-cell">
+            <div class="sess-lbl">Package</div>
+            <div class="sess-val" style="font-size:.85rem;">{{ session.package.name }}</div>
+          </div>
+          <div class="sess-cell green">
+            <div class="sess-lbl">Amount Paid</div>
+            <div class="sess-val">
+              {% if session.package.is_free_trial %}FREE{% else %}UGX {{ session.package.price|floatformat:0 }}{% endif %}
+            </div>
+          </div>
+          <div class="sess-cell full">
+            <div class="sess-lbl">Session Expires</div>
+            <div class="sess-val" style="font-size:.78rem;">{{ session.expiry_time|date:"l, d M Y \a\t H:i" }}</div>
+          </div>
+        </div>
+        {% else %}
+        <p style="text-align:center;color:var(--txt-muted);font-size:.82rem;padding:12px 0;">Session details not available.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Countdown -->
+    <div class="section-card">
+      <div class="section-head">⏱ Time Remaining</div>
+      <div class="section-body">
+        <div class="countdown-row">
+          <span>Session countdown</span>
+          {% if session %}<span style="font-size:.68rem;color:var(--txt-muted);">Expires {{ session.expiry_time|date:"H:i, d M" }}</span>{% endif %}
+        </div>
+        <div class="timer" id="countdownTimer">--:--:--</div>
+        <div class="bar-track"><div class="bar-fill" id="countdownBar" style="width:100%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Feedback -->
+    <div class="section-card">
+      <div class="section-head">⭐ Rate Your Experience</div>
+      <div class="section-body">
+        {% if not feedback_submitted %}
+        <p style="font-size:.78rem;color:var(--txt-sec);margin-bottom:12px;">How is your connection quality?</p>
+        <div id="feedbackWrap">
+          <form id="feedbackForm" method="post" action="{% url 'portal:submit_feedback' %}">
+            {% csrf_token %}
+            <input type="hidden" name="session_id" value="{{ session.id }}">
+            <input type="hidden" name="rating" id="ratingInput" value="0">
+            <div class="stars">
+              <span class="star" onclick="setRating(1)" id="star1">⭐</span>
+              <span class="star" onclick="setRating(2)" id="star2">⭐</span>
+              <span class="star" onclick="setRating(3)" id="star3">⭐</span>
+              <span class="star" onclick="setRating(4)" id="star4">⭐</span>
+              <span class="star" onclick="setRating(5)" id="star5">⭐</span>
+            </div>
+            <textarea class="feedback-ta" name="comment" rows="2" placeholder="Tell us more (optional)..."></textarea>
+            <button type="submit" class="btn-submit" id="feedbackBtn" disabled>Submit Feedback</button>
+          </form>
+          <div class="fb-success" id="feedbackSuccess">🎉 Thank you for your feedback!</div>
+        </div>
+        {% else %}
+        <div class="fb-success" style="display:block;">🎉 Thank you for your feedback!</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Renew -->
+    <div style="padding: 4px 14px 0;">
+      <a href="{% url 'portal:landing' %}" class="btn-renew">🔄 Renew or Upgrade</a>
+      <p style="font-size:.75rem;color:var(--txt-muted);text-align:center;margin-top:8px;">
+        Need help? Call
+        <a href="tel:{{ settings.support_phone|default:'' }}" style="color:var(--gold);font-weight:700;text-decoration:none;">
+          {{ settings.support_phone|default:"Support" }}
+        </a>
+      </p>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    🔒 Secure connection · Powered by {{ settings.business_name|default:"Optimum" }}
+  </footer>
+
+</div>
+
+<script>
+{% if session %}
+const expiryTime = new Date("{{ session.expiry_time|date:'c' }}");
+const startTime  = new Date("{{ session.created_at|date:'c' }}");
+const totalMs    = expiryTime - startTime;
+const timerEl    = document.getElementById('countdownTimer');
+const barEl      = document.getElementById('countdownBar');
+
+function updateTimer() {
+  const now  = new Date();
+  const diff = expiryTime - now;
+  if (diff <= 0) {
+    timerEl.textContent = '00:00:00';
+    timerEl.className   = 'timer crit';
+    barEl.style.width   = '0%';
+    barEl.style.background = '#ef4444';
+    setTimeout(() => { window.location.href = 'http://192.168.88.252:8000/'; }, 3000);
+    return;
+  }
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  timerEl.textContent =
+    String(h).padStart(2,'0') + ':' +
+    String(m).padStart(2,'0') + ':' +
+    String(s).padStart(2,'0');
+  const pct = Math.max(0, Math.min(100, (diff / totalMs) * 100));
+  barEl.style.width = pct + '%';
+  if (diff < 300000) {
+    timerEl.className = 'timer crit';
+    barEl.style.background = '#ef4444';
+  } else if (diff < 600000) {
+    timerEl.className = 'timer warn';
+    barEl.style.background = '#f59e0b';
+  } else {
+    timerEl.className = 'timer';
+    barEl.style.background = 'linear-gradient(90deg,#22c55e,#86efac)';
+  }
+}
+updateTimer();
+setInterval(updateTimer, 1000);
+{% else %}
+document.getElementById('countdownTimer').textContent = 'No active session';
+{% endif %}
+
+let currentRating = 0;
+function setRating(r) {
+  currentRating = r;
+  document.getElementById('ratingInput').value = r;
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('star' + i).classList.toggle('on', i <= r);
+  }
+  document.getElementById('feedbackBtn').disabled = false;
+}
+
+const ff = document.getElementById('feedbackForm');
+if (ff) {
+  ff.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (currentRating === 0) return;
+    fetch(this.action, {
+      method: 'POST', body: new FormData(this),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(() => {
+      document.getElementById('feedbackForm').style.display    = 'none';
+      document.getElementById('feedbackSuccess').style.display = 'block';
+    })
+    .catch(() => {
+      document.getElementById('feedbackForm').style.display    = 'none';
+      document.getElementById('feedbackSuccess').style.display = 'block';
+    });
+  });
+}
+
+function checkSessionStatus() {
+  const mac = '{{ mac_address }}';
+  if (!mac) return;
+  fetch('http://192.168.88.252:8000/session-status/?mac=' + mac)
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'blocked') {
+      window.location.href = 'http://192.168.88.252:8000/blocked/?mac=' + mac;
+    } else if (data.status === 'expired') {
+      window.location.href = 'http://192.168.88.252:8000/?mac=' + mac;
+    }
+  })
+  .catch(() => {});
+}
+setInterval(checkSessionStatus, 3000);
+</script>
+</body>
+</html>

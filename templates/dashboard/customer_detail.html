@@ -1,0 +1,359 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Customer Detail{% endblock %}
+{% block page_title %}Customer Detail{% endblock %}
+
+{% block content %}
+
+<!-- ── Back Button ────────────────────────────────────── -->
+<div class="mb-4">
+    <a href="{% url 'dashboard:customers' %}"
+       style="color:#6b7280; font-size:13px; font-weight:600;
+              text-decoration:none; display:inline-flex;
+              align-items:center; gap:6px;">
+        <i class="bi bi-arrow-left"></i> Back to Customers
+    </a>
+</div>
+
+<!-- ── Profile Card ──────────────────────────────────── -->
+<div class="dash-table mb-4" style="padding:24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+
+        <div style="width:60px; height:60px; border-radius:50%;
+                    background:#eff6ff; display:flex; align-items:center;
+                    justify-content:center; font-size:24px;
+                    color:#2563eb; flex-shrink:0;">
+            <i class="bi bi-person-fill"></i>
+        </div>
+
+        <div style="flex:1;">
+            <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+                {{ device.phone_number|default:"Unknown" }}
+            </h5>
+            <p style="font-size:12px; color:#9ca3af; margin:4px 0 0;
+                      font-family:monospace;">
+                {{ device.mac_address }}
+            </p>
+        </div>
+
+        <div>
+            {% if device.is_blocked %}
+                <span style="background:#fef9c3; color:#ca8a04;
+                             padding:6px 16px; border-radius:20px;
+                             font-size:12px; font-weight:700;">
+                    ⛔ Blocked
+                </span>
+            {% elif active_session %}
+                <span style="background:#dcfce7; color:#16a34a;
+                             padding:6px 16px; border-radius:20px;
+                             font-size:12px; font-weight:700;">
+                    🟢 Active
+                </span>
+            {% elif sessions.exists %}
+                <span style="background:#fee2e2; color:#dc2626;
+                             padding:6px 16px; border-radius:20px;
+                             font-size:12px; font-weight:700;">
+                    🔴 Expired
+                </span>
+            {% else %}
+                <span style="background:#f3f4f6; color:#6b7280;
+                             padding:6px 16px; border-radius:20px;
+                             font-size:12px; font-weight:700;">
+                    ⚪ No Sessions
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+                gap:1px; background:#e5e7eb; border-radius:12px;
+                overflow:hidden; margin-top:20px;">
+        <div style="background:#fff; padding:16px; text-align:center;">
+            <p style="font-size:11px; color:#9ca3af; font-weight:700;
+                      text-transform:uppercase; margin:0 0 4px;">Total Spent</p>
+            <p style="font-size:18px; font-weight:800; color:#16a34a; margin:0;">
+                UGX {{ device.total_spent|floatformat:0|intcomma }}
+            </p>
+        </div>
+        <div style="background:#fff; padding:16px; text-align:center;">
+            <p style="font-size:11px; color:#9ca3af; font-weight:700;
+                      text-transform:uppercase; margin:0 0 4px;">Sessions</p>
+            <p style="font-size:18px; font-weight:800; color:#2563eb; margin:0;">
+                {{ sessions.count }}
+            </p>
+        </div>
+        <div style="background:#fff; padding:16px; text-align:center;">
+            <p style="font-size:11px; color:#9ca3af; font-weight:700;
+                      text-transform:uppercase; margin:0 0 4px;">Most Used</p>
+            <p style="font-size:14px; font-weight:800; color:#1a1a2e; margin:0;">
+                {{ top_package_name }}
+            </p>
+        </div>
+        <div style="background:#fff; padding:16px; text-align:center;">
+            <p style="font-size:11px; color:#9ca3af; font-weight:700;
+                      text-transform:uppercase; margin:0 0 4px;">Joined</p>
+            <p style="font-size:14px; font-weight:800; color:#1a1a2e; margin:0;">
+                {{ device.first_seen|date:"d M Y" }}
+            </p>
+        </div>
+        <div style="background:#fff; padding:16px; text-align:center;">
+            <p style="font-size:11px; color:#9ca3af; font-weight:700;
+                      text-transform:uppercase; margin:0 0 4px;">Last Seen</p>
+            <p style="font-size:14px; font-weight:800; color:#1a1a2e; margin:0;">
+                {{ device.last_seen|timesince }} ago
+            </p>
+        </div>
+        <div style="background:#fff; padding:16px; text-align:center;">
+    <p style="font-size:11px; color:#9ca3af; font-weight:700;
+              text-transform:uppercase; margin:0 0 4px;">Router</p>
+    <p style="font-size:14px; font-weight:800; color:#1a1a2e; margin:0;">
+        {{ device.last_router.identity|default:"—" }}
+    </p>
+    <p style="font-size:11px; color:#9ca3af; margin:2px 0 0;">
+        {{ device.last_router.location|default:"" }}
+    </p>
+</div>
+    </div>
+</div>
+
+<!-- ── Active Session ─────────────────────────────────── -->
+{% if active_session %}
+<div class="dash-table mb-4" style="padding:20px;
+     border-left:4px solid #16a34a;">
+    <h6 style="font-weight:700; color:#16a34a; margin:0 0 12px;">
+        🟢 Active Session
+    </h6>
+    <div style="display:grid;
+                grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+                gap:12px;">
+        <div>
+            <p style="font-size:11px; color:#9ca3af; margin:0;">Package</p>
+            <p style="font-weight:700; color:#1a1a2e; margin:0;">
+                {{ active_session.package.name }}
+            </p>
+        </div>
+        <div>
+            <p style="font-size:11px; color:#9ca3af; margin:0;">Started</p>
+            <p style="font-weight:700; color:#1a1a2e; margin:0;">
+                {{ active_session.created_at|date:"d M, H:i" }}
+            </p>
+        </div>
+        <div>
+            <p style="font-size:11px; color:#9ca3af; margin:0;">Expires</p>
+            <p style="font-weight:700; color:#dc2626; margin:0;">
+                {{ active_session.expiry_time|date:"d M, H:i" }}
+            </p>
+        </div>
+        <div>
+            <p style="font-size:11px; color:#9ca3af; margin:0;">IP Address</p>
+            <p style="font-weight:700; color:#1a1a2e; margin:0;
+                      font-family:monospace; font-size:12px;">
+                {{ active_session.ip_address|default:"—" }}
+            </p>
+        </div>
+        <div>
+    <p style="font-size:11px; color:#9ca3af; margin:0;">Location</p>
+    <p style="font-weight:700; color:#1a1a2e; margin:0;">
+        {{ active_session.router.location|default:"—" }}
+    </p>
+</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Session History ────────────────────────────────── -->
+<div class="dash-table mb-4">
+    <div class="dash-table-header">
+        <h6>Session History</h6>
+    </div>
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Package</th>
+                <th>Started</th>
+                <th>Expired</th>
+                <th>IP Address</th>
+                <th>Router</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions %}
+            <tr>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ forloop.counter }}
+                </td>
+                <td style="font-weight:600; color:#1a1a2e;">
+                    {{ session.package.name }}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ session.created_at|date:"d M Y, H:i" }}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ session.expiry_time|date:"d M Y, H:i" }}
+                </td>
+                <td style="font-family:monospace; font-size:12px; color:#374151;">
+                    {{ session.ip_address|default:"—" }}
+                </td>
+                <td style="font-size:12px; color:#374151;">
+    {{ session.router.identity|default:"—" }}
+    {% if session.router.location %}
+    <span style="display:block; font-size:11px; color:#9ca3af;">
+        {{ session.router.location }}
+    </span>
+    {% endif %}
+</td>
+                <td>
+                    {% if session.status == 'active' %}
+                        <span style="background:#dcfce7; color:#16a34a;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            Active
+                        </span>
+                    {% else %}
+                        <span style="background:#fee2e2; color:#dc2626;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            Expired
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7"
+                    style="text-align:center; padding:32px; color:#9ca3af;">
+                    No sessions yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ── Payment History ────────────────────────────────── -->
+<div class="dash-table mb-4">
+    <div class="dash-table-header">
+        <h6>Payment History</h6>
+    </div>
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Package</th>
+                <th>Amount</th>
+                <th>Provider</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ forloop.counter }}
+                </td>
+                <td style="font-weight:600; color:#1a1a2e;">
+                    {{ order.package.name }}
+                </td>
+                <td style="font-weight:700; color:#16a34a;">
+                    UGX {{ order.amount|floatformat:0|intcomma }}
+                </td>
+                <td style="font-size:12px; color:#374151;
+                           text-transform:uppercase;">
+                    {{ order.provider }}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ order.created_at|date:"d M Y, H:i" }}
+                </td>
+                <td>
+                    {% if order.status == 'success' %}
+                        <span style="background:#dcfce7; color:#16a34a;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            Paid
+                        </span>
+                    {% elif order.status == 'pending' %}
+                        <span style="background:#fefce8; color:#ca8a04;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            Pending
+                        </span>
+                    {% else %}
+                        <span style="background:#fee2e2; color:#dc2626;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            Failed
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6"
+                    style="text-align:center; padding:32px; color:#9ca3af;">
+                    No payments yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ── Danger Zone ────────────────────────────────────── -->
+<div class="dash-table" style="padding:20px; border-left:4px solid #dc2626;">
+    <h6 style="font-weight:700; color:#dc2626; margin:0 0 8px;">
+        Danger Zone
+    </h6>
+    <p style="font-size:13px; color:#9ca3af; margin:0 0 16px;">
+        Deleting this customer removes all their sessions and
+        payment records permanently.
+    </p>
+    <form method="post"
+          action="{% url 'dashboard:customer_delete' device.id %}"
+          class="delete-form" style="display:inline;">
+        {% csrf_token %}
+        <div class="delete-initial">
+            <button type="button" onclick="showDelete(this)"
+                    style="background:#fef2f2; color:#dc2626; border:none;
+                           border-radius:8px; padding:8px 20px;
+                           font-size:13px; font-weight:600; cursor:pointer;">
+                <i class="bi bi-trash"></i> Delete Customer
+            </button>
+        </div>
+        <div class="delete-confirm" style="display:none; gap:8px;">
+            <button type="submit"
+                    style="background:#dc2626; color:#fff; border:none;
+                           border-radius:8px; padding:8px 20px;
+                           font-size:13px; font-weight:600; cursor:pointer;">
+                <i class="bi bi-check-lg"></i> Yes, Delete
+            </button>
+            <button type="button" onclick="hideDelete(this)"
+                    style="background:#f3f4f6; color:#374151; border:none;
+                           border-radius:8px; padding:8px 20px;
+                           font-size:13px; font-weight:600; cursor:pointer;">
+                <i class="bi bi-x-lg"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showDelete(btn) {
+    const form = btn.closest('.delete-form');
+    form.querySelector('.delete-initial').style.display = 'none';
+    form.querySelector('.delete-confirm').style.display = 'flex';
+}
+function hideDelete(btn) {
+    const form = btn.closest('.delete-form');
+    form.querySelector('.delete-initial').style.display = 'block';
+    form.querySelector('.delete-confirm').style.display = 'none';
+}
+</script>
+{% endblock %}

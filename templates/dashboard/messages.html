@@ -1,0 +1,238 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Messages{% endblock %}
+{% block page_title %}Messages{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Messages
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Send SMS and WhatsApp messages to your customers
+        </p>
+    </div>
+    <a href="{% url 'dashboard:send_message' %}"
+       style="background:#2563eb; color:#fff; border:none; border-radius:10px;
+              padding:10px 20px; font-size:13px; font-weight:700;
+              text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+        <i class="bi bi-send-fill"></i> Send Message
+    </a>
+</div>
+
+<!-- ── Summary Cards ─────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#eff6ff;">
+                <i class="bi bi-envelope-fill" style="color:#2563eb;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Total Sent</p>
+                <h4>{{ total_messages|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fefce8;">
+                <i class="bi bi-phone-fill" style="color:#ca8a04;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>SMS</p>
+                <h4>{{ sms_count|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#f0fdf4;">
+                <i class="bi bi-whatsapp" style="color:#16a34a;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>WhatsApp</p>
+                <h4>{{ whatsapp_count|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fef2f2;">
+                <i class="bi bi-x-circle-fill" style="color:#dc2626;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Failed</p>
+                <h4>{{ failed_count|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Filter Tabs ────────────────────────────────────── -->
+<div style="display:flex; gap:8px; margin-bottom:20px;">
+    <a href="?"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if not channel_filter %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        All
+    </a>
+    <a href="?channel=SMS"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if channel_filter == 'SMS' %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        SMS
+    </a>
+    <a href="?channel=WhatsApp"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if channel_filter == 'WhatsApp' %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        WhatsApp
+    </a>
+</div>
+
+<!-- ── Messages Table ────────────────────────────────── -->
+<div class="dash-table">
+    <div class="dash-table-header">
+        <h6>Message History</h6>
+    </div>
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Channel</th>
+                <th>Recipient</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Sent At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in messages %}
+            <tr>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ forloop.counter }}
+                </td>
+                <td>
+                    {% if message.channel == 'SMS' %}
+                        <span style="background:#fef9c3; color:#ca8a04;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            <i class="bi bi-phone-fill"></i> SMS
+                        </span>
+                    {% else %}
+                        <span style="background:#dcfce7; color:#16a34a;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </span>
+                    {% endif %}
+                </td>
+                <td style="font-weight:600; color:#1a1a2e;">
+                    {{ message.phone_number|default:"—" }}
+                </td>
+                <td style="color:#374151; max-width:320px;">
+                    <span style="font-size:13px;">
+                        {{ message.message|truncatechars:80 }}
+                    </span>
+                </td>
+                <td>
+                    {% if message.status == 'sent' %}
+                        <span style="background:#dcfce7; color:#16a34a;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            Sent
+                        </span>
+                    {% else %}
+                        <span style="background:#fee2e2; color:#dc2626;
+                                     padding:3px 10px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            Failed
+                        </span>
+                    {% endif %}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ message.sent_at|date:"d M Y, H:i" }}
+                </td>
+                <td>
+                    <form method="post"
+                          action="{% url 'dashboard:delete_message' message.id %}"
+                          id="del-msg-{{ message.id }}">
+                        {% csrf_token %}
+                        <div id="confirm-msg-{{ message.id }}"
+                             style="display:none; gap:4px;">
+                            <button type="submit"
+                                    style="background:#dc2626; color:#fff;
+                                           border:none; border-radius:8px;
+                                           padding:5px 10px; font-size:12px;
+                                           font-weight:700; cursor:pointer;">
+                                Yes
+                            </button>
+                            <button type="button"
+                                    onclick="cancelMsgDelete('{{ message.id }}')"
+                                    style="background:#f3f4f6; color:#6b7280;
+                                           border:none; border-radius:8px;
+                                           padding:5px 10px; font-size:12px;
+                                           font-weight:600; cursor:pointer;">
+                                No
+                            </button>
+                        </div>
+                        <button type="button"
+                                id="btn-msg-{{ message.id }}"
+                                onclick="confirmMsgDelete('{{ message.id }}')"
+                                style="background:#fef2f2; color:#dc2626;
+                                       border:none; border-radius:8px;
+                                       padding:5px 10px; font-size:12px;
+                                       font-weight:600; cursor:pointer;">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7"
+                    style="text-align:center; padding:48px; color:#9ca3af;">
+                    <i class="bi bi-chat-dots"
+                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
+                    No messages sent yet. <br>
+                    <a href="{% url 'dashboard:send_message' %}"
+                       style="color:#2563eb; font-weight:600;">
+                        Send your first message →
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmMsgDelete(id) {
+    document.getElementById('btn-msg-' + id).style.display     = 'none';
+    document.getElementById('confirm-msg-' + id).style.display = 'flex';
+}
+function cancelMsgDelete(id) {
+    document.getElementById('confirm-msg-' + id).style.display = 'none';
+    document.getElementById('btn-msg-' + id).style.display     = 'inline-block';
+}
+</script>
+{% endblock %}

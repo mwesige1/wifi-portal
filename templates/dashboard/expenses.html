@@ -1,0 +1,363 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Expenses{% endblock %}
+{% block page_title %}Expenses{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Expenses
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Track all business expenses to calculate net profit
+        </p>
+    </div>
+    <a href="{% url 'dashboard:create_expense' %}"
+       style="background:#2563eb; color:#fff; border:none; border-radius:10px;
+              padding:10px 20px; font-size:13px; font-weight:700;
+              text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+        <i class="bi bi-plus-lg"></i> Record Expense
+    </a>
+</div>
+
+<!-- ── Summary Cards ─────────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+    <!-- This Week -->
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fef2f2;">
+                <i class="bi bi-calendar-week" style="color:#dc2626;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>This Week</p>
+                <h4>UGX {{ week_expenses|floatformat:0 }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- This Month -->
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fff7ed;">
+                <i class="bi bi-calendar-month" style="color:#ea580c;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>This Month</p>
+                <h4>UGX {{ month_expenses|floatformat:0 }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- This Year -->
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fdf4ff;">
+                <i class="bi bi-calendar" style="color:#9333ea;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>This Year</p>
+                <h4>UGX {{ year_expenses|floatformat:0 }}</h4>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Expenses Table ─────────────────────────────────── -->
+<!-- ── Search & Filter ───────────────────────────────── -->
+<div style="display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap;">
+
+    <!-- Search -->
+    <form method="get" style="display:flex; gap:8px; flex:1; min-width:250px;">
+        {% if category_filter %}
+        <input type="hidden" name="category" value="{{ category_filter }}">
+        {% endif %}
+        <input type="text" name="search" value="{{ search }}"
+               placeholder="Search by name, vendor or description..."
+               style="flex:1; padding:10px 14px;
+                      border:1px solid #e5e7eb; border-radius:10px;
+                      font-size:13px; font-family:'Inter',sans-serif;
+                      outline:none; color:#1a1a2e;">
+        <button type="submit"
+                style="padding:10px 18px; background:#2563eb; color:#fff;
+                       border:none; border-radius:10px; font-size:13px;
+                       font-weight:600; cursor:pointer;">
+            <i class="bi bi-search"></i>
+        </button>
+        {% if search %}
+        <a href="?{% if category_filter %}category={{ category_filter }}{% endif %}"
+           style="padding:10px 14px; background:#f3f4f6; color:#374151;
+                  border-radius:10px; font-size:13px; font-weight:600;
+                  text-decoration:none;">
+            Clear
+        </a>
+        {% endif %}
+    </form>
+
+</div>
+
+<!-- ── Category Filter Tabs ──────────────────────────── -->
+<div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+    <a href="?{% if search %}search={{ search }}{% endif %}"
+       style="padding:7px 16px; border-radius:8px; font-size:12px;
+              font-weight:600; text-decoration:none;
+              {% if not category_filter %}background:#1a1a2e; color:#fff;
+              {% else %}background:#f3f4f6; color:#374151;{% endif %}">
+        All
+    </a>
+    {% for cat in categories %}
+    <a href="?category={{ cat }}{% if search %}&search={{ search }}{% endif %}"
+       style="padding:7px 16px; border-radius:8px; font-size:12px;
+              font-weight:600; text-decoration:none;
+              {% if category_filter == cat %}background:#1a1a2e; color:#fff;
+              {% else %}background:#f3f4f6; color:#374151;{% endif %}">
+        {{ cat }}
+    </a>
+    {% endfor %}
+</div>
+
+<!-- ── Expenses Table ─────────────────────────────────── -->
+<div class="dash-table">
+    <div class="dash-table-header">
+        <h6>
+            {% if search or category_filter %}
+                Filtered Expenses
+            {% else %}
+                All Expenses
+            {% endif %}
+        </h6>
+    </div>
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Expense Name</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Vendor</th>
+                <th>Date</th>
+                <th>Receipt</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ forloop.counter }}
+                </td>
+                <td style="font-weight:600; color:#1a1a2e;">
+                    {{ expense.name }}
+                    {% if expense.description %}
+                    <br>
+                    <span style="font-size:11px; color:#9ca3af; font-weight:400;">
+                        {{ expense.description|truncatechars:40 }}
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span style="background:#eff6ff; color:#2563eb;
+                                 padding:3px 10px; border-radius:20px;
+                                 font-size:11px; font-weight:700;">
+                        {{ expense.expense_type|default:"General" }}
+                    </span>
+                </td>
+                <td style="font-weight:700; color:#dc2626;">
+                    UGX {{ expense.amount|floatformat:0 }}
+                </td>
+                <td style="color:#374151;">
+                    {{ expense.payment_method|default:"—" }}
+                </td>
+                <td style="color:#374151;">
+                    {{ expense.vendor|default:"—" }}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ expense.date|date:"d M Y" }}
+                </td>
+                <td>
+                    {% if expense.receipt %}
+                        <button type="button"
+                                onclick="viewReceipt('{{ expense.receipt.url }}', '{{ expense.name }}')"
+                                style="background:#eff6ff; color:#2563eb; border:none;
+                                       border-radius:8px; padding:5px 12px; font-size:12px;
+                                       font-weight:600; cursor:pointer;">
+                            <i class="bi bi-paperclip"></i> View
+                        </button>
+                    {% else %}
+                        <span style="color:#d1d5db; font-size:12px;">None</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <!-- Edit Button -->
+                        <a href="{% url 'dashboard:edit_expense' expense.id %}"
+                           style="background:#eff6ff; color:#2563eb; border:none;
+                                  border-radius:8px; padding:5px 10px; font-size:12px;
+                                  font-weight:600; text-decoration:none;">
+                            Edit
+                        </a>
+                        <!-- Delete Button -->
+                        <form method="post"
+                              action="{% url 'dashboard:delete_expense' expense.id %}"
+                              id="del-exp-{{ expense.id }}">
+                            {% csrf_token %}
+                            <div id="confirm-exp-{{ expense.id }}"
+                                 style="display:none; gap:4px;">
+                                <button type="submit"
+                                        style="background:#dc2626; color:#fff; border:none;
+                                               border-radius:8px; padding:5px 10px;
+                                               font-size:12px; font-weight:700; cursor:pointer;">
+                                    Yes
+                                </button>
+                                <button type="button"
+                                        onclick="cancelExpDel('{{ expense.id }}')"
+                                        style="background:#f3f4f6; color:#6b7280; border:none;
+                                               border-radius:8px; padding:5px 10px;
+                                               font-size:12px; font-weight:600; cursor:pointer;">
+                                    No
+                                </button>
+                            </div>
+                            <button type="button"
+                                    id="btn-exp-{{ expense.id }}"
+                                    onclick="confirmExpDel('{{ expense.id }}')"
+                                    style="background:#fef2f2; color:#dc2626; border:none;
+                                           border-radius:8px; padding:5px 10px; font-size:12px;
+                                           font-weight:600; cursor:pointer;">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9"
+                    style="text-align:center; padding:48px; color:#9ca3af;">
+                    <i class="bi bi-receipt"
+                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
+                    {% if search or category_filter %}
+                        No expenses found for your search.
+                    {% else %}
+                        No expenses recorded yet.
+                        <a href="{% url 'dashboard:create_expense' %}"
+                           style="color:#2563eb; font-weight:600;">
+                            Record your first expense →
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<!-- ── Receipt Modal ─────────────────────────────────── -->
+<div id="receiptModal"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+            z-index:1000; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; border-radius:16px; max-width:600px; width:100%;
+                max-height:90vh; overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+
+        <!-- Modal Header -->
+        <div style="padding:20px 24px; border-bottom:1px solid #f3f4f6;
+                    display:flex; justify-content:space-between; align-items:center;">
+            <h6 id="receiptTitle"
+                style="font-weight:800; color:#1a1a2e; margin:0; font-size:15px;">
+                Receipt
+            </h6>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <a id="receiptDownload" href="#" download
+                   style="background:#eff6ff; color:#2563eb; border:none;
+                          border-radius:8px; padding:7px 14px; font-size:12px;
+                          font-weight:700; text-decoration:none;">
+                    <i class="bi bi-download"></i> Download
+                </a>
+                <button onclick="closeReceipt()"
+                        style="background:#f3f4f6; color:#6b7280; border:none;
+                               border-radius:8px; padding:7px 14px; font-size:12px;
+                               font-weight:700; cursor:pointer;">
+                    <i class="bi bi-x-lg"></i> Close
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding:24px; overflow-y:auto; max-height:calc(90vh - 80px);
+                    text-align:center;">
+            <img id="receiptImage" src="" alt="Receipt"
+                 style="max-width:100%; border-radius:8px;
+                        box-shadow:0 4px 16px rgba(0,0,0,0.1);">
+            <iframe id="receiptPdf" src="" style="display:none; width:100%;
+                    height:500px; border:none; border-radius:8px;"></iframe>
+            <p id="receiptError" style="display:none; color:#9ca3af; font-size:13px;">
+                Cannot preview this file type.
+                <a id="receiptErrorLink" href="#" target="_blank"
+                   style="color:#2563eb; font-weight:600;">
+                    Open in new tab
+                </a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Receipt Modal ──────────────────────────────────────
+function viewReceipt(url, name) {
+    document.getElementById('receiptTitle').textContent    = name + ' — Receipt';
+    document.getElementById('receiptDownload').href        = url;
+    document.getElementById('receiptErrorLink').href       = url;
+
+    const img  = document.getElementById('receiptImage');
+    const pdf  = document.getElementById('receiptPdf');
+    const err  = document.getElementById('receiptError');
+
+    // Reset
+    img.style.display = 'none';
+    pdf.style.display = 'none';
+    err.style.display = 'none';
+
+    // Detect file type
+    if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        img.src           = url;
+        img.style.display = 'block';
+    } else if (url.match(/\.pdf$/i)) {
+        pdf.src           = url;
+        pdf.style.display = 'block';
+    } else {
+        err.style.display = 'block';
+    }
+
+    document.getElementById('receiptModal').style.display = 'flex';
+}
+
+function closeReceipt() {
+    document.getElementById('receiptModal').style.display = 'none';
+    document.getElementById('receiptImage').src           = '';
+    document.getElementById('receiptPdf').src             = '';
+}
+
+// Close modal when clicking outside
+document.getElementById('receiptModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReceipt();
+});
+
+// ── Delete Expense ─────────────────────────────────────
+function confirmExpDel(id) {
+    document.getElementById('btn-exp-' + id).style.display     = 'none';
+    document.getElementById('confirm-exp-' + id).style.display = 'flex';
+}
+
+function cancelExpDel(id) {
+    document.getElementById('confirm-exp-' + id).style.display = 'none';
+    document.getElementById('btn-exp-' + id).style.display     = 'inline-block';
+}
+</script>
+{% endblock %}

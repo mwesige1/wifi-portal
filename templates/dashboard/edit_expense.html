@@ -1,0 +1,216 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Edit Expense{% endblock %}
+{% block page_title %}Edit Expense{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Edit Expense
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Update the details of this expense record
+        </p>
+    </div>
+    <a href="{% url 'dashboard:expenses' %}"
+       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
+        ← Back to Expenses
+    </a>
+</div>
+
+<!-- ── Form ──────────────────────────────────────────── -->
+<form method="post" action="{% url 'dashboard:edit_expense' expense.id %}"
+      enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row g-4">
+
+        <!-- Left Column -->
+        <div class="col-md-8">
+            <div class="dash-table mb-4">
+                <div class="dash-table-header">
+                    <h6>Expense Details</h6>
+                </div>
+                <div style="padding:24px;">
+                    <div class="row g-3">
+
+                        <!-- Expense Name -->
+                        <div class="col-12">
+                            <label style="font-size:12px; font-weight:700;
+                                          color:#374151; display:block; margin-bottom:6px;">
+                                Expense Name <span style="color:#dc2626;">*</span>
+                            </label>
+                            <input type="text" name="name" required
+                                   value="{{ expense.name }}"
+                                   style="width:100%; padding:10px 14px;
+                                          border:1px solid #e5e7eb; border-radius:10px;
+                                          font-size:13px; font-family:'Inter',sans-serif;
+                                          outline:none; color:#1a1a2e;">
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label style="font-size:12px; font-weight:700;
+                                          color:#374151; display:block; margin-bottom:6px;">
+                                Category <span style="color:#dc2626;">*</span>
+                            </label>
+                            <select name="expense_type" required
+                                    style="width:100%; padding:10px 14px;
+                                           border:1px solid #e5e7eb; border-radius:10px;
+                                           font-size:13px; font-family:'Inter',sans-serif;
+                                           outline:none; color:#1a1a2e; background:#fff;">
+                                <option value="">— Select Category —</option>
+                                <option value="Equipment" {% if expense.expense_type == "Equipment" %}selected{% endif %}>Equipment</option>
+<option value="Internet" {% if expense.expense_type == "Internet" %}selected{% endif %}>Internet</option>
+<option value="Salaries" {% if expense.expense_type == "Salaries" %}selected{% endif %}>Salaries</option>
+<option value="Transport" {% if expense.expense_type == "Transport" %}selected{% endif %}>Transport</option>
+<option value="Utilities" {% if expense.expense_type == "Utilities" %}selected{% endif %}>Utilities</option>
+<option value="Marketing" {% if expense.expense_type == "Marketing" %}selected{% endif %}>Marketing</option>
+<option value="Maintenance" {% if expense.expense_type == "Maintenance" %}selected{% endif %}>Maintenance</option>
+<option value="Office" {% if expense.expense_type == "Office" %}selected{% endif %}>Office Supplies</option>
+<option value="Other" {% if expense.expense_type == "Other" %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Amount -->
+                        <div class="col-md-6">
+                            <label style="font-size:12px; font-weight:700;
+                                          color:#374151; display:block; margin-bottom:6px;">
+                                Amount (UGX) <span style="color:#dc2626;">*</span>
+                            </label>
+                            <input type="number" name="amount" required
+                                   value="{{ expense.amount }}"
+                                   min="0" step="100"
+                                   style="width:100%; padding:10px 14px;
+                                          border:1px solid #e5e7eb; border-radius:10px;
+                                          font-size:13px; font-family:'Inter',sans-serif;
+                                          outline:none; color:#1a1a2e;">
+                        </div>
+
+                        <!-- Date -->
+                        <div class="col-md-6">
+                            <label style="font-size:12px; font-weight:700;
+                                          color:#374151; display:block; margin-bottom:6px;">
+                                Date <span style="color:#dc2626;">*</span>
+                            </label>
+                            <input type="date" name="date" required
+                                   value="{{ expense.date|date:'Y-m-d' }}"
+                                   style="width:100%; padding:10px 14px;
+                                          border:1px solid #e5e7eb; border-radius:10px;
+                                          font-size:13px; font-family:'Inter',sans-serif;
+                                          outline:none; color:#1a1a2e;">
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="col-md-6">
+                            <label style="font-size:12px; font-weight:700;
+                                          color:#374151; display:block; margin-bottom:6px;">
+                                Payment Method
+                            </label>
+                            <select name="payment_method"
+                                    style="width:100%; padding:10px 14px;
+                                           border:1px solid #e5e7eb; border-radius:10px;
+                                           font-size:13px; font-family:'Inter',sans-serif;
+                                           outline:none; color:#1a1a2e; background:#fff;">
+                                <option value="">— Select Method —</option>
+                                <option value="Cash" {% if expense.payment_method == "Cash" %}selected{% endif %}>Cash</option>
+<option value="MTN MoMo" {% if expense.payment_method == "MTN MoMo" %}selected{% endif %}>MTN MoMo</option>
+<option value="Airtel Money" {% if expense.payment_method == "Airtel Money" %}selected{% endif %}>Airtel Money</option>
+<option value="Bank Transfer" {% if expense.payment_method == "Bank Transfer" %}selected{% endif %}>Bank Transfer</option>
+<option value="Cheque" {% if expense.payment_method == "Cheque" %}selected{% endif %}>Cheque</option>
+                            </select>
+                        </div>
+
+                        <!-- Vendor -->
+                        <div class="col-12">
+                            <label style="font-size:12px; font-weight:700;
+                                          color:#374151; display:block; margin-bottom:6px;">
+                                Vendor / Supplier
+                            </label>
+                            <input type="text" name="vendor"
+                                   value="{{ expense.vendor|default:'' }}"
+                                   style="width:100%; padding:10px 14px;
+                                          border:1px solid #e5e7eb; border-radius:10px;
+                                          font-size:13px; font-family:'Inter',sans-serif;
+                                          outline:none; color:#1a1a2e;">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label style="font-size:12px; font-weight:700;
+                                          color:#374151; display:block; margin-bottom:6px;">
+                                Description
+                            </label>
+                            <textarea name="description" rows="3"
+                                      style="width:100%; padding:10px 14px;
+                                             border:1px solid #e5e7eb; border-radius:10px;
+                                             font-size:13px; font-family:'Inter',sans-serif;
+                                             outline:none; color:#1a1a2e; resize:vertical;">{{ expense.description|default:'' }}</textarea>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+
+            <!-- Receipt Upload -->
+            <div class="dash-table mb-4">
+                <div class="dash-table-header">
+                    <h6>Receipt</h6>
+                </div>
+                <div style="padding:24px;">
+                    {% if expense.receipt %}
+                    <div style="margin-bottom:12px;">
+                        <p style="font-size:12px; color:#6b7280; margin:0 0 8px;">
+                            Current receipt:
+                        </p>
+                        <a href="{{ expense.receipt.url }}" target="_blank"
+                           style="font-size:13px; color:#2563eb; font-weight:600;">
+                            <i class="bi bi-paperclip"></i> View Receipt
+                        </a>
+                    </div>
+                    {% endif %}
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        {% if expense.receipt %}Replace Receipt{% else %}Upload Receipt{% endif %} (optional)
+                    </label>
+                    <input type="file" name="receipt"
+                           accept="image/*,.pdf"
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#6b7280;">
+                    <p style="font-size:11px; color:#9ca3af; margin-top:8px;">
+                        Accepted: JPG, PNG, PDF. Max 5MB.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="dash-table">
+                <div style="padding:24px;">
+                    <button type="submit"
+                            style="width:100%; background:#2563eb; color:#fff;
+                                   border:none; border-radius:10px; padding:12px;
+                                   font-size:14px; font-weight:700; cursor:pointer;">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'dashboard:expenses' %}"
+                       style="display:block; text-align:center; margin-top:12px;
+                              font-size:13px; color:#6b7280; text-decoration:none;">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+{% endblock %}

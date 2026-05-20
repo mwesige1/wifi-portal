@@ -1,0 +1,515 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Financial Analytics{% endblock %}
+{% block page_title %}Financial Analytics{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Financial Analytics
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Full profit and loss reporting, revenue breakdown and ROI analysis
+        </p>
+    </div>
+    <form method="get" style="display:flex; gap:8px; align-items:center;">
+        <input type="date" name="date_from" value="{{ date_from }}"
+               style="padding:8px 12px; border:1px solid #e5e7eb;
+                      border-radius:10px; font-size:12px;
+                      font-family:'Inter',sans-serif; outline:none; color:#374151;">
+        <span style="font-size:12px; color:#9ca3af;">to</span>
+        <input type="date" name="date_to" value="{{ date_to }}"
+               style="padding:8px 12px; border:1px solid #e5e7eb;
+                      border-radius:10px; font-size:12px;
+                      font-family:'Inter',sans-serif; outline:none; color:#374151;">
+        <button type="submit"
+                style="background:#2563eb; color:#fff; border:none;
+                       border-radius:10px; padding:8px 16px;
+                       font-size:12px; font-weight:700; cursor:pointer;">
+            Apply
+        </button>
+        {% if date_from or date_to %}
+        <a href="{% url 'dashboard:financial_analytics' %}"
+           style="background:#f3f4f6; color:#374151; border:none;
+                  border-radius:10px; padding:8px 16px;
+                  font-size:12px; font-weight:700; text-decoration:none;">
+            Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- ── P&L Summary Cards ──────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#f0fdf4;">
+                <i class="bi bi-graph-up-arrow" style="color:#16a34a;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Total Revenue</p>
+                <h4>UGX {{ total_revenue|default:"0"|floatformat:0 }}</h4>
+                <small style="color:#9ca3af; font-size:11px;">
+                    This month: UGX {{ month_rev.total|default:"0"|floatformat:0 }}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fef2f2;">
+                <i class="bi bi-graph-down-arrow" style="color:#dc2626;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Total Expenses</p>
+                <h4>UGX {{ total_expenses|default:"0"|floatformat:0 }}</h4>
+                <small style="color:#9ca3af; font-size:11px;">
+                    This month: UGX {{ month_expenses|default:"0"|floatformat:0 }}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#eff6ff;">
+                <i class="bi bi-cash-coin" style="color:#2563eb;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Net Profit</p>
+                <h4 style="color:{% if net_profit >= 0 %}#16a34a{% else %}#dc2626{% endif %};">
+                    UGX {{ net_profit|default:"0"|floatformat:0 }}
+                </h4>
+                <small style="color:#9ca3af; font-size:11px;">
+                    Margin: {{ profit_margin|default:"0" }}%
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fdf4ff;">
+                <i class="bi bi-percent" style="color:#9333ea;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>ROI</p>
+                <h4 style="color:{% if roi >= 0 %}#16a34a{% else %}#dc2626{% endif %};">
+                    {{ roi|default:"0"|floatformat:1 }}%
+                </h4>
+                <small style="color:{% if revenue_growth >= 0 %}#16a34a{% else %}#dc2626{% endif %}; font-size:11px;">
+                    MoM growth: {{ revenue_growth|default:"0" }}%
+                </small>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Quick Period Cards ─────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div style="background:#fff; border:1px solid #e8ecf0;
+                    border-radius:12px; padding:16px 20px;">
+            <p style="font-size:11px; font-weight:700; color:#9ca3af;
+                       text-transform:uppercase; margin:0 0 6px;">Today</p>
+            <p style="font-size:18px; font-weight:800; color:#1a1a2e; margin:0;">
+                UGX {{ today_rev.total|default:"0"|floatformat:0 }}
+            </p>
+            <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
+                {{ today_rev.count|default:"0" }} transaction{{ today_rev.count|pluralize }}
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div style="background:#fff; border:1px solid #e8ecf0;
+                    border-radius:12px; padding:16px 20px;">
+            <p style="font-size:11px; font-weight:700; color:#9ca3af;
+                       text-transform:uppercase; margin:0 0 6px;">Yesterday</p>
+            <p style="font-size:18px; font-weight:800; color:#1a1a2e; margin:0;">
+                UGX {{ yesterday_rev.total|default:"0"|floatformat:0 }}
+            </p>
+            <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
+                {{ yesterday_rev.count|default:"0" }} transaction{{ yesterday_rev.count|pluralize }}
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div style="background:#fff; border:1px solid #e8ecf0;
+                    border-radius:12px; padding:16px 20px;">
+            <p style="font-size:11px; font-weight:700; color:#9ca3af;
+                       text-transform:uppercase; margin:0 0 6px;">This Week</p>
+            <p style="font-size:18px; font-weight:800; color:#1a1a2e; margin:0;">
+                UGX {{ week_rev.total|default:"0"|floatformat:0 }}
+            </p>
+            <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
+                {{ week_rev.count|default:"0" }} transaction{{ week_rev.count|pluralize }}
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div style="background:#fff; border:1px solid #e8ecf0;
+                    border-radius:12px; padding:16px 20px;">
+            <p style="font-size:11px; font-weight:700; color:#9ca3af;
+                       text-transform:uppercase; margin:0 0 6px;">This Year</p>
+            <p style="font-size:18px; font-weight:800; color:#1a1a2e; margin:0;">
+                UGX {{ year_rev.total|default:"0"|floatformat:0 }}
+            </p>
+            <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
+                {{ year_rev.count|default:"0" }} transaction{{ year_rev.count|pluralize }}
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Revenue vs Expenses Chart ──────────────────────── -->
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div style="background:#fff; border-radius:16px;
+                    border:1px solid #f3f4f6; padding:24px;
+                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
+                Revenue vs Expenses vs Profit — Last 6 Months
+            </h6>
+            <canvas id="revenueChart" height="120"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div style="background:#fff; border-radius:16px;
+                    border:1px solid #f3f4f6; padding:24px;
+                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
+                Revenue by Source
+            </h6>
+            <canvas id="sourceChart" height="180"></canvas>
+            <div style="margin-top:20px;">
+                <div style="display:flex; justify-content:space-between;
+                            align-items:center; margin-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="width:12px; height:12px; border-radius:3px;
+                                     background:#2563eb; display:inline-block;"></span>
+                        <span style="font-size:12px; color:#374151;">Online (MoMo)</span>
+                    </div>
+                    <span style="font-size:13px; font-weight:700; color:#1a1a2e;">
+                        UGX {{ online_revenue|default:"0"|floatformat:0 }}
+                    </span>
+                </div>
+                <div style="display:flex; justify-content:space-between;
+                            align-items:center; margin-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="width:12px; height:12px; border-radius:3px;
+                                     background:#16a34a; display:inline-block;"></span>
+                        <span style="font-size:12px; color:#374151;">Walk-in (Cash)</span>
+                    </div>
+                    <span style="font-size:13px; font-weight:700; color:#1a1a2e;">
+                        UGX {{ walkin_revenue|default:"0"|floatformat:0 }}
+                    </span>
+                </div>
+                <div style="display:flex; justify-content:space-between;
+                            align-items:center;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="width:12px; height:12px; border-radius:3px;
+                                     background:#9333ea; display:inline-block;"></span>
+                        <span style="font-size:12px; color:#374151;">Agent Sales</span>
+                    </div>
+                    <span style="font-size:13px; font-weight:700; color:#1a1a2e;">
+                        UGX {{ agent_revenue|default:"0"|floatformat:0 }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Top Packages + Expense Breakdown ───────────────── -->
+<div class="row g-4 mb-4">
+
+    <!-- Top Performing Packages -->
+    <div class="col-md-6">
+        <div style="background:#fff; border-radius:16px;
+                    border:1px solid #f3f4f6; padding:24px;
+                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
+                Top Performing Packages
+            </h6>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f3f4f6;">
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:left; padding:0 0 10px;">PACKAGE</th>
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:right; padding:0 0 10px;">ORDERS</th>
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:right; padding:0 0 10px;">REVENUE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pkg in top_packages %}
+                    <tr style="border-bottom:1px solid #f9fafb;">
+                        <td style="font-size:13px; font-weight:600;
+                                   color:#374151; padding:10px 0;">
+                            {{ pkg.package__name|default:"—" }}
+                        </td>
+                        <td style="font-size:13px; color:#2563eb;
+                                   font-weight:700; text-align:right; padding:10px 0;">
+                            {{ pkg.total_orders }}
+                        </td>
+                        <td style="font-size:13px; color:#16a34a;
+                                   font-weight:700; text-align:right; padding:10px 0;">
+                            UGX {{ pkg.total_revenue|floatformat:0 }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3"
+                            style="text-align:center; padding:24px;
+                                   color:#9ca3af; font-size:13px;">
+                            No data yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Expense by Category -->
+    <div class="col-md-6">
+        <div style="background:#fff; border-radius:16px;
+                    border:1px solid #f3f4f6; padding:24px;
+                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
+                Expenses by Category
+            </h6>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f3f4f6;">
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:left; padding:0 0 10px;">CATEGORY</th>
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:right; padding:0 0 10px;">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat in expense_by_category %}
+                    <tr style="border-bottom:1px solid #f9fafb;">
+                        <td style="font-size:13px; font-weight:600;
+                                   color:#374151; padding:10px 0;">
+                            {{ cat.expense_type|default:"General" }}
+                        </td>
+                        <td style="font-size:13px; color:#dc2626;
+                                   font-weight:700; text-align:right; padding:10px 0;">
+                            UGX {{ cat.total|floatformat:0 }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2"
+                            style="text-align:center; padding:24px;
+                                   color:#9ca3af; font-size:13px;">
+                            No expenses recorded yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Break-Even & Monthly P&L ───────────────────────── -->
+<div class="row g-4 mb-4">
+
+    <!-- Break-Even -->
+    <div class="col-md-6">
+        <div style="background:#fff; border-radius:16px;
+                    border:1px solid #f3f4f6; padding:24px;
+                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
+                Break-Even Analysis
+            </h6>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div style="background:#f9fafb; border-radius:12px; padding:16px;">
+                    <p style="font-size:11px; color:#9ca3af;
+                               font-weight:700; margin:0 0 6px;">FIXED COSTS</p>
+                    <p style="font-size:18px; font-weight:800;
+                               color:#1a1a2e; margin:0;">
+                        UGX {{ fixed_costs|default:"0"|floatformat:0 }}
+                    </p>
+                </div>
+                <div style="background:#f9fafb; border-radius:12px; padding:16px;">
+                    <p style="font-size:11px; color:#9ca3af;
+                               font-weight:700; margin:0 0 6px;">AVG REVENUE/DAY</p>
+                    <p style="font-size:18px; font-weight:800;
+                               color:#1a1a2e; margin:0;">
+                        UGX {{ avg_daily_revenue|default:"0"|floatformat:0 }}
+                    </p>
+                </div>
+                <div style="background:#eff6ff; border-radius:12px;
+                            padding:16px; grid-column:span 2;">
+                    <p style="font-size:11px; color:#2563eb;
+                               font-weight:700; margin:0 0 6px;">
+                        DAYS TO BREAK EVEN
+                    </p>
+                    <p style="font-size:28px; font-weight:900;
+                               color:#2563eb; margin:0;">
+                        {{ breakeven_days|default:"—" }} days
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly P&L Table -->
+    <div class="col-md-6">
+        <div style="background:#fff; border-radius:16px;
+                    border:1px solid #f3f4f6; padding:24px;
+                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
+                Monthly P&L Summary
+            </h6>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid #f3f4f6;">
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:left; padding:0 0 10px;">MONTH</th>
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:right; padding:0 0 10px;">REVENUE</th>
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:right; padding:0 0 10px;">EXPENSES</th>
+                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
+                                   text-align:right; padding:0 0 10px;">PROFIT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in monthly_pl %}
+                    <tr style="border-bottom:1px solid #f9fafb;">
+                        <td style="font-size:13px; font-weight:600;
+                                   color:#374151; padding:10px 0;">
+                            {{ row.month }}
+                        </td>
+                        <td style="font-size:13px; color:#16a34a;
+                                   font-weight:700; text-align:right; padding:10px 0;">
+                            {{ row.revenue|floatformat:0 }}
+                        </td>
+                        <td style="font-size:13px; color:#dc2626;
+                                   font-weight:700; text-align:right; padding:10px 0;">
+                            {{ row.expenses|floatformat:0 }}
+                        </td>
+                        <td style="font-size:13px; font-weight:800;
+                                   text-align:right; padding:10px 0;
+                                   color:{% if row.profit >= 0 %}#16a34a
+                                         {% else %}#dc2626{% endif %};">
+                            {{ row.profit|floatformat:0 }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4"
+                            style="text-align:center; padding:24px;
+                                   color:#9ca3af; font-size:13px;">
+                            No data yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// ── Revenue vs Expenses vs Profit Chart ────────────────
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [
+            {
+                label          : 'Revenue',
+                data           : {{ revenue_data|safe }},
+                backgroundColor: 'rgba(37,99,235,0.85)',
+                borderRadius   : 6,
+            },
+            {
+                label          : 'Expenses',
+                data           : {{ expense_data|safe }},
+                backgroundColor: 'rgba(220,38,38,0.75)',
+                borderRadius   : 6,
+            },
+            {
+                label          : 'Profit',
+                data           : {{ profit_data|safe }},
+                backgroundColor: 'rgba(22,163,74,0.75)',
+                borderRadius   : 6,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { font: { family: 'Inter', size: 12 } }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    font    : { family: 'Inter', size: 11 },
+                    callback: val => 'UGX ' + val.toLocaleString()
+                },
+                grid: { color: '#f3f4f6' }
+            },
+            x: {
+                ticks: { font: { family: 'Inter', size: 11 } },
+                grid : { display: false }
+            }
+        }
+    }
+});
+
+// ── Revenue by Source Doughnut ─────────────────────────
+const sourceCtx = document.getElementById('sourceChart').getContext('2d');
+new Chart(sourceCtx, {
+    type: 'doughnut',
+    data: {
+        labels  : ['Online (MoMo)', 'Walk-in (Cash)', 'Agent Sales'],
+        datasets: [{
+            data           : [
+                {{ online_revenue|default:0 }},
+                {{ walkin_revenue|default:0 }},
+                {{ agent_revenue|default:0 }}
+            ],
+            backgroundColor: ['#2563eb', '#16a34a', '#9333ea'],
+            borderWidth    : 0,
+            hoverOffset    : 6
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout    : '70%',
+        plugins   : { legend: { display: false } }
+    }
+});
+</script>
+{% endblock %}

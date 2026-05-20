@@ -1,0 +1,398 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Withdrawals{% endblock %}
+{% block page_title %}Withdrawals{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ── Stat Cards ────────────────────────────── */
+        .dash-stat-card {
+            background: #ffffff;
+            border: 1px solid #e8ecf0;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .dash-stat-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            transform: translateY(-2px);
+        }
+
+        .dash-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 20px;
+        }
+
+        .dash-stat-info p {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 6px;
+        }
+
+        .dash-stat-info h4 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin: 0;
+            line-height: 1;
+        }
+</style>
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Withdrawals
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Manage Mobile Money withdrawal requests from your collected revenue
+        </p>
+    </div>
+    <a href="{% url 'dashboard:create_withdrawal' %}"
+       style="background:#2563eb; color:#fff; border:none; border-radius:10px;
+              padding:10px 20px; font-size:13px; font-weight:700;
+              text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+        <i class="bi bi-plus-lg"></i> Request Withdrawal
+    </a>
+</div>
+
+<!-- ── Balance Hero Card ──────────────────────────────── -->
+<div style="background:linear-gradient(135deg,#16a34a,#15803d);
+            border-radius:20px; padding:32px; margin-bottom:28px;
+            display:flex; justify-content:space-between; align-items:center;
+            flex-wrap:wrap; gap:24px;">
+    <div>
+        <p style="font-size:13px; color:rgba(255,255,255,0.7);
+                   font-weight:600; margin:0 0 8px;">
+            <i class="bi bi-phone-fill"></i>
+            Available MoMo Balance
+        </p>
+        <h2 style="font-size:42px; font-weight:900; color:#fff; margin:0 0 6px;">
+            UGX {{ momo_balance|default:"0"|floatformat:0 }}
+        </h2>
+        <p style="font-size:12px; color:rgba(255,255,255,0.6); margin:0;">
+            Total collected minus total withdrawn
+        </p>
+    </div>
+    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+
+        <!-- Total Collected -->
+        <div style="background:rgba(255,255,255,0.15); border-radius:14px;
+                    padding:18px 24px; text-align:center; min-width:140px;">
+            <p style="font-size:11px; color:rgba(255,255,255,0.7);
+                       font-weight:700; text-transform:uppercase;
+                       letter-spacing:0.5px; margin:0 0 6px;">
+                Total Collected
+            </p>
+            <p style="font-size:20px; font-weight:800; color:#fff; margin:0;">
+                UGX {{ total_collected|default:"0"|floatformat:0 }}
+            </p>
+        </div>
+
+        <!-- Total Withdrawn -->
+        <div style="background:rgba(255,255,255,0.15); border-radius:14px;
+                    padding:18px 24px; text-align:center; min-width:140px;">
+            <p style="font-size:11px; color:rgba(255,255,255,0.7);
+                       font-weight:700; text-transform:uppercase;
+                       letter-spacing:0.5px; margin:0 0 6px;">
+                Total Withdrawn
+            </p>
+            <p style="font-size:20px; font-weight:800; color:#fff; margin:0;">
+                UGX {{ total_withdrawn|default:"0"|floatformat:0 }}
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── Status Cards ───────────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+    <!-- Pending -->
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fefce8;">
+                <i class="bi bi-hourglass-split" style="color:#ca8a04;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Pending Requests</p>
+                <h4>{{ pending_count|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed -->
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#f0fdf4;">
+                <i class="bi bi-check-circle-fill" style="color:#16a34a;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Completed</p>
+                <h4>{{ completed_count|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Requests -->
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#eff6ff;">
+                <i class="bi bi-list-check" style="color:#2563eb;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Total Requests</p>
+                <h4>{{ withdrawals|length }}</h4>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- ── Status Filter Tabs ────────────────────────────── -->
+<div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+    <a href="{% url 'dashboard:withdrawals' %}"
+       style="padding:7px 16px; border-radius:8px; font-size:12px;
+              font-weight:600; text-decoration:none;
+              {% if not status_filter %}background:#1a1a2e; color:#fff;
+              {% else %}background:#f3f4f6; color:#374151;{% endif %}">
+        All
+    </a>
+    <a href="?status=pending"
+       style="padding:7px 16px; border-radius:8px; font-size:12px;
+              font-weight:600; text-decoration:none;
+              {% if status_filter == 'pending' %}background:#1a1a2e; color:#fff;
+              {% else %}background:#fef9c3; color:#ca8a04;{% endif %}">
+        Pending
+    </a>
+    <a href="?status=completed"
+       style="padding:7px 16px; border-radius:8px; font-size:12px;
+              font-weight:600; text-decoration:none;
+              {% if status_filter == 'completed' %}background:#1a1a2e; color:#fff;
+              {% else %}background:#dcfce7; color:#16a34a;{% endif %}">
+        Completed
+    </a>
+    <a href="?status=failed"
+       style="padding:7px 16px; border-radius:8px; font-size:12px;
+              font-weight:600; text-decoration:none;
+              {% if status_filter == 'failed' %}background:#1a1a2e; color:#fff;
+              {% else %}background:#fee2e2; color:#dc2626;{% endif %}">
+        Failed
+    </a>
+    <a href="?status=cancelled"
+       style="padding:7px 16px; border-radius:8px; font-size:12px;
+              font-weight:600; text-decoration:none;
+              {% if status_filter == 'cancelled' %}background:#1a1a2e; color:#fff;
+              {% else %}background:#f3f4f6; color:#6b7280;{% endif %}">
+        Cancelled
+    </a>
+</div>
+
+<!-- ── Withdrawals Table ───────────────────────────────── -->
+<div class="dash-table">
+    <div class="dash-table-header">
+        <h6>Withdrawal History</h6>
+    </div>
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Amount</th>
+                <th>MoMo Number</th>
+                <th>Provider</th>
+                <th>Account Name</th>
+                <th>Status</th>
+                <th>Requested</th>
+                <th>Completed</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for withdrawal in withdrawals %}
+            <tr>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ forloop.counter }}
+                </td>
+                <td style="font-weight:700; color:#1a1a2e; font-size:15px;">
+                    UGX {{ withdrawal.amount|floatformat:0 }}
+                </td>
+                <td style="color:#374151; font-weight:600;">
+                    {{ withdrawal.mobile_number|default:"—" }}
+                </td>
+                <td style="color:#374151; font-size:12px;">
+                    {{ withdrawal.provider|default:"—" }}
+                </td>
+                <td style="color:#374151; font-size:12px;">
+                    {{ withdrawal.account_name|default:"—" }}
+                </td>
+                <td>
+                    {% if withdrawal.status == 'completed' %}
+                        <span style="background:#dcfce7; color:#16a34a;
+                                     padding:4px 12px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            <i class="bi bi-check-circle-fill"></i> Completed
+                        </span>
+                    {% elif withdrawal.status == 'pending' %}
+                        <span style="background:#fef9c3; color:#ca8a04;
+                                     padding:4px 12px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            <i class="bi bi-hourglass-split"></i> Pending
+                        </span>
+                    {% elif withdrawal.status == 'cancelled' %}
+                        <span style="background:#f3f4f6; color:#6b7280;
+                                     padding:4px 12px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            <i class="bi bi-x-circle"></i> Cancelled
+                        </span>
+                    {% else %}
+                        <span style="background:#fee2e2; color:#dc2626;
+                                     padding:4px 12px; border-radius:20px;
+                                     font-size:11px; font-weight:700;">
+                            <i class="bi bi-x-circle-fill"></i> Failed
+                        </span>
+                    {% endif %}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ withdrawal.created_at|date:"d M Y" }}<br>
+                    <span style="font-size:11px;">
+                        {{ withdrawal.created_at|date:"H:i" }}
+                    </span>
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {% if withdrawal.completed_at %}
+                        {{ withdrawal.completed_at|date:"d M Y" }}<br>
+                        <span style="font-size:11px;">
+                            {{ withdrawal.completed_at|date:"H:i" }}
+                        </span>
+                    {% else %}
+                        <span style="color:#d1d5db;">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if withdrawal.status == 'pending' %}
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <!-- Mark Complete -->
+                        <form method="post"
+                              action="{% url 'dashboard:update_withdrawal_status' withdrawal.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="completed">
+                            <button type="submit"
+                                    style="background:#dcfce7; color:#16a34a; border:none;
+                                           border-radius:8px; padding:5px 10px; font-size:11px;
+                                           font-weight:700; cursor:pointer;">
+                                ✓ Complete
+                            </button>
+                        </form>
+                        <!-- Mark Failed -->
+                        <form method="post"
+                              action="{% url 'dashboard:update_withdrawal_status' withdrawal.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="failed">
+                            <button type="submit"
+                                    style="background:#fee2e2; color:#dc2626; border:none;
+                                           border-radius:8px; padding:5px 10px; font-size:11px;
+                                           font-weight:700; cursor:pointer;">
+                                ✗ Failed
+                            </button>
+                        </form>
+                        <!-- Cancel -->
+                        <form method="post"
+                              action="{% url 'dashboard:update_withdrawal_status' withdrawal.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="cancelled">
+                            <button type="submit"
+                                    style="background:#f3f4f6; color:#6b7280; border:none;
+                                           border-radius:8px; padding:5px 10px; font-size:11px;
+                                           font-weight:700; cursor:pointer;">
+                                Cancel
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <!-- Delete -->
+                    <form method="post"
+                          action="{% url 'dashboard:delete_withdrawal' withdrawal.id %}"
+                          id="del-wd-{{ withdrawal.id }}">
+                        {% csrf_token %}
+                        <div id="confirm-wd-{{ withdrawal.id }}"
+                             style="display:none; gap:4px;">
+                            <button type="submit"
+                                    style="background:#dc2626; color:#fff; border:none;
+                                           border-radius:8px; padding:5px 10px;
+                                           font-size:11px; font-weight:700; cursor:pointer;">
+                                Yes
+                            </button>
+                            <button type="button"
+                                    onclick="cancelWdDel('{{ withdrawal.id }}')"
+                                    style="background:#f3f4f6; color:#6b7280; border:none;
+                                           border-radius:8px; padding:5px 10px;
+                                           font-size:11px; font-weight:600; cursor:pointer;">
+                                No
+                            </button>
+                        </div>
+                        <button type="button"
+                                id="btn-wd-{{ withdrawal.id }}"
+                                onclick="confirmWdDel('{{ withdrawal.id }}')"
+                                style="background:#fef2f2; color:#dc2626; border:none;
+                                       border-radius:8px; padding:5px 10px; font-size:11px;
+                                       font-weight:600; cursor:pointer;">
+                            Delete
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9"
+                    style="text-align:center; padding:64px; color:#9ca3af;">
+                    <i class="bi bi-arrow-up-circle"
+                       style="font-size:40px; display:block;
+                              margin-bottom:16px; color:#d1d5db;"></i>
+                    <p style="font-size:14px; font-weight:600;
+                               color:#374151; margin:0 0 6px;">
+                        No withdrawals yet
+                    </p>
+                    <a href="{% url 'dashboard:create_withdrawal' %}"
+                       style="background:#2563eb; color:#fff;
+                              padding:10px 24px; border-radius:10px;
+                              text-decoration:none; font-size:13px;
+                              font-weight:700;">
+                        Request First Withdrawal
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmWdDel(id) {
+    document.getElementById('btn-wd-' + id).style.display     = 'none';
+    document.getElementById('confirm-wd-' + id).style.display = 'flex';
+}
+
+function cancelWdDel(id) {
+    document.getElementById('confirm-wd-' + id).style.display = 'none';
+    document.getElementById('btn-wd-' + id).style.display     = 'inline-block';
+}
+</script>
+{% endblock %}
+
+

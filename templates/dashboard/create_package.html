@@ -1,0 +1,288 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Create Package{% endblock %}
+{% block page_title %}Create Package{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Create Package
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Configure a new WiFi package for customers
+        </p>
+    </div>
+    <a href="{% url 'dashboard:packages' %}"
+       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
+        ← Back to Packages
+    </a>
+</div>
+
+<!-- ── Form ──────────────────────────────────────────── -->
+<form method="post" action="{% url 'dashboard:create_package' %}">
+    {% csrf_token %}
+
+    <!-- Basic Configuration -->
+    <div class="dash-table mb-4">
+        <div class="dash-table-header">
+            <h6>Basic Configuration</h6>
+        </div>
+        <div style="padding:24px;">
+            <div class="row g-3">
+
+                <div class="col-12">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Package Name <span style="color:#dc2626;">*</span>
+                    </label>
+                    <input type="text" name="name"
+                           placeholder="e.g. Daily Unlimited"
+                           required
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-6">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Duration <span style="color:#dc2626;">*</span>
+                    </label>
+                    <input type="number" name="duration"
+                           value="1" min="1"
+                           required
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-6">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Duration Unit <span style="color:#dc2626;">*</span>
+                    </label>
+                    <select name="duration_unit"
+                            style="width:100%; padding:10px 14px;
+                                   border:1px solid #e5e7eb; border-radius:10px;
+                                   font-size:13px; font-family:'Inter',sans-serif;
+                                   outline:none; color:#1a1a2e; background:#fff;">
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days" selected>Days</option>
+                        <option value="weeks">Weeks</option>
+                        <option value="months">Months</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Description
+                    </label>
+                    <textarea name="description" rows="2"
+                              placeholder="Optional description shown on portal"
+                              style="width:100%; padding:10px 14px;
+                                     border:1px solid #e5e7eb; border-radius:10px;
+                                     font-size:13px; font-family:'Inter',sans-serif;
+                                     outline:none; color:#1a1a2e; resize:vertical;">
+                    </textarea>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Speed & Performance -->
+    <div class="dash-table mb-4">
+        <div class="dash-table-header">
+            <h6>Speed & Performance</h6>
+        </div>
+        <div style="padding:24px;">
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Upload Speed (Mbps) <span style="color:#dc2626;">*</span>
+                    </label>
+                    <input type="number" name="upload_speed"
+                           value="10" min="1"
+                           required
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-6">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Download Speed (Mbps) <span style="color:#dc2626;">*</span>
+                    </label>
+                    <input type="number" name="download_speed"
+                           value="10" min="1"
+                           required
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-6">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Data Limit (leave empty for unlimited)
+                    </label>
+                    <input type="number" name="data_limit"
+                           placeholder="e.g. 5"
+                           step="0.1"
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-6">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Data Unit
+                    </label>
+                    <select name="data_unit"
+                            style="width:100%; padding:10px 14px;
+                                   border:1px solid #e5e7eb; border-radius:10px;
+                                   font-size:13px; font-family:'Inter',sans-serif;
+                                   outline:none; color:#1a1a2e; background:#fff;">
+                        <option value="GB" selected>GB</option>
+                        <option value="MB">MB</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing & Devices -->
+    <div class="dash-table mb-4">
+        <div class="dash-table-header">
+            <h6>Pricing & Devices</h6>
+        </div>
+        <div style="padding:24px;">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Price (UGX) <span style="color:#dc2626;">*</span>
+                    </label>
+                    <input type="number" name="price"
+                           value="0" min="0"
+                           required
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-4">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Device Limit
+                    </label>
+                    <input type="number" name="device_limit"
+                           value="1" min="1"
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-4">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Sort Order
+                    </label>
+                    <input type="number" name="display_order"
+                           value="0" min="0"
+                           style="width:100%; padding:10px 14px;
+                                  border:1px solid #e5e7eb; border-radius:10px;
+                                  font-size:13px; font-family:'Inter',sans-serif;
+                                  outline:none; color:#1a1a2e;">
+                </div>
+
+                <div class="col-md-6">
+                    <label style="display:flex; align-items:center; gap:8px;
+                                  cursor:pointer; font-size:13px; font-weight:600;
+                                  color:#374151;">
+                        <input type="checkbox" name="is_free_trial"
+                               style="width:16px; height:16px;">
+                        Free Trial Package (price set to 0)
+                    </label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Availability -->
+    <div class="dash-table mb-4">
+        <div class="dash-table-header">
+            <h6>Availability & Visibility</h6>
+        </div>
+        <div style="padding:24px;">
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label style="font-size:12px; font-weight:700;
+                                  color:#374151; display:block; margin-bottom:6px;">
+                        Status
+                    </label>
+                    <select name="status"
+                            style="width:100%; padding:10px 14px;
+                                   border:1px solid #e5e7eb; border-radius:10px;
+                                   font-size:13px; font-family:'Inter',sans-serif;
+                                   outline:none; color:#1a1a2e; background:#fff;">
+                        <option value="active">Active — Visible on portal</option>
+                        <option value="hidden">Hidden — Not on portal but vouchers work</option>
+                        <option value="disabled">Disabled — Completely off</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label style="display:flex; align-items:center; gap:8px;
+                                  cursor:pointer; font-size:13px; font-weight:600;
+                                  color:#374151; margin-top:24px;">
+                        <input type="checkbox" name="is_featured"
+                               style="width:16px; height:16px;">
+                        Featured Package (shows "Popular" badge on portal)
+                    </label>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display:flex; gap:12px;">
+        <button type="submit"
+                style="padding:12px 24px; background:#1a1a2e; color:#fff;
+                       border:none; border-radius:10px; font-size:13px;
+                       font-weight:600; cursor:pointer;
+                       font-family:'Inter',sans-serif;">
+            Create Package
+        </button>
+        <a href="{% url 'dashboard:packages' %}"
+           style="padding:12px 24px; background:#f3f4f6; color:#374151;
+                  border-radius:10px; font-size:13px; font-weight:600;
+                  text-decoration:none;">
+            Cancel
+        </a>
+    </div>
+
+</form>
+
+{% endblock %}

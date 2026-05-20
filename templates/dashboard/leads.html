@@ -1,0 +1,326 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Leads{% endblock %}
+{% block page_title %}Leads{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Leads
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Track potential customers and manage your sales pipeline
+        </p>
+    </div>
+    <a href="{% url 'dashboard:create_lead' %}"
+       style="background:#2563eb; color:#fff; border:none; border-radius:10px;
+              padding:10px 20px; font-size:13px; font-weight:700;
+              text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+        <i class="bi bi-plus-lg"></i> Add Lead
+    </a>
+</div>
+
+<!-- ── Pipeline Summary Cards ────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#eff6ff;">
+                <i class="bi bi-person-plus-fill" style="color:#2563eb;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>New</p>
+                <h4>{{ status_counts.new|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fefce8;">
+                <i class="bi bi-telephone-fill" style="color:#ca8a04;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Contacted</p>
+                <h4>{{ status_counts.contacted|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#f0fdf4;">
+                <i class="bi bi-check-circle-fill" style="color:#16a34a;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Converted</p>
+                <h4>{{ status_counts.converted|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fef2f2;">
+                <i class="bi bi-x-circle-fill" style="color:#dc2626;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Lost</p>
+                <h4>{{ status_counts.lost|default:"0" }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Search Bar ─────────────────────────────────────── -->
+<form method="get" style="display:flex; gap:8px; max-width:400px; margin-bottom:16px;">
+    {% if status_filter %}
+    <input type="hidden" name="status" value="{{ status_filter }}">
+    {% endif %}
+    <input type="text" name="search" value="{{ search|default:'' }}"
+           placeholder="Search by name or phone..."
+           style="flex:1; padding:10px 14px;
+                  border:1px solid #e5e7eb; border-radius:10px;
+                  font-size:13px; font-family:'Inter',sans-serif;
+                  outline:none; color:#1a1a2e;">
+    <button type="submit"
+            style="padding:10px 18px; background:#2563eb; color:#fff;
+                   border:none; border-radius:10px; font-size:13px;
+                   font-weight:600; cursor:pointer;">
+        <i class="bi bi-search"></i>
+    </button>
+    {% if search %}
+    <a href="?{% if status_filter %}status={{ status_filter }}{% endif %}"
+       style="padding:10px 14px; background:#f3f4f6; color:#374151;
+              border-radius:10px; font-size:13px; font-weight:600;
+              text-decoration:none;">
+        Clear
+    </a>
+    {% endif %}
+</form>
+
+<!-- ── Filter Tabs ────────────────────────────────────── -->
+<div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+    <a href="?"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if not status_filter %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        All
+    </a>
+    <a href="?status=new"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if status_filter == 'new' %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        New
+    </a>
+    <a href="?status=contacted"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if status_filter == 'contacted' %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        Contacted
+    </a>
+    <a href="?status=free_trial{% if search %}&search={{ search }}{% endif %}"
+   style="padding:7px 18px; border-radius:20px; font-size:12px;
+          font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+          {% if status_filter == 'free_trial' %}
+              background:#2563eb; color:#fff; border-color:#2563eb;
+          {% else %}
+              background:#fff; color:#6b7280;
+          {% endif %}">
+    Free Trial
+</a>
+    <a href="?status=converted"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if status_filter == 'converted' %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        Converted
+    </a>
+    <a href="?status=lost"
+       style="padding:7px 18px; border-radius:20px; font-size:12px;
+              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
+              {% if status_filter == 'lost' %}
+                  background:#2563eb; color:#fff; border-color:#2563eb;
+              {% else %}
+                  background:#fff; color:#6b7280;
+              {% endif %}">
+        Lost
+    </a>
+</div>
+
+<!-- ── Leads Table ───────────────────────────────────── -->
+<div class="dash-table">
+    <div class="dash-table-header">
+        <h6>
+            {% if status_filter %}{{ status_filter|title }}{% else %}All{% endif %}
+            Leads
+        </h6>
+    </div>
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Source</th>
+                <th>Interested Package</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Last Contact</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in leads %}
+            <tr>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ forloop.counter }}
+                </td>
+                <td style="font-weight:600; color:#1a1a2e;">
+                    {{ lead.full_name }}
+                    {% if lead.email %}
+                    <br>
+                    <span style="font-size:11px; color:#9ca3af; font-weight:400;">
+                        {{ lead.email }}
+                    </span>
+                    {% endif %}
+                </td>
+                <td style="color:#374151; font-size:13px;">
+                    {{ lead.phone_number|default:"—" }}
+                </td>
+                <td>
+                    <span style="background:#f3f4f6; color:#374151; padding:3px 10px;
+                                 border-radius:20px; font-size:11px; font-weight:600;">
+                        {{ lead.source|default:"—" }}
+                    </span>
+                </td>
+                <td style="color:#374151; font-size:13px;">
+                    {{ lead.interested_package|default:"—" }}
+                </td>
+                <td style="color:#374151; font-size:13px;">
+                    {{ lead.assigned_to|default:"—" }}
+                </td>
+                <td>
+                    {% if lead.status == 'new' %}
+                        <span style="background:#eff6ff; color:#2563eb; padding:3px 10px;
+                                     border-radius:20px; font-size:11px; font-weight:700;">
+                            New
+                        </span>
+                    {% elif lead.status == 'contacted' %}
+                        <span style="background:#fef9c3; color:#ca8a04; padding:3px 10px;
+                                     border-radius:20px; font-size:11px; font-weight:700;">
+                            Contacted
+                        </span>
+                    {% elif lead.status == 'converted' %}
+                        <span style="background:#dcfce7; color:#16a34a; padding:3px 10px;
+                                     border-radius:20px; font-size:11px; font-weight:700;">
+                            Converted
+                        </span>
+                    {% elif lead.status == 'free_trial' %}
+                        <span style="background:#fdf4ff; color:#9333ea; padding:3px 10px;
+                                     border-radius:20px; font-size:11px; font-weight:700;">
+                            Free Trial
+                        </span>
+                    {% else %}
+                        <span style="background:#fee2e2; color:#dc2626; padding:3px 10px;
+                                     border-radius:20px; font-size:11px; font-weight:700;">
+                            Lost
+                        </span>
+                    {% endif %}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {% if lead.last_contacted %}
+                        {{ lead.last_contacted|date:"d M Y" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display:flex; gap:6px;">
+                        <a href="{% url 'dashboard:lead_detail' lead.id %}"
+                           style="background:#eff6ff; color:#2563eb; border:none;
+                                  border-radius:8px; padding:5px 12px; font-size:12px;
+                                  font-weight:600; cursor:pointer; text-decoration:none;">
+                            View
+                        </a>
+                        <form method="post"
+                              action="{% url 'dashboard:delete_lead' lead.id %}"
+                              id="del-lead-{{ lead.id }}">
+                            {% csrf_token %}
+                            <div id="confirm-lead-{{ lead.id }}"
+                                 style="display:none; gap:4px;">
+                                <button type="submit"
+                                        style="background:#dc2626; color:#fff; border:none;
+                                               border-radius:8px; padding:5px 10px;
+                                               font-size:12px; font-weight:700;
+                                               cursor:pointer;">
+                                    Yes
+                                </button>
+                                <button type="button"
+                                        onclick="cancelLeadDelete('{{ lead.id }}')"
+                                        style="background:#f3f4f6; color:#6b7280;
+                                               border:none; border-radius:8px;
+                                               padding:5px 10px; font-size:12px;
+                                               font-weight:600; cursor:pointer;">
+                                    No
+                                </button>
+                            </div>
+                            <button type="button"
+                                    id="btn-lead-{{ lead.id }}"
+                                    onclick="confirmLeadDelete('{{ lead.id }}')"
+                                    style="background:#fef2f2; color:#dc2626; border:none;
+                                           border-radius:8px; padding:5px 10px;
+                                           font-size:12px; font-weight:600;
+                                           cursor:pointer;">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9"
+                    style="text-align:center; padding:48px; color:#9ca3af;">
+                    <i class="bi bi-funnel"
+                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
+                    No leads found. <br>
+                    <a href="{% url 'dashboard:create_lead' %}"
+                       style="color:#2563eb; font-weight:600;">
+                        Add your first lead →
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmLeadDelete(id) {
+    document.getElementById('btn-lead-' + id).style.display     = 'none';
+    document.getElementById('confirm-lead-' + id).style.display = 'flex';
+}
+function cancelLeadDelete(id) {
+    document.getElementById('confirm-lead-' + id).style.display = 'none';
+    document.getElementById('btn-lead-' + id).style.display     = 'inline-block';
+}
+</script>
+{% endblock %}

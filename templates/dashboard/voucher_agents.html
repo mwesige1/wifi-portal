@@ -1,0 +1,156 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Voucher Agents{% endblock %}
+{% block page_title %}Voucher Agents{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            Voucher Agents
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            {{ agents.count }} agent{{ agents.count|pluralize }} registered
+        </p>
+    </div>
+    <a href="{% url 'dashboard:create_voucher_agent' %}"
+       style="display:inline-flex; align-items:center; gap:8px;
+              background:#1a1a2e; color:#fff; padding:10px 18px;
+              border-radius:10px; font-size:13px; font-weight:600;
+              text-decoration:none;">
+        <i class="bi bi-plus-lg"></i> New Agent
+    </a>
+</div>
+
+<!-- ── Search Bar ─────────────────────────────────────── -->
+<form method="get" class="mb-4">
+    <div style="display:flex; gap:8px; max-width:400px;">
+        <input type="text" name="search" value="{{ search }}"
+               placeholder="Search agent by name..."
+               style="flex:1; padding:10px 14px;
+                      border:1px solid #e5e7eb; border-radius:10px;
+                      font-size:13px; font-family:'Inter',sans-serif;
+                      outline:none; color:#1a1a2e;">
+        <button type="submit"
+                style="padding:10px 18px; background:#2563eb; color:#fff;
+                       border:none; border-radius:10px; font-size:13px;
+                       font-weight:600; cursor:pointer;">
+            <i class="bi bi-search"></i>
+        </button>
+        {% if search %}
+        <a href="{% url 'dashboard:voucher_agents' %}"
+           style="padding:10px 14px; background:#f3f4f6; color:#374151;
+                  border-radius:10px; font-size:13px; font-weight:600;
+                  text-decoration:none;">
+            Clear
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+<!-- ── Agents Table ───────────────────────────────────── -->
+<div class="dash-table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Agent Name</th>
+                <th>Phone</th>
+                <th>Location</th>
+                <th>Commission</th>
+                <th>Assigned</th>
+                <th>Sold</th>
+                <th>Available</th>
+                <th>Revenue</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for agent in agents %}
+            <tr style="cursor:pointer;"
+                onclick="window.location='{% url 'dashboard:agent_detail' agent.id %}'">
+
+                <!-- Agent Name -->
+                <td>
+                    <a href="{% url 'dashboard:agent_detail' agent.id %}"
+                       style="font-weight:700; color:#2563eb;
+                              text-decoration:none;">
+                        {{ agent.name }}
+                    </a>
+                </td>
+
+                <!-- Phone -->
+                <td style="color:#374151;">
+                    {{ agent.phone|default:"—" }}
+                </td>
+
+                <!-- Location -->
+                <td style="color:#6b7280; font-size:12px;">
+                    {{ agent.location|default:"—" }}
+                </td>
+
+                <!-- Commission -->
+                <td>
+                    <span style="font-weight:700; color:#2563eb;">
+                        {{ agent.commission_display }}
+                    </span>
+                    <span style="font-size:11px; color:#9ca3af;">
+                        per sale
+                    </span>
+                </td>
+
+                <!-- Assigned -->
+                <td style="font-weight:600; color:#1a1a2e;">
+                    {{ agent.vouchers_assigned }}
+                </td>
+
+                <!-- Sold -->
+                <td style="font-weight:600; color:#16a34a;">
+                    {{ agent.vouchers_sold }}
+                </td>
+
+                <!-- Available -->
+                <td style="font-weight:600; color:#ca8a04;">
+                    {{ agent.vouchers_available }}
+                </td>
+
+                <!-- Revenue -->
+                <td style="font-weight:700; color:#1a1a2e;">
+                    UGX {{ agent.total_revenue|floatformat:0|default:"0" }}
+                </td>
+
+                <!-- Status -->
+                <td>
+                    {% if agent.status == 'active' %}
+                        <span class="badge-active">Active</span>
+                    {% else %}
+                        <span class="badge-expired">Inactive</span>
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9"
+                    style="text-align:center; color:#9ca3af;
+                           padding:48px; font-size:14px;">
+                    <i class="bi bi-people"
+                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
+                    {% if search %}
+                        No agents found for "{{ search }}".
+                    {% else %}
+                        No agents registered yet.
+                        <a href="{% url 'dashboard:create_voucher_agent' %}"
+                           style="color:#2563eb; font-weight:600;">
+                            Add your first agent →
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

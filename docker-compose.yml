@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+
+# ── Django Application ────────────────────────────────
+  web:
+    build: .
+    container_name: wifiportal_web
+    restart: always
+    env_file: .env
+    entrypoint: /entrypoint.sh
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - logs_volume:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - wifiportal_network
+    expose:
+      - "8000"
+
+  # ── PostgreSQL Database ───────────────────────────────
+  db:
+    image: postgres:16
+    container_name: wifiportal_db
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_DB:       ${DATABASE_NAME}
+      POSTGRES_USER:     ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - wifiportal_network
+
+  # ── Redis ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: wifiportal_redis
+    restart: always
+    networks:
+      - wifiportal_network
+
+  # ── Celery Worker ─────────────────────────────────────
+  celery:
+    build: .
+    container_name: wifiportal_celery
+    restart: always
+    env_file: .env
+    command: celery -A wifiportal worker --loglevel=info
+    volumes:
+      - logs_volume:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - wifiportal_network
+
+  # ── Celery Beat ───────────────────────────────────────
+  celery_beat:
+    build: .
+    container_name: wifiportal_celery_beat
+    restart: always
+    env_file: .env
+    command: celery -A wifiportal beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - logs_volume:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - wifiportal_network
+
+  # ── Nginx ─────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: wifiportal_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    depends_on:
+      - web
+    networks:
+      - wifiportal_network
+
+  # ── Certbot (SSL) ─────────────────────────────────────
+  certbot:
+    image: certbot/certbot
+    container_name: wifiportal_certbot
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot
+             --email admin@optimuminnovationhotspot.com
+             --agree-tos --no-eff-email
+             -d optimuminnovationhotspot.com
+             -d www.optimuminnovationhotspot.com
+
+# ── Volumes ───────────────────────────────────────────
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  logs_volume:
+  certbot_certs:
+  certbot_www:
+
+# ── Networks ──────────────────────────────────────────
+networks:
+  wifiportal_network:
+    driver: bridge

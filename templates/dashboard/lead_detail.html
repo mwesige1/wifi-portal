@@ -1,0 +1,230 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Lead — {{ lead.full_name }}{% endblock %}
+{% block page_title %}Lead Detail{% endblock %}
+
+{% block content %}
+
+<!-- ── Header Row ────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            {{ lead.full_name }}
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            Lead details and pipeline status
+        </p>
+    </div>
+    <a href="{% url 'dashboard:leads' %}"
+       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
+        ← Back to Leads
+    </a>
+</div>
+
+<form method="post">
+{% csrf_token %}
+<div class="row g-4">
+
+    <!-- Left Column -->
+    <div class="col-md-8">
+
+        <!-- Contact Information -->
+        <div class="dash-table mb-4">
+            <div class="dash-table-header">
+                <h6>Contact Information</h6>
+            </div>
+            <div style="padding:24px;">
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Full Name
+                        </label>
+                        <input type="text" name="full_name"
+                               value="{{ lead.full_name }}"
+                               style="width:100%; padding:10px 14px;
+                                      border:1px solid #e5e7eb; border-radius:10px;
+                                      font-size:13px; outline:none; color:#1a1a2e;">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Phone Number
+                        </label>
+                        <input type="text" name="phone_number"
+                               value="{{ lead.phone_number }}"
+                               style="width:100%; padding:10px 14px;
+                                      border:1px solid #e5e7eb; border-radius:10px;
+                                      font-size:13px; outline:none; color:#1a1a2e;">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Email
+                        </label>
+                        <input type="email" name="email"
+                               value="{{ lead.email }}"
+                               style="width:100%; padding:10px 14px;
+                                      border:1px solid #e5e7eb; border-radius:10px;
+                                      font-size:13px; outline:none; color:#1a1a2e;">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Source
+                        </label>
+                        <input type="text" name="source"
+                               value="{{ lead.source }}"
+                               style="width:100%; padding:10px 14px;
+                                      border:1px solid #e5e7eb; border-radius:10px;
+                                      font-size:13px; outline:none; color:#1a1a2e;">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Interested Package
+                        </label>
+                        <input type="text"
+                               value="{{ lead.interested_package|default:'—' }}"
+                               disabled
+                               style="width:100%; padding:10px 14px;
+                                      border:1px solid #e5e7eb; border-radius:10px;
+                                      font-size:13px; outline:none; color:#6b7280;
+                                      background:#f9fafb;">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Assigned To
+                        </label>
+                        <input type="text"
+                               value="{{ lead.assigned_to|default:'—' }}"
+                               disabled
+                               style="width:100%; padding:10px 14px;
+                                      border:1px solid #e5e7eb; border-radius:10px;
+                                      font-size:13px; outline:none; color:#6b7280;
+                                      background:#f9fafb;">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Last Contacted
+                        </label>
+                        <input type="date" name="last_contacted"
+                               value="{{ lead.last_contacted|date:'Y-m-d' }}"
+                               style="width:100%; padding:10px 14px;
+                                      border:1px solid #e5e7eb; border-radius:10px;
+                                      font-size:13px; outline:none; color:#1a1a2e;">
+                    </div>
+
+                    <div class="col-12">
+                        <label style="font-size:12px; font-weight:700;
+                                      color:#374151; display:block; margin-bottom:6px;">
+                            Notes
+                        </label>
+                        <textarea name="notes" rows="4"
+                                  style="width:100%; padding:10px 14px;
+                                         border:1px solid #e5e7eb; border-radius:10px;
+                                         font-size:13px; outline:none; color:#1a1a2e;
+                                         resize:vertical;">{{ lead.notes }}</textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-md-4">
+
+        <!-- Pipeline Status -->
+        <div class="dash-table mb-4">
+            <div class="dash-table-header">
+                <h6>Pipeline Status</h6>
+            </div>
+            <div style="padding:24px;">
+                <select name="status"
+                        style="width:100%; padding:10px 14px;
+                               border:1px solid #e5e7eb; border-radius:10px;
+                               font-size:13px; outline:none;
+                               color:#1a1a2e; background:#fff;">
+                    <option value="new"
+                        {% if lead.status == 'new' %}selected{% endif %}>
+                        New
+                    </option>
+                    <option value="contacted"
+                        {% if lead.status == 'contacted' %}selected{% endif %}>
+                        Contacted
+                    </option>
+                    <option value="free_trial"
+                        {% if lead.status == 'free_trial' %}selected{% endif %}>
+                        Free Trial
+                    </option>
+                    <option value="converted"
+                        {% if lead.status == 'converted' %}selected{% endif %}>
+                        Converted
+                    </option>
+                    <option value="lost"
+                        {% if lead.status == 'lost' %}selected{% endif %}>
+                        Lost
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Meta Info -->
+        <div class="dash-table mb-4">
+            <div class="dash-table-header">
+                <h6>Meta Info</h6>
+            </div>
+            <div style="padding:24px;">
+                <div style="font-size:12px; color:#6b7280; margin-bottom:8px;">
+                    <strong>Created:</strong>
+                    {{ lead.created_at|date:"d M Y, H:i" }}
+                </div>
+                <div style="font-size:12px; color:#6b7280;">
+                    <strong>Last Updated:</strong>
+                    {{ lead.updated_at|date:"d M Y, H:i" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="dash-table">
+            <div style="padding:24px;">
+                <button type="submit"
+                        style="width:100%; background:#2563eb; color:#fff;
+                               border:none; border-radius:10px; padding:12px;
+                               font-size:14px; font-weight:700; cursor:pointer;
+                               margin-bottom:10px;">
+                    <i class="bi bi-save"></i> Save Changes
+                </button>
+
+                <form method="post"
+                      action="{% url 'dashboard:delete_lead' lead.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            onclick="return confirm('Delete this lead permanently?')"
+                            style="width:100%; background:#fef2f2; color:#dc2626;
+                                   border:1px solid #fee2e2; border-radius:10px;
+                                   padding:12px; font-size:14px; font-weight:700;
+                                   cursor:pointer;">
+                        <i class="bi bi-trash"></i> Delete Lead
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+</form>
+
+{% endblock %}

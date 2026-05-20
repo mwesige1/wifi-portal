@@ -1,0 +1,483 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ router.identity }} — Router Detail{% endblock %}
+{% block page_title %}Router Detail{% endblock %}
+
+{% block content %}
+
+<!-- ── Header ────────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
+            {{ router.identity }}
+        </h5>
+        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
+            <i class="bi bi-geo-alt-fill"></i>
+            {{ router.location|default:"Location not set" }}
+        </p>
+    </div>
+    <div style="display:flex; gap:8px;">
+        <button onclick="refreshStats()"
+                id="refreshBtn"
+                style="background:#eff6ff; color:#2563eb;
+                       border:1px solid #bfdbfe; border-radius:10px;
+                       padding:8px 16px; font-size:12px;
+                       font-weight:700; cursor:pointer;">
+            <i class="bi bi-arrow-clockwise"></i> Refresh Stats
+        </button>
+        <button onclick="rebootRouter()"
+                style="background:#fef2f2; color:#dc2626;
+                       border:1px solid #fecaca; border-radius:10px;
+                       padding:8px 16px; font-size:12px;
+                       font-weight:700; cursor:pointer;">
+            <i class="bi bi-power"></i> Reboot
+        </button>
+        <form method="post"
+              action="{% url 'dashboard:provision_router' router.id %}">
+            {% csrf_token %}
+            <button type="submit"
+                    style="background:#f0fdf4; color:#16a34a;
+                           border:1px solid #bbf7d0; border-radius:10px;
+                           padding:8px 16px; font-size:12px;
+                           font-weight:700; cursor:pointer;">
+                <i class="bi bi-terminal"></i> Provision
+            </button>
+        </form>
+        <a href="{% url 'dashboard:routers' %}"
+           style="background:#f3f4f6; color:#374151;
+                  border:1px solid #e5e7eb; border-radius:10px;
+                  padding:8px 16px; font-size:12px;
+                  font-weight:700; text-decoration:none;">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+
+        <a href="{% url 'dashboard:edit_router' router.id %}"
+           style="background:#fefce8; color:#ca8a04;
+                  border:1px solid #fde68a; border-radius:10px;
+                  padding:8px 16px; font-size:12px;
+                  font-weight:700; text-decoration:none;">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+    </div>
+</div>
+
+<!-- ── Status Banner ─────────────────────────────────── -->
+<div style="background:{% if router.status == 'online' %}#f0fdf4{% else %}#fef2f2{% endif %};
+            border:1px solid {% if router.status == 'online' %}#bbf7d0{% else %}#fecaca{% endif %};
+            border-radius:14px; padding:14px 20px;
+            display:flex; align-items:center; gap:12px; margin-bottom:24px;
+            flex-wrap:wrap;">
+    <span style="width:12px; height:12px; border-radius:50%;
+                 background:{% if router.status == 'online' %}#16a34a{% else %}#dc2626{% endif %};
+                 display:inline-block;
+                 {% if router.status == 'online' %}animation:pulse 2s infinite;{% endif %}">
+    </span>
+    <span style="font-weight:700; font-size:14px;
+                 color:{% if router.status == 'online' %}#16a34a{% else %}#dc2626{% endif %};">
+        {{ router.status|upper }}
+    </span>
+    <span style="color:#9ca3af; font-size:12px;">
+        Last seen: {{ router.last_seen|date:"d M Y, H:i"|default:"Never" }}
+    </span>
+    {% if router.wireguard_tunnel_ip %}
+    <span style="color:#9ca3af; font-size:12px; margin-left:auto;">
+        WireGuard: {{ router.wireguard_tunnel_ip }}
+    </span>
+    {% endif %}
+</div>
+
+<!-- ── Stats Cards ───────────────────────────────────── -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#eff6ff;">
+                <i class="bi bi-cpu" style="color:#2563eb;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>CPU Usage</p>
+                <h4 id="cpuStat">{{ router.cpu_display }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fefce8;">
+                <i class="bi bi-memory" style="color:#ca8a04;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Memory Usage</p>
+                <h4 id="memoryStat">{{ router.memory_display }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#f0fdf4;">
+                <i class="bi bi-wifi" style="color:#16a34a;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Active Sessions</p>
+                <h4>{{ active_sessions|length }}</h4>
+                <small style="color:#9ca3af; font-size:11px;">
+                    Today: {{ today_sessions }}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dash-stat-card">
+            <div class="dash-stat-icon" style="background:#fdf4ff;">
+                <i class="bi bi-cash-stack" style="color:#9333ea;"></i>
+            </div>
+            <div class="dash-stat-info">
+                <p>Today's Revenue</p>
+                <h4>UGX {{ today_revenue|floatformat:0 }}</h4>
+                <small style="color:#9ca3af; font-size:11px;">
+                    Total: {{ total_sessions }} sessions
+                </small>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Revenue Cards ─────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-info">
+                <p>This Week</p>
+                <h4>UGX {{ week_revenue|floatformat:0 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-info">
+                <p>This Month</p>
+                <h4>UGX {{ month_revenue|floatformat:0 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dash-stat-card">
+            <div class="dash-stat-info">
+                <p>All Time Revenue</p>
+                <h4>UGX {{ total_revenue|floatformat:0 }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Charts + Router Config ────────────────────────── -->
+<div class="row g-4 mb-4">
+
+    <!-- Revenue Chart -->
+    <div class="col-md-6">
+        <div class="dash-table">
+            <div class="dash-table-header">
+                <h6>Daily Revenue — Last 7 Days</h6>
+            </div>
+            <div style="padding:20px;">
+                <canvas id="revenueChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessions Chart -->
+    <div class="col-md-6">
+        <div class="dash-table">
+            <div class="dash-table-header">
+                <h6>Daily Sessions — Last 7 Days</h6>
+            </div>
+            <div style="padding:20px;">
+                <canvas id="sessionsChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Router Configuration ───────────────────────────── -->
+<div class="row g-4 mb-4">
+    <div class="col-md-12">
+        <div class="dash-table">
+            <div class="dash-table-header">
+                <h6>Router Configuration</h6>
+            </div>
+            <div style="padding:24px;">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <p style="font-size:11px; color:#9ca3af; font-weight:700; margin:0 0 4px;">IP ADDRESS</p>
+                        <p style="font-size:13px; font-weight:600; color:#374151; font-family:monospace; margin:0;">
+                            {{ router.ip_address|default:"—" }}
+                        </p>
+                    </div>
+                    <div class="col-md-2">
+                        <p style="font-size:11px; color:#9ca3af; font-weight:700; margin:0 0 4px;">GATEWAY IP</p>
+                        <p style="font-size:13px; font-weight:600; color:#374151; font-family:monospace; margin:0;">
+                            {{ router.gateway_ip|default:"—" }}
+                        </p>
+                    </div>
+                    <div class="col-md-2">
+                        <p style="font-size:11px; color:#9ca3af; font-weight:700; margin:0 0 4px;">HOTSPOT NETWORK</p>
+                        <p style="font-size:13px; font-weight:600; color:#374151; font-family:monospace; margin:0;">
+                            {{ router.hotspot_network|default:"—" }}
+                        </p>
+                    </div>
+                    <div class="col-md-2">
+                        <p style="font-size:11px; color:#9ca3af; font-weight:700; margin:0 0 4px;">DNS SERVERS</p>
+                        <p style="font-size:13px; font-weight:600; color:#374151; font-family:monospace; margin:0;">
+                            {{ router.dns_servers|default:"—" }}
+                        </p>
+                    </div>
+                    <div class="col-md-2">
+                        <p style="font-size:11px; color:#9ca3af; font-weight:700; margin:0 0 4px;">API PORT</p>
+                        <p style="font-size:13px; font-weight:600; color:#374151; font-family:monospace; margin:0;">
+                            {{ router.api_port|default:"8728" }}
+                        </p>
+                    </div>
+                    <div class="col-md-2">
+                        <p style="font-size:11px; color:#9ca3af; font-weight:700; margin:0 0 4px;">CONNECTION</p>
+                        <p style="font-size:13px; font-weight:600; color:#374151; margin:0;">
+                            {% if router.connection_type == 'wireguard' %}
+                                <span style="background:#fdf4ff; color:#9333ea;
+                                             padding:2px 8px; border-radius:20px;
+                                             font-size:11px; font-weight:700;">
+                                    WireGuard
+                                </span>
+                            {% else %}
+                                <span style="background:#eff6ff; color:#2563eb;
+                                             padding:2px 8px; border-radius:20px;
+                                             font-size:11px; font-weight:700;">
+                                    Direct API
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Active Sessions Table ─────────────────────────── -->
+<div class="dash-table">
+    <div class="dash-table-header">
+        <h6>Active Sessions</h6>
+        <span style="font-size:12px; color:#9ca3af;">
+            {{ active_sessions|length }} device{{ active_sessions|length|pluralize }} connected
+        </span>
+    </div>
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>MAC Address</th>
+                <th>Phone</th>
+                <th>Package</th>
+                <th>Started</th>
+                <th>Time Remaining</th>
+                <th>IP Address</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in active_sessions %}
+            <tr>
+                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
+                <td style="font-family:monospace; font-size:12px; font-weight:600;">
+                    {{ session.device.mac_address }}
+                </td>
+                <td style="font-weight:600;">
+                    {{ session.device.phone_number|default:"—" }}
+                </td>
+                <td style="font-size:13px;">
+                    {{ session.package.name }}
+                </td>
+                <td style="color:#9ca3af; font-size:12px;">
+                    {{ session.created_at|date:"d M, H:i" }}
+                </td>
+                <td>
+                    <span class="countdown"
+                          data-expiry="{{ session.expiry_time|date:'c' }}"
+                          style="font-size:13px; font-weight:700; color:#2563eb;">
+                        —
+                    </span>
+                </td>
+                <td style="font-family:monospace; font-size:12px; color:#9ca3af;">
+                    {{ session.ip_address|default:"—" }}
+                </td>
+                <td>
+                    <form method="post"
+                          action="{% url 'dashboard:disconnect_session' session.id %}"
+                          onsubmit="return confirm('Disconnect this device?');">
+                        {% csrf_token %}
+                        <button type="submit"
+                                style="background:#fef2f2; color:#dc2626;
+                                       border:none; border-radius:8px;
+                                       padding:5px 12px; font-size:12px;
+                                       font-weight:600; cursor:pointer;">
+                            <i class="bi bi-wifi-off"></i> Cut
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8"
+                    style="text-align:center; padding:48px; color:#9ca3af;">
+                    <i class="bi bi-wifi"
+                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
+                    No active sessions on this router.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const routerId    = {{ router.id }};
+const dayLabels   = {{ day_labels|safe }};
+const revenueData = {{ daily_revenue|safe }};
+const usersData   = {{ daily_users|safe }};
+
+// ── Revenue Chart ──────────────────────────────────────
+new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+        labels  : dayLabels,
+        datasets: [{
+            label          : 'Revenue (UGX)',
+            data           : revenueData,
+            backgroundColor: 'rgba(37,99,235,0.75)',
+            borderRadius   : 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins   : { legend: { display: false } },
+        scales    : {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: val => 'UGX ' + val.toLocaleString(),
+                    font    : { family: 'Inter', size: 11 }
+                }
+            }
+        }
+    }
+});
+
+// ── Sessions Chart ─────────────────────────────────────
+new Chart(document.getElementById('sessionsChart'), {
+    type: 'line',
+    data: {
+        labels  : dayLabels,
+        datasets: [{
+            label          : 'Sessions',
+            data           : usersData,
+            backgroundColor: 'rgba(22,163,74,0.1)',
+            borderColor    : '#16a34a',
+            borderWidth    : 2,
+            tension        : 0.4,
+            fill           : true,
+            pointBackgroundColor: '#16a34a',
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins   : { legend: { display: false } },
+        scales    : {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0,
+                    font     : { family: 'Inter', size: 11 }
+                }
+            }
+        }
+    }
+});
+
+// ── Countdown Timers ───────────────────────────────────
+function updateCountdowns() {
+    document.querySelectorAll('.countdown').forEach(el => {
+        const expiry = new Date(el.dataset.expiry);
+        const diff   = expiry - new Date();
+        if (diff <= 0) {
+            el.textContent = 'Expired';
+            el.style.color = '#dc2626';
+            return;
+        }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        el.textContent = h > 0 ? `${h}h ${m}m ${s}s` : m > 0 ? `${m}m ${s}s` : `${s}s`;
+        el.style.color = diff < 600000 ? '#ca8a04' : '#2563eb';
+    });
+}
+updateCountdowns();
+setInterval(updateCountdowns, 1000);
+
+// ── Refresh Stats ──────────────────────────────────────
+function refreshStats() {
+    const btn = document.getElementById('refreshBtn');
+    btn.textContent = 'Refreshing...';
+    btn.disabled    = true;
+
+    fetch(`/network/router/${routerId}/refresh/`)
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById('cpuStat').textContent    = data.cpu + '%';
+            document.getElementById('memoryStat').textContent = data.memory + '%';
+        }
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh Stats';
+        btn.disabled  = false;
+    })
+    .catch(() => {
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh Stats';
+        btn.disabled  = false;
+    });
+}
+
+// ── Reboot Router ──────────────────────────────────────
+function rebootRouter() {
+    if (!confirm('Reboot {{ router.identity }}?\nAll connected customers will lose internet for ~30 seconds.')) return;
+
+    fetch(`/network/router/${routerId}/reboot/`, {
+        method : 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => alert(data.message))
+    .catch(() => alert('Network error.'));
+}
+
+function getCookie(name) {
+    let val = null;
+    document.cookie.split(';').forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + '=')) val = decodeURIComponent(c.slice(name.length + 1));
+    });
+    return val;
+}
+</script>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+</style>
+{% endblock %}
