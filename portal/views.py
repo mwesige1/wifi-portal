@@ -231,7 +231,7 @@ def captive_portal_check(request):
     """
     from django.http import HttpResponse, HttpResponseRedirect
 
-    portal_url = 'http://192.168.88.252:8000/'
+    portal_url = 'https://optimuminnovationhotspot.com/'
     host       = request.META.get('HTTP_HOST', '')
     path       = request.path
 

@@ -328,7 +328,7 @@ function updateTimer() {
     timerEl.className   = 'timer crit';
     barEl.style.width   = '0%';
     barEl.style.background = '#ef4444';
-    setTimeout(() => { window.location.href = 'http://192.168.88.252:8000/'; }, 3000);
+    setTimeout(() => { window.location.href = 'https://optimuminnovationhotspot.com/'; }, 3000);
     return;
   }
   const h = Math.floor(diff / 3600000);
@@ -390,13 +390,13 @@ if (ff) {
 function checkSessionStatus() {
   const mac = '{{ mac_address }}';
   if (!mac) return;
-  fetch('http://192.168.88.252:8000/session-status/?mac=' + mac)
+  fetch('https://optimuminnovationhotspot.com/session-status/?mac=' + mac)
   .then(r => r.json())
   .then(data => {
     if (data.status === 'blocked') {
-      window.location.href = 'http://192.168.88.252:8000/blocked/?mac=' + mac;
+      window.location.href = 'https://optimuminnovationhotspot.com/blocked/?mac=' + mac;
     } else if (data.status === 'expired') {
-      window.location.href = 'http://192.168.88.252:8000/?mac=' + mac;
+      window.location.href = 'https://optimuminnovationhotspot.com/?mac=' + mac;
     }
   })
   .catch(() => {});

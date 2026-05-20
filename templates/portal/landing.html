@@ -816,7 +816,7 @@
 
     const phone = isFree ? '0000000000' : document.getElementById('directPhone').value.trim();
 
-    fetch('http://192.168.88.252:8000/payments/initiate/', {
+    fetch('https://optimuminnovationhotspot.com/payments/initiate/', {
       method : 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
       body: JSON.stringify({
@@ -842,7 +842,7 @@
               <div class="msg">Connected!</div>
               <div class="sub">Redirecting you now...</div>
             </div>`;
-          setTimeout(() => { window.location.href = 'http://192.168.88.252:8000/connected/?mac=' + mac; }, 2000);
+          setTimeout(() => { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; }, 2000);
         } else {
           document.getElementById('directResult').innerHTML = `
             <div class="r-info">
@@ -867,7 +867,7 @@
   function pollDirectStatus(orderId) {
     const mac = '{{ mac_address }}';
     const iv  = setInterval(() => {
-      fetch('http://192.168.88.252:8000/payments/status/' + orderId + '/')
+      fetch('https://optimuminnovationhotspot.com/payments/status/' + orderId + '/')
       .then(r => r.json())
       .then(data => {
         if (data.status === 'success') {
@@ -879,7 +879,7 @@
               <div class="sub">You are now connected to the internet.</div>
             </div>`;
           showToast('✅ Connected! Enjoy your internet.');
-          setTimeout(() => { window.location.href = 'http://192.168.88.252:8000/connected/?mac=' + mac; }, 2500);
+          setTimeout(() => { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; }, 2500);
         } else if (data.status === 'failed') {
           clearInterval(iv);
           document.getElementById('directResult').innerHTML = `
@@ -925,7 +925,7 @@
     btnTxt.textContent    = 'Processing...';
     spinner.style.display = 'block';
 
-    fetch('http://192.168.88.252:8000/payments/buy-voucher/', {
+    fetch('https://optimuminnovationhotspot.com/payments/buy-voucher/', {
       method : 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
       body: JSON.stringify({
@@ -963,7 +963,7 @@
       </div>`;
 
     const iv = setInterval(() => {
-      fetch('http://192.168.88.252:8000/payments/buy-voucher/status/' + orderId + '/')
+      fetch('https://optimuminnovationhotspot.com/payments/buy-voucher/status/' + orderId + '/')
       .then(r => r.json())
       .then(data => {
         if (data.status === 'success') {
@@ -1100,7 +1100,7 @@
     btnTxt.textContent    = 'Connecting...';
     spinner.style.display = 'block';
 
-    fetch('http://192.168.88.252:8000/payments/redeem-voucher/', {
+    fetch('https://optimuminnovationhotspot.com/payments/redeem-voucher/', {
       method : 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
       body: JSON.stringify({
