@@ -348,28 +348,55 @@ def register_router(request):
 def get_commands(request, router_id):
     """
     Called by MikroTik router every 5 seconds.
-    Returns pending commands for this router.
-    Router executes them and calls confirm_command to mark done.
+    Returns a RouterOS-executable script with pending commands.
+    Router downloads and runs it directly.
     """
     if request.method != 'GET':
         return JsonResponse({'status': 'error'}, status=405)
 
-    # Get all pending commands for this router
+    from django.http import HttpResponse
+
     commands = RouterCommand.objects.filter(
         router_id=router_id,
         status='pending'
-    ).values(
-        'id',
-        'action',
-        'mac_address',
-        'ip_address'
-    )
+    ).order_by('created_at')
 
-    return JsonResponse({
-        'status'  : 'ok',
-        'commands': list(commands)
-    })
+    if not commands.exists():
+        return HttpResponse('# No commands\r\n', content_type='text/plain')
 
+    base_url = 'https://optimuminnovationhotspot.com'
+    lines    = []
+
+    for cmd in commands:
+        mac = cmd.mac_address
+
+        if cmd.action == 'grant':
+            lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}"] }} on-error={{}}')
+            lines.append(f':do {{ /ip hotspot ip-binding add mac-address="{mac}" type=bypassed comment="WiFiPortal_{mac}" }} on-error={{}}')
+            lines.append(f':do {{ /ip hotspot active remove [find mac-address="{mac}"] }} on-error={{}}')
+
+        elif cmd.action == 'revoke':
+            lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}"] }} on-error={{}}')
+            lines.append(f':do {{ /ip hotspot active remove [find mac-address="{mac}"] }} on-error={{}}')
+
+        elif cmd.action == 'block':
+            lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}"] }} on-error={{}}')
+            lines.append(f':do {{ /ip hotspot ip-binding add mac-address="{mac}" type=blocked comment="WiFiPortal_Blocked_{mac}" }} on-error={{}}')
+
+        elif cmd.action == 'unblock':
+            lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}" type=blocked] }} on-error={{}}')
+
+        # Confirm command executed
+        lines.append(
+            f'/tool fetch url="{base_url}/network/command/{cmd.id}/confirm/" '
+            f'http-method=post '
+            f'http-header-field="Content-Type: application/json" '
+            f'http-data="{{\\\"success\\\":true}}" '
+            f'output=none'
+        )
+
+    script = '\r\n'.join(lines) + '\r\n'
+    return HttpResponse(script, content_type='text/plain')
 
 @csrf_exempt
 def confirm_command(request, command_id):
