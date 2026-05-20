@@ -7,7 +7,7 @@ from datetime import timedelta
 from django.db.models import Sum, Count
 import json
 
-from network.models import MikroTikRouter
+from network.models import MikroTikRouter,RouterCommand
 from network.mikrotik import (
     grant_internet_access,
     revoke_internet_access,
@@ -342,3 +342,59 @@ def register_router(request):
         'message': f'Router {identity} {action} successfully.',
         'router_id': router.id,
     })
+
+
+@csrf_exempt
+def get_commands(request, router_id):
+    """
+    Called by MikroTik router every 5 seconds.
+    Returns pending commands for this router.
+    Router executes them and calls confirm_command to mark done.
+    """
+    if request.method != 'GET':
+        return JsonResponse({'status': 'error'}, status=405)
+
+    # Get all pending commands for this router
+    commands = RouterCommand.objects.filter(
+        router_id=router_id,
+        status='pending'
+    ).values(
+        'id',
+        'action',
+        'mac_address',
+        'ip_address'
+    )
+
+    return JsonResponse({
+        'status'  : 'ok',
+        'commands': list(commands)
+    })
+
+
+@csrf_exempt
+def confirm_command(request, command_id):
+    """
+    Called by MikroTik after executing a command.
+    Marks command as executed or failed.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error'}, status=405)
+
+    try:
+        data    = json.loads(request.body)
+        command = RouterCommand.objects.get(id=command_id)
+
+        if data.get('success'):
+            command.status      = 'executed'
+            command.executed_at = timezone.now()
+        else:
+            command.status = 'failed'
+            command.error  = data.get('error', 'Unknown error')
+
+        command.save()
+        return JsonResponse({'status': 'ok'})
+
+    except RouterCommand.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Command not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

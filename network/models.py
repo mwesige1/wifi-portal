@@ -133,3 +133,57 @@ class MikroTikRouter(models.Model):
         if self.connection_type == 'wireguard':
             return self.wireguard_tunnel_ip
         return self.ip_address
+
+
+class RouterCommand(models.Model):
+    """
+    Queue of commands for MikroTik routers.
+    Router polls this table and executes pending commands.
+    """
+
+    ACTION_CHOICES = [
+        ('grant',  'Grant Internet'),
+        ('revoke', 'Revoke Internet'),
+        ('block',  'Block Device'),
+        ('unblock','Unblock Device'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pending',  'Pending'),
+        ('executed', 'Executed'),
+        ('failed',   'Failed'),
+    ]
+
+    # Which router should execute this command
+    router      = models.ForeignKey(
+                      MikroTikRouter,
+                      on_delete=models.CASCADE,
+                      related_name='commands'
+                  )
+
+    # What to do
+    action      = models.CharField(max_length=10, choices=ACTION_CHOICES)
+
+    # Target device
+    mac_address = models.CharField(max_length=17)
+    ip_address  = models.CharField(max_length=15, blank=True)
+
+    # Status tracking
+    status      = models.CharField(
+                      max_length=10,
+                      choices=STATUS_CHOICES,
+                      default='pending'
+                  )
+
+    # Timestamps
+    created_at  = models.DateTimeField(auto_now_add=True)
+    executed_at = models.DateTimeField(null=True, blank=True)
+
+    # Error message if failed
+    error       = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.action} {self.mac_address} on {self.router.identity}"

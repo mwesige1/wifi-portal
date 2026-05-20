@@ -231,47 +231,67 @@ class MikrotikAPI:
 
 
 def grant_internet_access(mac_address, ip_address, router=None):
+    """
+    Creates a command in the queue for the router to grant internet.
+    Router polls Django and executes the command locally.
+    Falls back to direct API if router is directly reachable.
+    """
     try:
-        api = MikrotikAPI(router=router)
+        # ── Try direct API first ───────────────────────
+        if router and is_router_reachable(router.connection_address):
+            api      = MikrotikAPI(router=router)
+            response = api.run_command_with_response([
+                '/ip/hotspot/ip-binding/print',
+                f'?mac-address={mac_address}',
+            ])
 
-        # Check if binding already exists (bypassed or blocked)
-        response = api.run_command_with_response([
-            '/ip/hotspot/ip-binding/print',
-            f'?mac-address={mac_address}',
-        ])
+            binding_id   = None
+            binding_type = None
+            for word in response:
+                if word.startswith('=.id='):
+                    binding_id = word[5:]
+                if word.startswith('=type='):
+                    binding_type = word[6:]
 
-        binding_id   = None
-        binding_type = None
-        for word in response:
-            if word.startswith('=.id='):
-                binding_id = word[5:]
-            if word.startswith('=type='):
-                binding_type = word[6:]
+            if binding_id and binding_type == 'bypassed':
+                print(f"✅ Already bypassed for {mac_address}")
+                return True
 
-        if binding_id and binding_type == 'bypassed':
-            print(f"✅ Binding already bypassed for {mac_address}")
-            return True
+            if binding_id and binding_type == 'blocked':
+                result = api.run_command([
+                    '/ip/hotspot/ip-binding/set',
+                    f'=.id={binding_id}',
+                    '=type=bypassed',
+                    f'=comment=WiFi_Portal_{mac_address}',
+                ])
+                return result
 
-        if binding_id and binding_type == 'blocked':
             result = api.run_command([
-                '/ip/hotspot/ip-binding/set',
-                f'=.id={binding_id}',
-                f'=type=bypassed',
+                '/ip/hotspot/ip-binding/add',
+                f'=mac-address={mac_address}',
+                '=type=bypassed',
                 f'=comment=WiFi_Portal_{mac_address}',
             ])
             if result:
-                print(f"✅ Changed blocked → bypassed for {mac_address}")
+                print(f"✅ Direct API: granted internet to {mac_address}")
             return result
 
-        result = api.run_command([
-            '/ip/hotspot/ip-binding/add',
-            f'=mac-address={mac_address}',
-            f'=type=bypassed',
-            f'=comment=WiFi_Portal_{mac_address}',
-        ])
-        if result:
-            print(f"✅ Granted internet access to {mac_address}")
-        return result
+        # ── Fallback — command queue ───────────────────
+        # Router is not directly reachable
+        # Create a command for router to pick up on next poll
+        if router:
+            from network.models import RouterCommand
+            RouterCommand.objects.create(
+                router      = router,
+                action      = 'grant',
+                mac_address = mac_address,
+                ip_address  = ip_address or '',
+            )
+            print(f"✅ Command queued: grant {mac_address} on {router.identity}")
+            return True
+
+        print(f"⚠️ No router specified for grant_internet_access")
+        return False
 
     except Exception as e:
         print(f"grant_internet_access error: {e}")
@@ -280,93 +300,76 @@ def grant_internet_access(mac_address, ip_address, router=None):
 
 def revoke_internet_access(mac_address, ip_address, router=None, block_type='remove'):
     """
-    Called when a session expires or is cancelled.
-
-    block_type='remove' → Removes binding entirely so Mikrotik
-                          redirects device back to portal.
-                          Used for expired sessions.
-
-    block_type='block'  → Sets binding to blocked type.
-                          Used when admin manually blocks a device.
-                          Device cannot access internet or portal.
+    Creates a command in the queue for the router to revoke internet.
+    Falls back to direct API if router is directly reachable.
     """
     try:
-        api = MikrotikAPI(router=router)
+        action = 'block' if block_type == 'block' else 'revoke'
 
-        # Find the binding ID for this MAC
-        response = api.run_command_with_response([
-            '/ip/hotspot/ip-binding/print',
-            f'?mac-address={mac_address}',
-        ])
+        # ── Try direct API first ───────────────────────
+        if router and is_router_reachable(router.connection_address):
+            api      = MikrotikAPI(router=router)
+            response = api.run_command_with_response([
+                '/ip/hotspot/ip-binding/print',
+                f'?mac-address={mac_address}',
+            ])
 
-        print(f"Binding search response: {response}")
+            binding_id   = None
+            binding_type = None
+            for word in response:
+                if word.startswith('=.id='):
+                    binding_id = word[5:]
+                if word.startswith('=type='):
+                    binding_type = word[6:]
 
-        binding_id   = None
-        binding_type = None
-        for word in response:
-            if word.startswith('=.id='):
-                binding_id = word[5:]
-            if word.startswith('=type='):
-                binding_type = word[6:]
-
-        if block_type == 'block':
-            # ── Admin blocked device ───────────────────────
-            # Set binding to blocked type
-            if binding_id:
-                if binding_type == 'blocked':
-                    print(f"ℹ️ Already blocked for {mac_address}")
-                    return True
-                result = api.run_command([
-                    '/ip/hotspot/ip-binding/set',
-                    f'=.id={binding_id}',
-                    f'=type=blocked',
-                    f'=comment=WiFi_Portal_AdminBlocked_{mac_address}',
-                ])
-            else:
-                result = api.run_command([
-                    '/ip/hotspot/ip-binding/add',
-                    f'=mac-address={mac_address}',
-                    f'=type=blocked',
-                    f'=comment=WiFi_Portal_AdminBlocked_{mac_address}',
-                ])
-            if result:
-                print(f"✅ Admin blocked {mac_address}")
-            return result
-
-        else:
-            # ── Expired session ────────────────────────────
-            # Remove binding entirely so Mikrotik hotspot
-            # treats device as unauthenticated and redirects
-            # HTTP traffic back to portal
-            if binding_id:
-                result = api.run_command([
-                    '/ip/hotspot/ip-binding/remove',
-                    f'=.id={binding_id}',
-                ])
-                if result:
-                    print(f"✅ Removed binding for {mac_address} → will redirect to portal")
-
-                # Remove device from hotspot active hosts
-                # This forces Mikrotik to re-process the device
-                # as unauthenticated immediately
-                try:
-                    api2 = MikrotikAPI(router=router)
-                    api2.connect()
-                    api2.login()
-                    api2.send_sentence([
-                        '/ip/hotspot/active/remove',
-                        f'?mac-address={mac_address}',
+            if block_type == 'block':
+                if binding_id:
+                    if binding_type == 'blocked':
+                        return True
+                    result = api.run_command([
+                        '/ip/hotspot/ip-binding/set',
+                        f'=.id={binding_id}',
+                        '=type=blocked',
+                        f'=comment=WiFi_Portal_AdminBlocked_{mac_address}',
                     ])
-                    api2.read_sentence()
-                    api2.disconnect()
-                    print(f"✅ Removed {mac_address} from hotspot active hosts")
-                except Exception as e:
-                    print(f"Hotspot active remove error: {e}")
-
+                else:
+                    result = api.run_command([
+                        '/ip/hotspot/ip-binding/add',
+                        f'=mac-address={mac_address}',
+                        '=type=blocked',
+                        f'=comment=WiFi_Portal_AdminBlocked_{mac_address}',
+                    ])
+                if result:
+                    print(f"✅ Direct API: blocked {mac_address}")
                 return result
+
             else:
-                print(f"No binding found for {mac_address}")
-                return True
+                if binding_id:
+                    result = api.run_command([
+                        '/ip/hotspot/ip-binding/remove',
+                        f'=.id={binding_id}',
+                    ])
+                    if result:
+                        print(f"✅ Direct API: revoked {mac_address}")
+                    return result
+                else:
+                    print(f"No binding found for {mac_address}")
+                    return True
+
+        # ── Fallback — command queue ───────────────────
+        if router:
+            from network.models import RouterCommand
+            RouterCommand.objects.create(
+                router      = router,
+                action      = action,
+                mac_address = mac_address,
+                ip_address  = ip_address or '',
+            )
+            print(f"✅ Command queued: {action} {mac_address} on {router.identity}")
+            return True
+
+        print(f"⚠️ No router specified for revoke_internet_access")
+        return False
 
     except Exception as e:
         print(f"revoke_internet_access error: {e}")
