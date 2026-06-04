@@ -132,7 +132,7 @@ class MikroTikRouter(models.Model):
         """
         if self.connection_type == 'wireguard':
             return self.wireguard_tunnel_ip
-        return self.ip_address
+        return self.gateway_ip
 
 
 class RouterCommand(models.Model):
