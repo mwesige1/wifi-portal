@@ -243,9 +243,6 @@ def check_router_health():
     to see if they are online or offline.
     Updates the status in the database so the
     dashboard health monitor stays accurate.
-
-    Also sends an alert if a router goes offline
-    so admin can investigate quickly.
     """
 
     from network.models import MikroTikRouter
@@ -255,19 +252,20 @@ def check_router_health():
 
     for router in routers:
         try:
-            # Check if router responds to API connection
-            reachable = is_router_reachable(router.ip_address)
+            # ── Use connection_address not ip_address ──
+            # connection_address returns gateway_ip for direct routers
+            # and wireguard_tunnel_ip for WireGuard routers
+            # ip_address field may be None — this was the bug
+            reachable = is_router_reachable(router.connection_address)
 
             old_status    = router.status
             router.status = 'online' if reachable else 'offline'
 
-            # Update last seen if online
             if reachable:
                 router.last_seen = timezone.now()
 
             router.save()
 
-            # Log status changes
             if old_status != router.status:
                 logger.warning(
                     f"Router {router.identity} changed: "

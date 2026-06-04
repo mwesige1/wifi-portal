@@ -7,6 +7,17 @@ from django.http import JsonResponse
 from dashboard.models import Feedback
 
 
+
+def get_client_ip(request):
+    """
+    Gets the real client IP address behind Nginx/Docker proxy.
+    """
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
 def get_mac_from_ip(ip_address):
     """
     Looks up the system ARP table to find the MAC
@@ -39,7 +50,7 @@ def portal_landing(request):
     """
     from network.models import MikroTikRouter
 
-    ip_address  = request.GET.get('ip') or request.META.get('REMOTE_ADDR')
+    ip_address  = request.GET.get('ip') or get_client_ip(request)
     mac_address = request.GET.get('mac', None)
 
     # ── Detect which router this customer is on ────────

@@ -10,6 +10,22 @@ from payments.models import Order, Voucher
 from . import mtn, airtel, iotec
 
 
+
+def get_client_ip(request):
+    """
+    Gets the real client IP address behind Nginx/Docker proxy.
+    Cloudflare and Nginx both set X-Forwarded-For header.
+    REMOTE_ADDR inside Docker returns the proxy container IP
+    not the real client — so we must check headers first.
+    """
+    # X-Forwarded-For may contain multiple IPs — take the first one
+    # Format: "client_ip, proxy1_ip, proxy2_ip"
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    # Fallback to REMOTE_ADDR if no proxy header present
+    return request.META.get('REMOTE_ADDR')
+
 @csrf_exempt
 def initiate_payment(request):
     """
@@ -103,7 +119,7 @@ def initiate_payment(request):
                 'message': 'Free trial has already been used on this device.'
             })
 
-        ip_address = data.get('ip_address') or request.META.get('REMOTE_ADDR')
+        ip_address = data.get('ip_address') or get_client_ip(request)
 
         # Create session immediately — no payment needed
         WiFiSession.objects.create(
@@ -243,17 +259,7 @@ def payment_status(request, order_id):
 
         # Get customer's real IP address
         # Mikrotik sometimes passes its own IP so we check
-        ip_address = request.META.get('REMOTE_ADDR')
-        if ip_address == '192.168.88.1':
-            try:
-                # Find last known real IP for this device
-                last_session = WiFiSession.objects.filter(
-                    device=order.device
-                ).order_by('-created_at').first()
-                if last_session and last_session.ip_address != '192.168.88.1':
-                    ip_address = last_session.ip_address
-            except Exception:
-                pass
+        ip_address = get_client_ip(request)
 
         # ── Create WiFi session ────────────────────────
         # Links to order.router so we know which
