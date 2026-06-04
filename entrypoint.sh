@@ -11,21 +11,25 @@ while ! nc -z db 5432; do
 done
 echo "✅ Database is ready"
 
-# ── Run migrations ────────────────────────────────────
-echo "Running migrations..."
-python manage.py migrate --noinput
-echo "✅ Migrations complete"
+# ── Run migrations and start Gunicorn for web only ────
+# Celery containers skip this and run their own command
+if [ "$SERVICE" = "web" ]; then
+    echo "Running migrations..."
+    python manage.py migrate --noinput
+    echo "✅ Migrations complete"
 
-# ── Collect static files ──────────────────────────────
-echo "Collecting static files..."
-python manage.py collectstatic --noinput
-echo "✅ Static files collected"
+    echo "Collecting static files..."
+    python manage.py collectstatic --noinput
+    echo "✅ Static files collected"
 
-# ── Start Gunicorn ────────────────────────────────────
-echo "Starting Gunicorn..."
-exec gunicorn wifiportal.wsgi:application \
-    --bind 0.0.0.0:8000 \
-    --workers 4 \
-    --timeout 120 \
-    --access-logfile - \
-    --error-logfile -
+    echo "Starting Gunicorn..."
+    exec gunicorn wifiportal.wsgi:application \
+        --bind 0.0.0.0:8000 \
+        --workers 4 \
+        --timeout 120 \
+        --access-logfile - \
+        --error-logfile -
+else
+    # Celery worker and beat — execute the docker-compose command
+    exec "$@"
+fi
