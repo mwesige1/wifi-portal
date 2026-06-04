@@ -161,9 +161,9 @@ CELERY_BEAT_SCHEDULE = {
         'task'    : 'wifi_sessions.tasks.restore_router_rules',
         'schedule': crontab(minute='*/5'),
     },
-    'check-router-health': {
-        'task'    : 'wifi_sessions.tasks.check_router_health',
-        'schedule': crontab(minute='*/5'),
+   'check-router-health': {
+    'task'    : 'wifi_sessions.tasks.check_router_health',
+    'schedule': 60.0,  # Every 60 seconds — keeps dashboard status accurate
     },
 }
 

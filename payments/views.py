@@ -259,7 +259,10 @@ def payment_status(request, order_id):
 
         # Get customer's real IP address
         # Mikrotik sometimes passes its own IP so we check
-        ip_address = get_client_ip(request)
+        # Use the local hotspot IP saved at payment initiation
+        # order.ip_address comes from MikroTik ?ip= param — always the correct local IP
+        # get_client_ip would return Cloudflare's public IP — wrong for MikroTik rules
+        ip_address = order.ip_address or get_client_ip(request)
 
         # ── Create WiFi session ────────────────────────
         # Links to order.router so we know which
