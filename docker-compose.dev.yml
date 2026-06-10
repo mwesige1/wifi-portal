@@ -1,0 +1,99 @@
+services:
+
+  web:
+    build: .
+    container_name: wifiportal_web
+    restart: always
+    env_file: .env
+    entrypoint: /entrypoint.sh
+    environment:
+      - SERVICE=web
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - logs_volume:/app/logs
+      - ./templates:/app/templates
+      - ./static:/app/static
+    depends_on:
+      - db
+      - redis
+    networks:
+      - wifiportal_network
+    expose:
+      - "8000"
+
+  db:
+    image: postgres:16
+    container_name: wifiportal_db
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_DB:       ${DATABASE_NAME}
+      POSTGRES_USER:     ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - wifiportal_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: wifiportal_redis
+    restart: always
+    networks:
+      - wifiportal_network
+
+  celery:
+    build: .
+    container_name: wifiportal_celery
+    restart: always
+    env_file: .env
+    entrypoint: /entrypoint.sh
+    command: celery -A wifiportal worker --loglevel=info
+    volumes:
+      - logs_volume:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - wifiportal_network
+
+  celery_beat:
+    build: .
+    container_name: wifiportal_celery_beat
+    restart: always
+    env_file: .env
+    entrypoint: /entrypoint.sh
+    command: celery -A wifiportal beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - logs_volume:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - wifiportal_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: wifiportal_nginx
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+    networks:
+      - wifiportal_network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  logs_volume:
+
+networks:
+  wifiportal_network:
+    driver: bridge

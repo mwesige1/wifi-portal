@@ -268,11 +268,24 @@ def captive_portal_check(request):
     ]
 
     if any(p in path for p in apple_paths) or 'apple' in host or 'netcts' in host:
-        response = HttpResponse(status=302)
-        response['Location']      = full_url
+        # ── iOS/macOS captive portal detection ────────────
+        # Return 200 with non-success content so iOS knows
+        # it is behind a captive portal and shows the popup.
+        # meta refresh opens our portal in the mini browser.
+        response = HttpResponse(
+            '<HTML><HEAD>'
+            f'<meta http-equiv="refresh" content="0;url={full_url}">'
+            '<TITLE>Login Required</TITLE>'
+            '</HEAD>'
+            '<BODY>Please <a href="' + full_url + '">click here</a> to login.</BODY>'
+            '</HTML>',
+            status=200,
+            content_type='text/html'
+        )
         response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         return response
 
+    # ── All other OS — straight redirect to portal ─────
     response = HttpResponseRedirect(full_url)
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     return response
