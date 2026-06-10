@@ -261,13 +261,13 @@ def captive_portal_check(request):
         full_url = portal_url + '?' + '&'.join(params)
 
     apple_paths = [
-        'hotspot-detect.html',
-        'success.html',
-        'connecttest.txt',
-        'ncsi.txt',
+    'hotspot-detect.html',
+    'success.html',
+    'connecttest.txt',
+    'ncsi.txt',
+    'login',
     ]
-
-    if any(p in path for p in apple_paths) or 'apple' in host or 'netcts' in host:
+    if any(p in path for p in apple_paths) or 'apple' in host or 'netcts' in host or 'cdn-apple' in host:
         # ── iOS/macOS captive portal detection ────────────
         # Return 200 with non-success content so iOS knows
         # it is behind a captive portal and shows the popup.
