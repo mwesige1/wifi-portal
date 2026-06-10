@@ -285,6 +285,23 @@ def captive_portal_check(request):
         response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         return response
 
+    # ── Linux/Android connectivity check ──────────────
+    # NetworkManager expects 204 No Content for success
+    # We return 302 redirect to trigger captive portal notification
+    linux_paths = [
+        'connectivity-check',
+        'check_network_status.txt',
+        'generate_204',
+        'gen_204',
+    ]
+
+    if any(p in path for p in linux_paths):
+        # Return 302 redirect — Linux sees this as captive portal
+        response = HttpResponse(status=302)
+        response['Location']      = full_url
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        return response
+
     # ── All other OS — straight redirect to portal ─────
     response = HttpResponseRedirect(full_url)
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
