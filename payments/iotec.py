@@ -80,7 +80,7 @@ def request_payment(phone_number, amount, order_id, provider='mtn'):
     'amount'     : float(amount),
     'payerNote'  : 'WiFi Access Payment',
     'payeeNote'  : f'Order #{order_id}',
-    'callbackUrl': settings.IOTEC_CALLBACK_URL,
+   
     }
 
     try:
