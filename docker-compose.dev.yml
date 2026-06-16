@@ -14,6 +14,12 @@ services:
       - logs_volume:/app/logs
       - ./templates:/app/templates
       - ./static:/app/static
+      - ./portal:/app/portal
+      - ./dashboard:/app/dashboard
+      - ./payments:/app/payments
+      - ./network:/app/network
+      - ./wifi_sessions:/app/wifi_sessions
+      - ./wifiportal:/app/wifiportal
     depends_on:
       - db
       - redis

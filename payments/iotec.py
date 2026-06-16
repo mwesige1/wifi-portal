@@ -72,14 +72,15 @@ def request_payment(phone_number, amount, order_id, provider='mtn'):
 
     # Step 3 — Build collection request payload
     payload = {
-        'category'  : 'MobileMoney',
-        'currency'  : 'UGX',
-        'walletId'  : settings.IOTEC_WALLET_ID,
-        'externalId': str(order_id),
-        'payer'     : phone_number,
-        'amount'    : float(amount),
-        'payerNote' : 'WiFi Access Payment',
-        'payeeNote' : f'Order #{order_id}',
+    'category'   : 'MobileMoney',
+    'currency'   : 'UGX',
+    'walletId'   : settings.IOTEC_WALLET_ID,
+    'externalId' : str(order_id),
+    'payer'      : phone_number,
+    'amount'     : float(amount),
+    'payerNote'  : 'WiFi Access Payment',
+    'payeeNote'  : f'Order #{order_id}',
+    'callbackUrl': settings.IOTEC_CALLBACK_URL,
     }
 
     try:

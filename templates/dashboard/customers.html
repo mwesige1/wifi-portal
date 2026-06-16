@@ -7,145 +7,97 @@
 {% block content %}
 
 <!-- ── Header ────────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">Customers</h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Everyone who has connected to your network
-        </p>
+        <h5>Customers</h5>
+        <p>Everyone who has connected to your network</p>
     </div>
 </div>
 
 <!-- ── Cards ─────────────────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-people-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>All Time</p>
-                <h4>{{ total_count }}</h4>
-            </div>
+<div class="stats-row mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>All Time</p>
+            <h4>{{ total_count }}</h4>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <a href="?status=active" style="text-decoration:none;">
-            <div class="dash-stat-card">
-                <div class="dash-stat-icon" style="background:#f0fdf4;">
-                    <i class="bi bi-wifi" style="color:#16a34a;"></i>
-                </div>
-                <div class="dash-stat-info">
-                    <p>Connected Now</p>
-                    <h4>{{ active_count }}</h4>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="?status=active" class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-wifi"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Connected Now</p>
+            <h4>{{ active_count }}</h4>
+        </div>
+    </a>
 
-    <div class="col-md-3">
-        <a href="?status=expired" style="text-decoration:none;">
-            <div class="dash-stat-card">
-                <div class="dash-stat-icon" style="background:#fef2f2;">
-                    <i class="bi bi-wifi-off" style="color:#dc2626;"></i>
-                </div>
-                <div class="dash-stat-info">
-                    <p>Expired</p>
-                    <h4>{{ expired_count }}</h4>
-                </div>
-            </div>
-        </a>
-    </div>
+    <a href="?status=expired" class="dash-stat-card">
+        <div class="dash-stat-icon icon-danger">
+            <i class="bi bi-wifi-off"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Expired</p>
+            <h4>{{ expired_count }}</h4>
+        </div>
+    </a>
 
-    <div class="col-md-3">
-        <a href="?status=blocked" style="text-decoration:none;">
-            <div class="dash-stat-card">
-                <div class="dash-stat-icon" style="background:#fefce8;">
-                    <i class="bi bi-slash-circle" style="color:#ca8a04;"></i>
-                </div>
-                <div class="dash-stat-info">
-                    <p>Blocked</p>
-                    <h4>{{ blocked_count }}</h4>
-                </div>
-            </div>
-        </a>
-    </div>
-
+    <a href="?status=blocked" class="dash-stat-card">
+        <div class="dash-stat-icon icon-warning">
+            <i class="bi bi-slash-circle"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Blocked</p>
+            <h4>{{ blocked_count }}</h4>
+        </div>
+    </a>
 </div>
 
 <!-- ── Search ─────────────────────────────────────────── -->
-<form method="get" style="margin-bottom:16px;">
+<form method="get" class="search-box">
     {% if status_filter %}
         <input type="hidden" name="status" value="{{ status_filter }}">
     {% endif %}
-    <div style="display:flex; gap:8px; max-width:400px;">
-        <div style="position:relative; flex:1;">
-            <i class="bi bi-search"
-               style="position:absolute; left:12px; top:50%;
-                      transform:translateY(-50%); color:#9ca3af;"></i>
-            <input type="text"
-                   name="search"
-                   value="{{ search }}"
-                   placeholder="Search by phone number or sessions..."
-                   style="width:100%; padding:9px 12px 9px 36px;
-                          border:1px solid #e5e7eb; border-radius:10px;
-                          font-size:13px; outline:none;
-                          font-family:'Inter', sans-serif;">
-        </div>
-        <button type="submit"
-                style="background:#2563eb; color:#fff; border:none;
-                       border-radius:10px; padding:9px 18px;
-                       font-size:13px; font-weight:600; cursor:pointer;">
-            Search
-        </button>
-        {% if search or status_filter %}
-        <a href="{% url 'dashboard:customers' %}"
-           style="background:#f3f4f6; color:#374151; border:none;
-                  border-radius:10px; padding:9px 14px;
-                  font-size:13px; font-weight:600;
-                  text-decoration:none; display:flex; align-items:center;">
-            Clear
-        </a>
-        {% endif %}
+    <div class="search-input-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text"
+               name="search"
+               value="{{ search }}"
+               placeholder="Search by phone number or sessions..."
+               class="search-input">
     </div>
+    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+    {% if search or status_filter %}
+    <a href="{% url 'dashboard:customers' %}" class="btn btn-outline btn-sm">Clear</a>
+    {% endif %}
 </form>
 
 <!-- ── Filter Tabs ────────────────────────────────────── -->
-<div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+<div class="tab-pills">
     <a href="?{% if search %}search={{ search }}{% endif %}"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if not status_filter %}background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}background:#fff; color:#6b7280;{% endif %}">
+       class="tab-pill {% if not status_filter %}active{% endif %}">
         All ({{ total_count }})
     </a>
     <a href="?status=active{% if search %}&search={{ search }}{% endif %}"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if status_filter == 'active' %}background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}background:#fff; color:#6b7280;{% endif %}">
+       class="tab-pill {% if status_filter == 'active' %}active{% endif %}">
         Active ({{ active_count }})
     </a>
     <a href="?status=expired{% if search %}&search={{ search }}{% endif %}"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if status_filter == 'expired' %}background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}background:#fff; color:#6b7280;{% endif %}">
+       class="tab-pill {% if status_filter == 'expired' %}active{% endif %}">
         Expired ({{ expired_count }})
     </a>
     <a href="?status=blocked{% if search %}&search={{ search }}{% endif %}"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if status_filter == 'blocked' %}background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}background:#fff; color:#6b7280;{% endif %}">
+       class="tab-pill {% if status_filter == 'blocked' %}active{% endif %}">
         Blocked ({{ blocked_count }})
     </a>
 </div>
 
 <!-- ── Table ──────────────────────────────────────────── -->
-<div class="dash-table">
+<div class="dash-table customers-table">
     <div class="dash-table-header">
         <h6>
             {% if status_filter %}{{ status_filter|title }}{% else %}All{% endif %}
@@ -153,157 +105,123 @@
             {% if search %}&mdash; "{{ search }}"{% endif %}
         </h6>
     </div>
-    <table class="table table-hover mb-0">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Phone Number</th>
-                <th>MAC Address</th>
-                <th>Last Package</th>
-                <th>Total Spent</th>
-                <th>Sessions</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for device in devices %}
-            {% with last_session=device.wifisession_set.first %}
-            {% with now=device.last_seen %}
-            <tr>
-                <td style="color:#9ca3af; font-size:12px;">{{ forloop.counter }}</td>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-num">#</th>
+                    <th class="col-customer">Phone Number</th>
+                    <th class="col-mac">MAC Address</th>
+                    <th class="col-package">Last Package</th>
+                    <th class="col-spent">Total Spent</th>
+                    <th class="col-sessions">Sessions</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-joined">Joined</th>
+                    <th class="col-action">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device in devices %}
+                {% with last_session=device.wifisession_set.first %}
+                <tr>
+                    <td class="col-num text-muted" style="font-size:12px;">
+                        {{ forloop.counter }}
+                    </td>
 
-                <td>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div style="width:36px; height:36px; border-radius:50%;
-                                    background:#eff6ff; display:flex;
-                                    align-items:center; justify-content:center;
-                                    font-size:13px; font-weight:800;
-                                    color:#2563eb; flex-shrink:0;">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <div>
-                            <p style="font-size:13px; font-weight:700;
-                                      color:#1a1a2e; margin:0;">
-                                {{ device.phone_number|default:"Unknown" }}
-                            </p>
-                            <p style="font-size:11px; color:#9ca3af; margin:0;">
-                                Last seen {{ device.last_seen|timesince }} ago
-                            </p>
-                        </div>
-                    </div>
-                </td>
-
-                <td style="font-family:monospace; font-size:12px; color:#374151;">
-                    {{ device.mac_address }}
-                </td>
-
-                <td style="color:#374151; font-size:13px;">
-                    {{ last_session.package.name|default:"—" }}
-                </td>
-
-                <td style="font-weight:700; color:#16a34a;">
-                    UGX {{ device.total_spent|floatformat:0|intcomma }}
-                </td>
-
-                <td style="font-weight:700; color:#2563eb; text-align:center;">
-                    {{ device.session_count }}
-                </td>
-
-                <td>
-                    {% if device.is_blocked %}
-                        <span style="background:#fef9c3; color:#ca8a04;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            Blocked
-                        </span>
-                    {% elif last_session.status == 'active' %}
-                        <span style="background:#dcfce7; color:#16a34a;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            Active
-                        </span>
-                    {% elif last_session %}
-                        <span style="background:#fee2e2; color:#dc2626;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            Expired
-                        </span>
-                    {% else %}
-                        <span style="background:#f3f4f6; color:#6b7280;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            No Sessions
-                        </span>
-                    {% endif %}
-                </td>
-
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ device.first_seen|date:"d M Y" }}
-                </td>
-
-                <td>
-                    <div style="display:flex; gap:6px;">
-                        <a href="{% url 'dashboard:customer_detail' device.id %}"
-                           style="background:#eff6ff; color:#2563eb; border:none;
-                                  border-radius:8px; padding:5px 12px;
-                                  font-size:12px; font-weight:600;
-                                  text-decoration:none;">
-                            <i class="bi bi-eye"></i> View
-                        </a>
-                        <form method="post"
-                              action="{% url 'dashboard:customer_delete' device.id %}"
-                              class="delete-form" style="display:inline;">
-                            {% csrf_token %}
-                            <div class="delete-initial">
-                                <button type="button" onclick="showDelete(this)"
-                                        style="background:#fef2f2; color:#dc2626;
-                                               border:none; border-radius:8px;
-                                               padding:5px 12px; font-size:12px;
-                                               font-weight:600; cursor:pointer;">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
+                    <td class="col-customer">
+                        <div class="customer-cell">
+                            <div class="customer-avatar">
+                                <i class="bi bi-person-fill"></i>
                             </div>
-                            <div class="delete-confirm" style="display:none;">
-                                <button type="submit"
-                                        style="background:#dc2626; color:#fff;
-                                               border:none; border-radius:8px;
-                                               padding:5px 12px; font-size:12px;
-                                               font-weight:600; cursor:pointer;">
-                                    <i class="bi bi-check-lg"></i> Yes
-                                </button>
-                                <button type="button" onclick="hideDelete(this)"
-                                        style="background:#f3f4f6; color:#374151;
-                                               border:none; border-radius:8px;
-                                               padding:5px 12px; font-size:12px;
-                                               font-weight:600; cursor:pointer;
-                                               margin-left:4px;">
-                                    <i class="bi bi-x-lg"></i> No
-                                </button>
+                            <div>
+                                <p class="customer-name">
+                                    {{ device.phone_number|default:"Unknown" }}
+                                </p>
+                                <p class="customer-sub">
+                                    Last seen {{ device.last_seen|timesince }} ago
+                                </p>
                             </div>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% endwith %}
-            {% endwith %}
-            {% empty %}
-            <tr>
-                <td colspan="9"
-                    style="text-align:center; padding:48px; color:#9ca3af;">
-                    <i class="bi bi-people"
-                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
-                    {% if search %}
-                        No customers found for "{{ search }}".
-                    {% else %}
-                        No customers yet. They will appear here once someone connects.
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        </div>
+                    </td>
+
+                    <td class="col-mac" style="font-family:monospace; font-size:12px;">
+                        {{ device.mac_address }}
+                    </td>
+
+                    <td class="col-package">
+                        {{ last_session.package.name|default:"—" }}
+                    </td>
+
+                    <td class="col-spent font-bold text-success">
+                        UGX {{ device.total_spent|floatformat:0|intcomma }}
+                    </td>
+
+                    <td class="col-sessions font-bold text-center"
+                        style="color:var(--c-primary);">
+                        {{ device.session_count }}
+                    </td>
+
+                    <td class="col-status">
+                        {% if device.is_blocked %}
+                            <span class="badge badge-warning">Blocked</span>
+                        {% elif last_session.status == 'active' %}
+                            <span class="badge badge-success">Active</span>
+                        {% elif last_session %}
+                            <span class="badge badge-failed">Expired</span>
+                        {% else %}
+                            <span class="badge badge-muted">No Sessions</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="col-joined text-muted" style="font-size:12px;">
+                        {{ device.first_seen|date:"d M Y" }}
+                    </td>
+
+                    <td class="col-action">
+                        <div class="action-group">
+                            <a href="{% url 'dashboard:customer_detail' device.id %}"
+                               class="btn-view">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <form method="post"
+                                  action="{% url 'dashboard:customer_delete' device.id %}"
+                                  class="delete-form">
+                                {% csrf_token %}
+                                <div class="delete-initial">
+                                    <button type="button" onclick="showDelete(this)"
+                                            class="btn-cut">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                                <div class="delete-confirm" style="display:none;">
+                                    <button type="submit" class="btn-cut-yes">
+                                        <i class="bi bi-check-lg"></i> Yes
+                                    </button>
+                                    <button type="button" onclick="hideDelete(this)"
+                                            class="btn-cut-no">
+                                        <i class="bi bi-x-lg"></i> No
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        <i class="bi bi-people" style="display:block;"></i>
+                        {% if search %}
+                            No customers found for "{{ search }}".
+                        {% else %}
+                            No customers yet. They will appear here once someone connects.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}
@@ -311,12 +229,12 @@
 {% block extra_js %}
 <script>
 function showDelete(btn) {
-    const form = btn.closest('.delete-form');
+    var form = btn.closest('.delete-form');
     form.querySelector('.delete-initial').style.display = 'none';
     form.querySelector('.delete-confirm').style.display = 'flex';
 }
 function hideDelete(btn) {
-    const form = btn.closest('.delete-form');
+    var form = btn.closest('.delete-form');
     form.querySelector('.delete-initial').style.display = 'block';
     form.querySelector('.delete-confirm').style.display = 'none';
 }

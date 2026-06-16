@@ -6,320 +6,247 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Active Sessions
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Live view of all connected devices on your network
-        </p>
+        <h5>Active Sessions</h5>
+        <p>Live view of all connected devices on your network</p>
     </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-        <!-- Auto-refresh indicator -->
-        <div style="display:flex; align-items:center; gap:6px;
-                    background:#f0fdf4; padding:8px 14px;
-                    border-radius:10px;">
-            <span style="width:8px; height:8px; border-radius:50%;
-                         background:#16a34a; display:inline-block;
-                         animation:pulse 2s infinite;"></span>
-            <span style="font-size:12px; font-weight:700; color:#16a34a;">
-                Live
-            </span>
-        </div>
+    <div class="live-badge">
+        <span class="live-dot"></span>
+        Live
     </div>
 </div>
 
 <!-- ── Summary Cards ─────────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-    <!-- Online Now -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-wifi" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Online Now</p>
-                <h4>{{ sessions|length }}</h4>
-            </div>
+<div class="stats-row mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-wifi"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Online Now</p>
+            <h4>{{ sessions|length }}</h4>
         </div>
     </div>
 
-    <!-- Expiring Soon -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fefce8;">
-                <i class="bi bi-hourglass-split" style="color:#ca8a04;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Expiring Soon</p>
-                <h4>{{ expiring_soon|default:"0" }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-warning">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Expiring Soon</p>
+            <h4>{{ expiring_soon|default:"0" }}</h4>
         </div>
     </div>
 
-    <!-- Today's Total -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-people-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Today's Total</p>
-                <h4>{{ today_total|default:"0" }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Today's Total</p>
+            <h4>{{ today_total|default:"0" }}</h4>
         </div>
     </div>
 
-    <!-- Disconnected Today -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fef2f2;">
-                <i class="bi bi-wifi-off" style="color:#dc2626;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Disconnected Today</p>
-                <h4>{{ disconnected_today|default:"0" }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-danger">
+            <i class="bi bi-wifi-off"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Disconnected Today</p>
+            <h4>{{ disconnected_today|default:"0" }}</h4>
         </div>
     </div>
-
 </div>
 
 <!-- ── Tabs ───────────────────────────────────────────── -->
-<div style="display:flex; gap:8px; margin-bottom:20px;">
-    <a href="?"
-       style="padding:8px 20px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if not tab %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
+<div class="tab-pills">
+    <a href="?" class="tab-pill {% if not tab %}active{% endif %}">
         <i class="bi bi-wifi"></i> Online Now ({{ sessions|length }})
     </a>
-    <a href="?tab=offline"
-       style="padding:8px 20px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if tab == 'offline' %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
+    <a href="?tab=offline" class="tab-pill {% if tab == 'offline' %}active{% endif %}">
         <i class="bi bi-wifi-off"></i> Offline ({{ offline_sessions|length }})
     </a>
 </div>
 
 <!-- ── Sessions Table ────────────────────────────────── -->
-<div class="dash-table">
+<div class="dash-table {% if tab == 'offline' %}tab-offline{% else %}tab-online{% endif %}">
     <div class="dash-table-header">
         <h6>
             {% if tab == 'offline' %}Offline Devices{% else %}Connected Devices{% endif %}
         </h6>
     </div>
-    <table class="table table-hover mb-0">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>MAC Address</th>
-                <th>Customer</th>
-                <th>Package</th>
-                <th>Started</th>
-                <th>
-                    {% if tab == 'offline' %}Expired{% else %}Time Remaining{% endif %}
-                </th>
-                <th>IP Address</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if tab == 'offline' %}
-                {% for session in offline_sessions %}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td style="color:#9ca3af; font-size:12px;">
-                        {{ forloop.counter }}
-                    </td>
-                    <td style="font-family:monospace; font-size:12px; color:#374151;">
-                        {{ session.device.mac_address }}
-                    </td>
-                    <td style="font-weight:600; color:#1a1a2e;">
+                    <th class="col-num">#</th>
+                    <th class="col-mac">MAC Address</th>
+                    <th class="col-customer">Customer</th>
+                    <th class="col-package">Package</th>
+                    <th class="col-started">Started</th>
+                    <th class="col-time">
+                        {% if tab == 'offline' %}Expired{% else %}Time Remaining{% endif %}
+                    </th>
+                    <th class="col-ip">IP Address</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-action">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if tab == 'offline' %}
+                    {% for session in offline_sessions %}
+                    <tr>
+                        <td class="col-num text-muted" style="font-size:12px;">
+                            {{ forloop.counter }}
+                        </td>
+                        <td class="col-mac" style="font-family:monospace; font-size:12px;">
+                            {{ session.device.mac_address }}
+                        </td>
+                        <td class="col-customer font-semibold">
                             {{ session.device.phone_number|default:session.device.customer.full_name|default:"Unknown" }}
+                        </td>
+                        <td class="col-package">{{ session.package.name }}</td>
+                        <td class="col-started text-muted" style="font-size:12px;">
+                            {{ session.created_at|date:"d M, H:i" }}
+                        </td>
+                        <td class="col-time text-danger font-bold" style="font-size:12px;">
+                            {{ session.expiry_time|date:"d M, H:i" }}
+                        </td>
+                        <td class="col-ip text-muted" style="font-family:monospace; font-size:12px;">
+                            {{ session.ip_address|default:"—" }}
+                        </td>
+                        <td class="col-status">
+                            <span class="badge badge-failed">Expired</span>
+                        </td>
+                        <td class="col-action">—</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="bi bi-wifi-off" style="display:block;"></i>
+                            No offline devices.
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-                    </td>
-                    <td style="color:#374151;">
-                        {{ session.package.name }}
-                    </td>
-                    <td style="color:#9ca3af; font-size:12px;">
-                        {{ session.created_at|date:"d M, H:i" }}
-                    </td>
-                    <td style="color:#dc2626; font-size:12px; font-weight:700;">
-                        {{ session.expiry_time|date:"d M, H:i" }}
-                    </td>
-                    <td style="font-family:monospace; font-size:12px; color:#9ca3af;">
-                        {{ session.ip_address|default:"—" }}
-                    </td>
-                    <td>
-                        <span style="background:#fee2e2; color:#dc2626;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            Expired
-                        </span>
-                    </td>
-                    <td>—</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9"
-                        style="text-align:center; padding:48px; color:#9ca3af;">
-                        <i class="bi bi-wifi-off"
-                           style="font-size:32px; display:block; margin-bottom:12px;"></i>
-                        No offline devices.
-                    </td>
-                </tr>
-                {% endfor %}
-
-            {% else %}
-                {% for session in sessions %}
-                <tr>
-                    <td style="color:#9ca3af; font-size:12px;">
-                        {{ forloop.counter }}
-                    </td>
-                    <td style="font-family:monospace; font-size:12px; color:#374151;">
-                        {{ session.device.mac_address }}
-                    </td>
-                    <td style="font-weight:600; color:#1a1a2e;">
-    {{ session.device.phone_number|default:session.device.customer.full_name|default:"Unknown" }}
-                    </td>
-                    <td style="color:#374151;">
-                        {{ session.package.name }}
-                    </td>
-                    <td style="color:#9ca3af; font-size:12px;">
-                        {{ session.created_at|date:"d M, H:i" }}
-                    </td>
-                    <td>
-                        <!-- Live countdown -->
-                        <span class="countdown"
-                              data-expiry="{{ session.expiry_time|date:'c' }}"
-                              style="font-size:13px; font-weight:700; color:#2563eb;">
-                            —
-                        </span>
-                    </td>
-                    <td style="font-family:monospace; font-size:12px; color:#9ca3af;">
-                        {{ session.ip_address|default:"—" }}
-                    </td>
-                    <td>
-                        <span style="background:#dcfce7; color:#16a34a;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;
-                                     display:flex; align-items:center; gap:5px;
-                                     width:fit-content;">
-                            <span style="width:6px; height:6px; border-radius:50%;
-                                         background:#16a34a;
-                                         animation:pulse 2s infinite;"></span>
-                            Active
-                        </span>
-                    </td>
-                    <td>
-<form method="post"
-      action="{% url 'dashboard:disconnect_session' session.id %}"
-      class="cut-form">
-    {% csrf_token %}
-    <div class="cut-initial">
-        <button type="button" onclick="showConfirm(this)"
-                style="background:#fef2f2; color:#dc2626; border:none;
-                       border-radius:8px; padding:5px 12px; font-size:12px;
-                       font-weight:600; cursor:pointer;">
-            <i class="bi bi-wifi-off"></i> Cut
-        </button>
+                {% else %}
+                    {% for session in sessions %}
+                    <tr>
+                        <td class="col-num text-muted" style="font-size:12px;">
+                            {{ forloop.counter }}
+                        </td>
+                        <td class="col-mac" style="font-family:monospace; font-size:12px;">
+                            {{ session.device.mac_address }}
+                        </td>
+                        <td class="col-customer font-semibold">
+                            {{ session.device.phone_number|default:session.device.customer.full_name|default:"Unknown" }}
+                        </td>
+                        <td class="col-package">{{ session.package.name }}</td>
+                        <td class="col-started text-muted" style="font-size:12px;">
+                            {{ session.created_at|date:"d M, H:i" }}
+                        </td>
+                        <td class="col-time">
+                            <span class="countdown"
+                                  data-expiry="{{ session.expiry_time|date:'c' }}">
+                                —
+                            </span>
+                        </td>
+                        <td class="col-ip text-muted" style="font-family:monospace; font-size:12px;">
+                            {{ session.ip_address|default:"—" }}
+                        </td>
+                        <td class="col-status">
+                            <span class="badge-active-dot">
+                                <span class="dot"></span>
+                                Active
+                            </span>
+                        </td>
+                        <td class="col-action">
+                            <form method="post"
+                                  action="{% url 'dashboard:disconnect_session' session.id %}"
+                                  class="cut-form">
+                                {% csrf_token %}
+                                <div class="cut-initial">
+                                    <button type="button" onclick="showConfirm(this)"
+                                            class="btn-cut">
+                                        <i class="bi bi-wifi-off"></i> Cut
+                                    </button>
+                                </div>
+                                <div class="cut-confirm" style="display:none;">
+                                    <button type="submit" class="btn-cut-yes">
+                                        <i class="bi bi-check-lg"></i> Yes
+                                    </button>
+                                    <button type="button" onclick="hideConfirm(this)"
+                                            class="btn-cut-no">
+                                        <i class="bi bi-x-lg"></i> No
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="bi bi-wifi" style="display:block;"></i>
+                            No active sessions right now.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
     </div>
-    <div class="cut-confirm" style="display:none;">
-        <button type="submit"
-                style="background:#dc2626; color:#fff; border:none;
-                       border-radius:8px; padding:5px 12px; font-size:12px;
-                       font-weight:600; cursor:pointer;">
-            <i class="bi bi-check-lg"></i> Yes
-        </button>
-        <button type="button" onclick="hideConfirm(this)"
-                style="background:#f3f4f6; color:#374151; border:none;
-                       border-radius:8px; padding:5px 12px; font-size:12px;
-                       font-weight:600; cursor:pointer; margin-left:4px;">
-            <i class="bi bi-x-lg"></i> No
-        </button>
-    </div>
-</form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="9"
-                        style="text-align:center; padding:48px; color:#9ca3af;">
-                        <i class="bi bi-wifi"
-                           style="font-size:32px; display:block; margin-bottom:12px;"></i>
-                        No active sessions right now.
-                    </td>
-                </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function showConfirm(btn) {
-    const form = btn.closest('.cut-form');
+/* ── Cut / Disconnect Confirmation ──────────── */
+function showConfirm(btn) {
+    var form = btn.closest('.cut-form');
     form.querySelector('.cut-initial').style.display = 'none';
     form.querySelector('.cut-confirm').style.display = 'flex';
 }
 
 function hideConfirm(btn) {
-    const form = btn.closest('.cut-form');
+    var form = btn.closest('.cut-form');
     form.querySelector('.cut-initial').style.display = 'block';
     form.querySelector('.cut-confirm').style.display = 'none';
 }
-// ── Live Countdown Timers ──────────────────────────────
+
+/* ── Live Countdown Timers ──────────────────── */
 function updateCountdowns() {
-    document.querySelectorAll('.countdown').forEach(el => {
-        const expiry = new Date(el.dataset.expiry);
-        const now    = new Date();
-        const diff   = expiry - now;
+    document.querySelectorAll('.countdown').forEach(function(el) {
+        var expiry = new Date(el.dataset.expiry);
+        var now    = new Date();
+        var diff   = expiry - now;
 
         if (diff <= 0) {
-            el.textContent   = 'Expired';
-            el.style.color   = '#dc2626';
+            el.textContent = 'Expired';
+            el.className   = 'countdown expired';
             return;
         }
 
-        const h = Math.floor(diff / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
+        var h = Math.floor(diff / 3600000);
+        var m = Math.floor((diff % 3600000) / 60000);
+        var s = Math.floor((diff % 60000) / 1000);
 
         el.textContent = h > 0
-            ? `${h}h ${m}m ${s}s`
+            ? h + 'h ' + m + 'm ' + s + 's'
             : m > 0
-                ? `${m}m ${s}s`
-                : `${s}s`;
+                ? m + 'm ' + s + 's'
+                : s + 's';
 
-        // Turn orange when under 10 minutes
-        el.style.color = diff < 600000 ? '#ca8a04' : '#2563eb';
+        el.className = diff < 600000 ? 'countdown expiring' : 'countdown';
     });
 }
 
 updateCountdowns();
 setInterval(updateCountdowns, 1000);
 
-// ── Auto-refresh page every 30 seconds ────────────────
-setTimeout(() => location.reload(), 30000);
+/* ── Auto-refresh page every 30 seconds ─────── */
+setTimeout(function() { location.reload(); }, 30000);
 </script>
-
-<style>
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
-}
-</style>
 {% endblock %}

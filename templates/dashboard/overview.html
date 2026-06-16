@@ -6,16 +6,10 @@
 {% block content %}
 
 <!-- ── Greeting ───────────────────────────────────────── -->
-<div style="background:linear-gradient(135deg,#2563eb,#1d4ed8);
-            border-radius:16px; padding:28px 32px; margin-bottom:28px;
-            display:flex; justify-content:space-between; align-items:center;
-            flex-wrap:wrap; gap:16px;">
+<div class="greeting-banner">
     <div>
-        <p style="font-size:13px; color:rgba(255,255,255,0.7);
-                   font-weight:600; margin:0 0 6px;">
-            {% now "l, d F Y" %}
-        </p>
-        <h4 style="font-size:22px; font-weight:900; color:#fff; margin:0 0 6px;">
+        <p class="greeting-date">{% now "l, d F Y" %}</p>
+        <h4 class="greeting-title">
             Good
             {% now "H" as hr %}
             {% if hr < "12" %}Morning
@@ -23,340 +17,251 @@
             {% else %}Evening{% endif %},
             {{ request.user.get_full_name|default:request.user.username }}! 👋
         </h4>
-        <p style="font-size:13px; color:rgba(255,255,255,0.75); margin:0;">
+        <p class="greeting-sub">
             Here's what's happening with your WiFi network today.
         </p>
     </div>
-    <div style="text-align:right;">
-        <p style="font-size:12px; color:rgba(255,255,255,0.6); margin:0 0 4px;">
-            Active Sessions
-        </p>
-        <h2 style="font-size:48px; font-weight:900; color:#fff; margin:0;">
-            {{ active_sessions|default:"0" }}
-        </h2>
+    <div class="greeting-stat">
+        <p>Active Sessions</p>
+        <h2>{{ active_sessions|default:"0" }}</h2>
     </div>
 </div>
 
 <!-- ── KPI Cards Row 1 ───────────────────────────────── -->
-<div class="row g-3 mb-3">
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-cash-coin" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Today's Revenue</p>
-                <h4>UGX {{ today_revenue|floatformat:0 }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">
-                    {{ today_transactions }} transaction{{ today_transactions|pluralize }}
-                </small>
-            </div>
+<div class="card-grid mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Today's Revenue</p>
+            <h4>UGX {{ today_revenue|floatformat:0 }}</h4>
+            <small>{{ today_transactions }} transaction{{ today_transactions|pluralize }}</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-graph-up-arrow" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>This Week</p>
-                <h4>UGX {{ week_revenue|floatformat:0 }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">Last 7 days</small>
-            </div>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-graph-up-arrow"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>This Week</p>
+            <h4>UGX {{ week_revenue|floatformat:0 }}</h4>
+            <small>Last 7 days</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fefce8;">
-                <i class="bi bi-calendar-month" style="color:#ca8a04;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>This Month</p>
-                <h4>UGX {{ month_revenue|floatformat:0 }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">Last 30 days</small>
-            </div>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-warning">
+            <i class="bi bi-calendar-month"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>This Month</p>
+            <h4>UGX {{ month_revenue|floatformat:0 }}</h4>
+            <small>Last 30 days</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fdf4ff;">
-                <i class="bi bi-phone-fill" style="color:#9333ea;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>MoMo Balance</p>
-                <h4>UGX {{ momo_balance|floatformat:0 }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">
-                    Collected: {{ total_collected|floatformat:0 }}
-                </small>
-            </div>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-purple">
+            <i class="bi bi-phone-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>MoMo Balance</p>
+            <h4>UGX {{ momo_balance|floatformat:0 }}</h4>
+            <small>Collected: {{ total_collected|floatformat:0 }}</small>
         </div>
     </div>
 </div>
 
 <!-- ── KPI Cards Row 2 ───────────────────────────────── -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-arrow-up-circle-fill" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Month Profit</p>
-                <h4 style="color:{% if month_profit >= 0 %}#16a34a{% else %}#dc2626{% endif %};">
-                    UGX {{ month_profit|floatformat:0 }}
-                </h4>
-                <small style="color:#9ca3af; font-size:11px;">
-                    Expenses: {{ month_expenses|floatformat:0 }}
-                </small>
-            </div>
+<div class="card-grid mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-arrow-up-circle-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Month Profit</p>
+            <h4 class="{% if month_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                UGX {{ month_profit|floatformat:0 }}
+            </h4>
+            <small>Expenses: {{ month_expenses|floatformat:0 }}</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-people-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Total Customers</p>
-                <h4>{{ total_customers|default:"0" }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">
-                    Devices: {{ total_devices }}
-                </small>
-            </div>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Total Customers</p>
+            <h4>{{ total_customers|default:"0" }}</h4>
+            <small>Devices: {{ total_devices }}</small>
         </div>
     </div>
-    <div class="col-md-3">
-        <a href="{% url 'dashboard:routers' %}" style="text-decoration:none;">
-    <div class="dash-stat-card" style="cursor:pointer; transition:all 0.2s ease;">
-        <div class="dash-stat-icon" style="background:#fef2f2;">
-            <i class="bi bi-router-fill" style="color:#dc2626;"></i>
+
+    <a href="{% url 'dashboard:routers' %}" class="dash-stat-card">
+        <div class="dash-stat-icon icon-danger">
+            <i class="bi bi-router-fill"></i>
         </div>
         <div class="dash-stat-info">
             <p>Router Health</p>
             <h4>{{ online_routers }}/{{ total_routers }}</h4>
-            <small style="color:#9ca3af; font-size:11px;">Online routers</small>
+            <small>Online routers</small>
         </div>
-    </div>
-</a>
-    </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-box-seam-fill" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Active Packages</p>
-                <h4>{{ active_packages|default:"0" }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">Available to buy</small>
-            </div>
+    </a>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Active Packages</p>
+            <h4>{{ active_packages|default:"0" }}</h4>
+            <small>Available to buy</small>
         </div>
     </div>
 </div>
 
 <!-- ── Recent Transactions ────────────────────────────── -->
-<div class="row g-4 mb-4">
-    <div class="col-12">
-        <div style="background:#fff; border-radius:16px;
-                    border:1px solid #f3f4f6; padding:24px;
-                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-            <div style="display:flex; justify-content:space-between;
-                        align-items:center; margin-bottom:20px;">
-                <h6 style="font-weight:800; color:#1a1a2e; margin:0;">
-                    Recent Transactions
-                </h6>
-                <a href="{% url 'dashboard:payments' %}"
-                   style="font-size:12px; color:#2563eb; font-weight:600;
-                          text-decoration:none;">
-                    View All →
-                </a>
-            </div>
-            <table class="table table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>Device</th>
-                        <th>Package</th>
-                        <th>Amount</th>
-                        <th>Provider</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in recent_orders %}
-                    <tr>
-                        <td style="font-family:monospace; font-size:12px;
-                                   color:#374151; font-weight:600;">
-                            {{ order.device.mac_address|slice:"-8:" }}
-                        </td>
-                        <td style="font-size:13px; color:#374151;">
-                            {{ order.package.name|default:"—" }}
-                        </td>
-                        <td style="font-weight:700; color:#16a34a;">
-                            UGX {{ order.amount|floatformat:0 }}
-                        </td>
-                        <td>
-                            {% if order.provider == 'mtn' %}
-                                <span style="background:#fef9c3; color:#ca8a04;
-                                             padding:3px 10px; border-radius:20px;
-                                             font-size:11px; font-weight:700;">
-                                    MTN
-                                </span>
-                            {% elif order.provider == 'airtel' %}
-                                <span style="background:#fee2e2; color:#dc2626;
-                                             padding:3px 10px; border-radius:20px;
-                                             font-size:11px; font-weight:700;">
-                                    Airtel
-                                </span>
-                            {% else %}
-                                <span style="background:#f3f4f6; color:#6b7280;
-                                             padding:3px 10px; border-radius:20px;
-                                             font-size:11px; font-weight:700;">
-                                    Walk-in
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if order.status == 'success' %}
-                                <span style="background:#dcfce7; color:#16a34a;
-                                             padding:3px 10px; border-radius:20px;
-                                             font-size:11px; font-weight:700;">
-                                    Success
-                                </span>
-                            {% elif order.status == 'pending' %}
-                                <span style="background:#fef9c3; color:#ca8a04;
-                                             padding:3px 10px; border-radius:20px;
-                                             font-size:11px; font-weight:700;">
-                                    Pending
-                                </span>
-                            {% else %}
-                                <span style="background:#fee2e2; color:#dc2626;
-                                             padding:3px 10px; border-radius:20px;
-                                             font-size:11px; font-weight:700;">
-                                    Failed
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td style="color:#9ca3af; font-size:12px;">
-                            {{ order.created_at|date:"d M Y, H:i" }}
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6"
-                            style="text-align:center; padding:32px; color:#9ca3af;">
-                            No transactions yet.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div class="card mb-2">
+    <div class="section-header">
+        <h6>Recent Transactions</h6>
+        <a href="{% url 'dashboard:payments' %}">View All →</a>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Package</th>
+                    <th>Amount</th>
+                    <th>Provider</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td class="font-semibold" style="font-family:monospace; font-size:12px;">
+                        {{ order.device.mac_address|slice:"-8:" }}
+                    </td>
+                    <td>{{ order.package.name|default:"—" }}</td>
+                    <td class="font-bold text-success">
+                        UGX {{ order.amount|floatformat:0 }}
+                    </td>
+                    <td>
+                        {% if order.provider == 'mtn' %}
+                            <span class="badge badge-warning">MTN</span>
+                        {% elif order.provider == 'airtel' %}
+                            <span class="badge badge-danger">Airtel</span>
+                        {% else %}
+                            <span class="badge badge-muted">Walk-in</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.status == 'success' %}
+                            <span class="badge badge-success">Success</span>
+                        {% elif order.status == 'pending' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% else %}
+                            <span class="badge badge-failed">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted" style="font-size:12px;">
+                        {{ order.created_at|date:"d M Y, H:i" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        No transactions yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
 <!-- ── Quick Stats Row ────────────────────────────────── -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fef2f2;">
-                <i class="bi bi-ticket-perforated-fill" style="color:#dc2626;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Vouchers Available</p>
-                <h4>{{ available_vouchers|default:"0" }}</h4>
-            </div>
+<div class="card-grid mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-danger">
+            <i class="bi bi-ticket-perforated-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Vouchers Available</p>
+            <h4>{{ available_vouchers|default:"0" }}</h4>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-hdd-stack-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Equipment Assets</p>
-                <h4>{{ total_equipment|default:"0" }}</h4>
-            </div>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-hdd-stack-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Equipment Assets</p>
+            <h4>{{ total_equipment|default:"0" }}</h4>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fdf4ff;">
-                <i class="bi bi-funnel-fill" style="color:#9333ea;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Active Leads</p>
-                <h4>{{ active_leads|default:"0" }}</h4>
-            </div>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-purple">
+            <i class="bi bi-funnel-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Active Leads</p>
+            <h4>{{ active_leads|default:"0" }}</h4>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-cash-stack" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Total Expenses</p>
-                <h4>UGX {{ total_expenses|floatformat:0 }}</h4>
-            </div>
+
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Total Expenses</p>
+            <h4>UGX {{ total_expenses|floatformat:0 }}</h4>
         </div>
     </div>
 </div>
 
 <!-- ── Active Sessions + Daily Sessions Chart ─────────── -->
-<div class="row g-4 mb-4">
+<div class="grid-2 mb-2">
 
     <!-- Active Sessions Now -->
-    <div class="col-md-6">
-        <div style="background:#fff; border-radius:16px;
-                    border:1px solid #f3f4f6; padding:24px;
-                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-            <div style="display:flex; justify-content:space-between;
-                        align-items:center; margin-bottom:20px;">
-                <h6 style="font-weight:800; color:#1a1a2e; margin:0;">
-                    Active Sessions Now
-                </h6>
-                <a href="{% url 'dashboard:active_sessions' %}"
-                   style="font-size:12px; color:#2563eb; font-weight:600;
-                          text-decoration:none;">
-                    View All →
-                </a>
-            </div>
-            <table style="width:100%; border-collapse:collapse;">
+    <div class="card">
+        <div class="section-header">
+            <h6>Active Sessions Now</h6>
+            <a href="{% url 'dashboard:active_sessions' %}">View All →</a>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
                 <thead>
-                    <tr style="border-bottom:2px solid #f3f4f6;">
-                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
-                                   text-align:left; padding:0 0 10px;">#</th>
-                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
-                                   text-align:left; padding:0 0 10px;">Device</th>
-                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
-                                   text-align:left; padding:0 0 10px;">Package</th>
-                        <th style="font-size:11px; color:#9ca3af; font-weight:700;
-                                   text-align:right; padding:0 0 10px;">Time Left</th>
+                    <tr>
+                        <th>#</th>
+                        <th>Device</th>
+                        <th>Package</th>
+                        <th class="text-right">Time Left</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for session in top_sessions %}
-                    <tr style="border-bottom:1px solid #f9fafb;">
-                        <td style="padding:10px 0; font-size:12px; color:#9ca3af;">
-                            {{ forloop.counter }}
-                        </td>
-                        <td style="padding:10px 0; font-size:13px;
-                                   font-weight:600; color:#1a1a2e;">
+                    <tr>
+                        <td class="text-muted">{{ forloop.counter }}</td>
+                        <td class="font-semibold">
                             {{ session.device.mac_address|slice:"-8:" }}
                         </td>
-                        <td style="padding:10px 0; font-size:12px; color:#374151;">
-                            {{ session.package.name }}
-                        </td>
-                        <td style="padding:10px 0; font-size:12px;
-                                   font-weight:700; color:#2563eb; text-align:right;">
+                        <td>{{ session.package.name }}</td>
+                        <td class="text-right font-bold" style="color:var(--c-primary);">
                             {{ session.time_remaining }}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4"
-                            style="text-align:center; padding:24px;
-                                   color:#9ca3af; font-size:13px;">
+                        <td colspan="4" class="empty-state">
                             No active sessions right now.
                         </td>
                     </tr>
@@ -367,92 +272,57 @@
     </div>
 
     <!-- Daily Sessions Chart -->
-    <div class="col-md-6">
-        <div style="background:#fff; border-radius:16px;
-                    border:1px solid #f3f4f6; padding:24px;
-                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
-                Daily Sessions — Last 7 Days
-            </h6>
-            <canvas id="usersChart" height="130"></canvas>
-        </div>
+    <div class="card">
+        <h6 class="font-bold mb-2" style="color:var(--c-text);">
+            Daily Sessions — Last 7 Days
+        </h6>
+        <canvas id="usersChart" height="130"></canvas>
     </div>
 
 </div>
 
 <!-- ── Revenue Chart + Router Health ─────────────────── -->
-<div class="row g-4 mb-4">
+<div class="grid-8-4 mb-2">
 
     <!-- Revenue Chart -->
-    <div class="col-md-8">
-        <div style="background:#fff; border-radius:16px;
-                    border:1px solid #f3f4f6; padding:24px;
-                    box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-            <div style="display:flex; justify-content:space-between;
-                        align-items:center; margin-bottom:20px;">
-                <h6 style="font-weight:800; color:#1a1a2e; margin:0;">
-                    Revenue — Last 7 Days
-                </h6>
-                <span style="font-size:12px; color:#6b7280; font-weight:600;">
-                    UGX {{ week_revenue|floatformat:0 }} total
-                </span>
-            </div>
-            <canvas id="revenueChart" height="100"></canvas>
+    <div class="card">
+        <div class="section-header">
+            <h6>Revenue — Last 7 Days</h6>
+            <span class="text-muted font-semibold" style="font-size:12px;">
+                UGX {{ week_revenue|floatformat:0 }} total
+            </span>
         </div>
+        <canvas id="revenueChart" height="100"></canvas>
     </div>
 
     <!-- Router Health Detail -->
-    <div class="col-md-4">
-        <div style="background:#fff; border-radius:16px;
-                    border:1px solid #f3f4f6; padding:24px;
-                    box-shadow:0 1px 4px rgba(0,0,0,0.05); height:100%;">
-            <h6 style="font-weight:800; color:#1a1a2e; margin:0 0 20px;">
-                Router Health
-            </h6>
-            {% for router in routers %}
-            <div style="margin-bottom:16px; padding-bottom:16px;
-                        border-bottom:1px solid #f3f4f6;">
-                <div style="display:flex; justify-content:space-between;
-                            align-items:center; margin-bottom:8px;">
-                    <p style="font-size:13px; font-weight:700;
-                               color:#1a1a2e; margin:0;">
-                        {{ router.identity|default:"Router" }}
-                    </p>
-                    {% if router.status == 'online' %}
-                        <span style="background:#dcfce7; color:#16a34a;
-                                     padding:2px 8px; border-radius:20px;
-                                     font-size:10px; font-weight:700;">
-                            Online
-                        </span>
-                    {% else %}
-                        <span style="background:#fee2e2; color:#dc2626;
-                                     padding:2px 8px; border-radius:20px;
-                                     font-size:10px; font-weight:700;">
-                            Offline
-                        </span>
-                    {% endif %}
-                </div>
-                <div style="font-size:11px; color:#9ca3af;">
-                    IP: {{ router.ip_address|default:"—" }}
-                </div>
-                {% if router.last_seen %}
-                <div style="font-size:11px; color:#9ca3af;">
-                    Last seen: {{ router.last_seen|date:"d M, H:i" }}
-                </div>
+    <div class="card">
+        <h6 class="font-bold mb-2" style="color:var(--c-text);">Router Health</h6>
+        {% for router in routers %}
+        <div class="router-item">
+            <div class="router-item-header">
+                <p>{{ router.identity|default:"Router" }}</p>
+                {% if router.status == 'online' %}
+                    <span class="badge badge-success">Online</span>
+                {% else %}
+                    <span class="badge badge-failed">Offline</span>
                 {% endif %}
             </div>
-            {% empty %}
-            <div style="text-align:center; padding:24px 0; color:#9ca3af;">
-                <i class="bi bi-router"
-                   style="font-size:28px; display:block; margin-bottom:8px;"></i>
-                <p style="font-size:12px; margin:0;">No routers added yet.</p>
-                <a href="{% url 'dashboard:create_router' %}"
-                   style="font-size:12px; color:#2563eb; font-weight:600;">
-                    Add Router →
-                </a>
-            </div>
-            {% endfor %}
+            <div class="router-meta">IP: {{ router.ip_address|default:"—" }}</div>
+            {% if router.last_seen %}
+            <div class="router-meta">Last seen: {{ router.last_seen|date:"d M, H:i" }}</div>
+            {% endif %}
         </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="bi bi-router" style="display:block;"></i>
+            <p>No routers added yet.</p>
+            <a href="{% url 'dashboard:create_router' %}"
+               style="font-size:12px; color:var(--c-primary); font-weight:600;">
+                Add Router →
+            </a>
+        </div>
+        {% endfor %}
     </div>
 
 </div>
@@ -462,12 +332,12 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const dayLabels    = {{ day_labels|safe }};
-const dailyRevenue = {{ daily_revenue|safe }};
-const dailyUsers   = {{ daily_users|safe }};
+var dayLabels    = {{ day_labels|safe }};
+var dailyRevenue = {{ daily_revenue|safe }};
+var dailyUsers   = {{ daily_users|safe }};
 
-// ── Revenue Chart ──────────────────────────────────────
-const rCtx = document.getElementById('revenueChart').getContext('2d');
+/* ── Revenue Chart ──────────────────────────── */
+var rCtx = document.getElementById('revenueChart').getContext('2d');
 new Chart(rCtx, {
     type: 'line',
     data: {
@@ -481,18 +351,19 @@ new Chart(rCtx, {
             tension        : 0.4,
             fill           : true,
             pointBackgroundColor: '#2563eb',
-            pointRadius    : 4,
+            pointRadius    : 4
         }]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: true,
         plugins: { legend: { display: false } },
         scales: {
             y: {
                 beginAtZero: true,
                 ticks: {
                     font    : { family: 'Inter', size: 11 },
-                    callback: val => 'UGX ' + val.toLocaleString()
+                    callback: function(val) { return 'UGX ' + val.toLocaleString(); }
                 },
                 grid: { color: '#f3f4f6' }
             },
@@ -504,8 +375,8 @@ new Chart(rCtx, {
     }
 });
 
-// ── Daily Sessions Chart ───────────────────────────────
-const uCtx = document.getElementById('usersChart').getContext('2d');
+/* ── Daily Sessions Chart ───────────────────── */
+var uCtx = document.getElementById('usersChart').getContext('2d');
 new Chart(uCtx, {
     type: 'bar',
     data: {
@@ -514,11 +385,12 @@ new Chart(uCtx, {
             label          : 'Sessions',
             data           : dailyUsers,
             backgroundColor: 'rgba(37,99,235,0.8)',
-            borderRadius   : 6,
+            borderRadius   : 6
         }]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: true,
         plugins: { legend: { display: false } },
         scales: {
             y: {
