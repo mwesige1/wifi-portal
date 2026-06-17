@@ -6,116 +6,72 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Record Manual Payment
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Record a walk-in or cash payment manually
-        </p>
+        <h5>Record Manual Payment</h5>
+        <p>Record a walk-in or cash payment manually</p>
     </div>
-    <a href="{% url 'dashboard:payments' %}"
-       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
-        ← Back to Payments
-    </a>
+    <a href="{% url 'dashboard:payments' %}" class="btn-back">← Back to Payments</a>
 </div>
 
 <!-- ── Form ──────────────────────────────────────────── -->
 <form method="post" action="{% url 'dashboard:record_payment' %}">
     {% csrf_token %}
 
-    <div class="row g-4">
+    <div class="grid-8-4">
 
         <!-- Left Column -->
-        <div class="col-md-8">
+        <div>
             <div class="dash-table">
                 <div class="dash-table-header">
                     <h6>Payment Details</h6>
                 </div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
+                <div class="card-body">
+                    <div class="form-grid">
 
-                        <!-- Package -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Package <span style="color:#dc2626;">*</span>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Package <span class="required">*</span>
                             </label>
-                            <select name="package" required
-                                    style="width:100%; padding:10px 14px;
-                                           border:1px solid #e5e7eb; border-radius:10px;
-                                           font-size:13px; font-family:'Inter',sans-serif;
-                                           outline:none; color:#1a1a2e; background:#fff;">
+                            <select name="package" required class="form-select">
                                 <option value="">— Select Package —</option>
                                 {% for package in packages %}
                                 <option value="{{ package.id }}">
-                                    {{ package.name }} —
-                                    UGX {{ package.price|floatformat:0 }}
+                                    {{ package.name }} — UGX {{ package.price|floatformat:0 }}
                                 </option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <!-- Amount -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Amount (UGX) <span style="color:#dc2626;">*</span>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Amount (UGX) <span class="required">*</span>
                             </label>
                             <input type="number" name="amount" required
                                    placeholder="e.g. 2000"
-                                   min="0" step="500"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   min="0" step="500" class="form-input">
                         </div>
 
-                        <!-- Phone Number -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Customer Phone
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Customer Phone</label>
                             <input type="text" name="phone_number"
-                                   placeholder="e.g. 0771234567"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   placeholder="e.g. 0771234567" class="form-input">
                         </div>
 
-                        <!-- Payment Method -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Payment Method
-                            </label>
-                            <select name="payment_method"
-                                    style="width:100%; padding:10px 14px;
-                                           border:1px solid #e5e7eb; border-radius:10px;
-                                           font-size:13px; font-family:'Inter',sans-serif;
-                                           outline:none; color:#1a1a2e; background:#fff;">
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select name="payment_method" class="form-select">
                                 <option value="cash">Cash</option>
                                 <option value="mtn">MTN MoMo</option>
                                 <option value="airtel">Airtel Money</option>
                             </select>
                         </div>
 
-                        <!-- Notes -->
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Notes
-                            </label>
+                        <div class="form-group full-width">
+                            <label class="form-label">Notes</label>
                             <textarea name="notes" rows="3"
                                       placeholder="Any additional notes..."
-                                      style="width:100%; padding:10px 14px;
-                                             border:1px solid #e5e7eb; border-radius:10px;
-                                             font-size:13px; font-family:'Inter',sans-serif;
-                                             outline:none; color:#1a1a2e; resize:vertical;">
-                            </textarea>
+                                      class="form-textarea"></textarea>
                         </div>
 
                     </div>
@@ -124,20 +80,13 @@
         </div>
 
         <!-- Right Column -->
-        <div class="col-md-4">
+        <div>
             <div class="dash-table">
-                <div style="padding:24px;">
-                    <button type="submit"
-                            style="width:100%; background:#2563eb; color:#fff;
-                                   border:none; border-radius:10px; padding:12px;
-                                   font-size:14px; font-weight:700; cursor:pointer;">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-full">
                         <i class="bi bi-save"></i> Record Payment
                     </button>
-                    <a href="{% url 'dashboard:payments' %}"
-                       style="display:block; text-align:center; margin-top:12px;
-                              font-size:13px; color:#6b7280; text-decoration:none;">
-                        Cancel
-                    </a>
+                    <a href="{% url 'dashboard:payments' %}" class="cancel-link">Cancel</a>
                 </div>
             </div>
         </div>

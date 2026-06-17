@@ -6,19 +6,12 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Create Customer
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Add a new customer account manually
-        </p>
+        <h5>Create Customer</h5>
+        <p>Add a new customer account manually</p>
     </div>
-    <a href="{% url 'dashboard:customers' %}"
-       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
-        ← Back to Customers
-    </a>
+    <a href="{% url 'dashboard:customers' %}" class="btn-back">← Back to Customers</a>
 </div>
 
 <!-- ── Form ──────────────────────────────────────────── -->
@@ -26,128 +19,55 @@
     {% csrf_token %}
 
     <!-- Customer Details -->
-    <div class="dash-table mb-4">
-        <div class="dash-table-header">
-            <h6>Customer Details</h6>
-        </div>
-        <div style="padding:24px;">
-            <div class="row g-3">
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        First Name
-                    </label>
-                    <input type="text" name="first_name"
-                           placeholder="e.g. Patrick"
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
+    <div class="dash-table mb-2">
+        <div class="dash-table-header"><h6>Customer Details</h6></div>
+        <div class="card-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" placeholder="e.g. Patrick" class="form-input">
                 </div>
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Last Name
-                    </label>
-                    <input type="text" name="last_name"
-                           placeholder="e.g. Mwesige"
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" placeholder="e.g. Mwesige" class="form-input">
                 </div>
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Phone Number <span style="color:#dc2626;">*</span>
-                    </label>
-                    <input type="tel" name="phone_number"
-                           placeholder="e.g. 0771234567"
-                           required
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
+                <div class="form-group">
+                    <label class="form-label">Phone Number <span class="required">*</span></label>
+                    <input type="tel" name="phone_number" placeholder="e.g. 0771234567" required class="form-input">
                 </div>
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Email Address
-                    </label>
-                    <input type="email" name="email"
-                           placeholder="e.g. patrick@example.com"
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" placeholder="e.g. patrick@example.com" class="form-input">
                 </div>
-
             </div>
         </div>
     </div>
 
     <!-- Credentials -->
-    <div class="dash-table mb-4">
-        <div class="dash-table-header">
-            <h6>Login Credentials</h6>
-        </div>
-        <div style="padding:24px;">
-            <div class="row g-3">
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Username <span style="color:#dc2626;">*</span>
-                    </label>
-                    <input type="text" name="username"
-                           placeholder="e.g. patrick123"
-                           required
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
+    <div class="dash-table mb-2">
+        <div class="dash-table-header"><h6>Login Credentials</h6></div>
+        <div class="card-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Username <span class="required">*</span></label>
+                    <input type="text" name="username" placeholder="e.g. patrick123" required class="form-input">
                 </div>
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Password <span style="color:#dc2626;">*</span>
-                    </label>
-                    <input type="password" name="password"
-                           placeholder="Enter password"
-                           required
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
+                <div class="form-group">
+                    <label class="form-label">Password <span class="required">*</span></label>
+                    <input type="password" name="password" placeholder="Enter password" required class="form-input">
                 </div>
-
             </div>
         </div>
     </div>
 
     <!-- Package & Subscription -->
-    <div class="dash-table mb-4">
-        <div class="dash-table-header">
-            <h6>Package & Subscription</h6>
-        </div>
-        <div style="padding:24px;">
-            <div class="row g-3">
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Package
-                    </label>
-                    <select name="package"
-                            style="width:100%; padding:10px 14px;
-                                   border:1px solid #e5e7eb; border-radius:10px;
-                                   font-size:13px; font-family:'Inter',sans-serif;
-                                   outline:none; color:#1a1a2e; background:#fff;">
+    <div class="dash-table mb-2">
+        <div class="dash-table-header"><h6>Package & Subscription</h6></div>
+        <div class="card-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Package</label>
+                    <select name="package" class="form-select">
                         <option value="">— Select a package —</option>
                         {% for package in packages %}
                         <option value="{{ package.id }}">
@@ -156,43 +76,23 @@
                         {% endfor %}
                     </select>
                 </div>
-
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Status
-                    </label>
-                    <select name="status"
-                            style="width:100%; padding:10px 14px;
-                                   border:1px solid #e5e7eb; border-radius:10px;
-                                   font-size:13px; font-family:'Inter',sans-serif;
-                                   outline:none; color:#1a1a2e; background:#fff;">
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
                         <option value="active">Active</option>
                         <option value="pending">Pending</option>
                         <option value="suspended">Suspended</option>
                         <option value="paused">Paused</option>
                     </select>
                 </div>
-
             </div>
         </div>
     </div>
 
     <!-- Action Buttons -->
-    <div style="display:flex; gap:12px;">
-        <button type="submit"
-                style="padding:12px 24px; background:#1a1a2e; color:#fff;
-                       border:none; border-radius:10px; font-size:13px;
-                       font-weight:600; cursor:pointer;
-                       font-family:'Inter',sans-serif;">
-            Create Customer
-        </button>
-        <a href="{% url 'dashboard:customers' %}"
-           style="padding:12px 24px; background:#f3f4f6; color:#374151;
-                  border:none; border-radius:10px; font-size:13px;
-                  font-weight:600; text-decoration:none;">
-            Cancel
-        </a>
+    <div class="btn-group">
+        <button type="submit" class="btn btn-primary">Create Customer</button>
+        <a href="{% url 'dashboard:customers' %}" class="btn btn-outline">Cancel</a>
     </div>
 
 </form>

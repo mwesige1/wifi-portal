@@ -27,6 +27,12 @@ services:
       - wifiportal_network
     expose:
       - "8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/dashboard/login/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
 
   db:
     image: postgres:16
@@ -87,10 +93,11 @@ services:
       - "8081:80"
     volumes:
       - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/app/staticfiles
+      - ./static:/app/static
       - media_volume:/app/media
     depends_on:
-      - web
+      web:
+        condition: service_healthy
     networks:
       - wifiportal_network
 

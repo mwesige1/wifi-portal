@@ -6,228 +6,143 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Payments
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            All payment transactions — online and walk-in
-        </p>
+        <h5>Payments</h5>
+        <p>All payment transactions — online and walk-in</p>
     </div>
-    <a href="{% url 'dashboard:record_payment' %}"
-       style="background:#2563eb; color:#fff; border:none; border-radius:10px;
-              padding:10px 20px; font-size:13px; font-weight:700;
-              text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+    <a href="{% url 'dashboard:record_payment' %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Record Payment
     </a>
 </div>
 
 <!-- ── KPI Cards ─────────────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-    <!-- Total Revenue -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-cash-coin" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Total Revenue</p>
-                <h4>UGX {{ total_revenue|default:"0"|floatformat:0 }}</h4>
-            </div>
+<div class="stats-row mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Total Revenue</p>
+            <h4>UGX {{ total_revenue|default:"0"|floatformat:0 }}</h4>
         </div>
     </div>
 
-    <!-- Online Revenue -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-phone-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Online (MoMo)</p>
-                <h4>UGX {{ online_revenue|default:"0"|floatformat:0 }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-phone-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Online (MoMo)</p>
+            <h4>UGX {{ online_revenue|default:"0"|floatformat:0 }}</h4>
         </div>
     </div>
 
-    <!-- Walk-in Revenue -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fefce8;">
-                <i class="bi bi-cash-stack" style="color:#ca8a04;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Walk-in (Cash)</p>
-                <h4>UGX {{ walkin_revenue|default:"0"|floatformat:0 }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-warning">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Walk-in (Cash)</p>
+            <h4>UGX {{ walkin_revenue|default:"0"|floatformat:0 }}</h4>
         </div>
     </div>
 
-    <!-- This Month -->
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fdf4ff;">
-                <i class="bi bi-calendar-month" style="color:#9333ea;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>This Month</p>
-                <h4>UGX {{ month_revenue|default:"0"|floatformat:0 }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-purple">
+            <i class="bi bi-calendar-month"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>This Month</p>
+            <h4>UGX {{ month_revenue|default:"0"|floatformat:0 }}</h4>
         </div>
     </div>
-
 </div>
 
 <!-- ── Filter Tabs ────────────────────────────────────── -->
-<div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
-    <a href="?"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if not status_filter %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
-        All
-    </a>
-    <a href="?provider=online"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if status_filter == 'online' %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
-        Online (MoMo)
-    </a>
-    <a href="?provider=walk_in"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if status_filter == 'walk_in' %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
-        Walk-in (Cash)
-    </a>
-    <a href="?provider=voucher"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if status_filter == 'voucher' %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
-        Voucher
-    </a>
+<div class="tab-pills">
+    <a href="?" class="tab-pill {% if not status_filter %}active{% endif %}">All</a>
+    <a href="?provider=online" class="tab-pill {% if status_filter == 'online' %}active{% endif %}">Online (MoMo)</a>
+    <a href="?provider=walk_in" class="tab-pill {% if status_filter == 'walk_in' %}active{% endif %}">Walk-in (Cash)</a>
+    <a href="?provider=voucher" class="tab-pill {% if status_filter == 'voucher' %}active{% endif %}">Voucher</a>
 </div>
 
 <!-- ── Payments Table ────────────────────────────────── -->
-<div class="dash-table">
+<div class="dash-table payments-table">
     <div class="dash-table-header">
         <h6>Transaction History</h6>
     </div>
-    <table class="table table-hover mb-0">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Receipt No.</th>
-                <th>Device / Customer</th>
-                <th>Package</th>
-                <th>Amount</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Date & Time</th>
-            </tr>
-        </thead>
-        <tbody>
-    {% for payment in payments %}
-    <tr>
-        <td style="color:#9ca3af; font-size:12px;">
-            {{ forloop.counter }}
-        </td>
-        <td style="font-family:monospace; font-size:12px; color:#374151;">
-            {{ payment.reference_id|default:"—" }}
-        </td>
-        <td style="font-weight:600; color:#1a1a2e;">
-            {{ payment.device.mac_address|default:"—" }}
-            <br>
-            <span style="font-size:11px; color:#9ca3af; font-weight:400;">
-                {{ payment.phone_number|default:"" }}
-            </span>
-        </td>
-        <td style="color:#374151;">
-            {{ payment.package.name|default:"—" }}
-        </td>
-        <td style="font-weight:700; color:#16a34a;">
-            UGX {{ payment.amount|floatformat:0 }}
-        </td>
-        <td>
-            {% if payment.provider == 'mtn' %}
-                <span style="background:#eff6ff; color:#2563eb;
-                             padding:3px 10px; border-radius:20px;
-                             font-size:11px; font-weight:700;">
-                    <i class="bi bi-phone-fill"></i> MTN MoMo
-                </span>
-            {% elif payment.provider == 'airtel' %}
-                <span style="background:#fef2f2; color:#dc2626;
-                             padding:3px 10px; border-radius:20px;
-                             font-size:11px; font-weight:700;">
-                    <i class="bi bi-phone-fill"></i> Airtel
-                </span>
-            {% elif payment.provider == 'walk_in' %}
-                <span style="background:#fef9c3; color:#ca8a04;
-                             padding:3px 10px; border-radius:20px;
-                             font-size:11px; font-weight:700;">
-                    <i class="bi bi-cash"></i> Walk-in
-                </span>
-            {% else %}
-                <span style="background:#f3f4f6; color:#6b7280;
-                             padding:3px 10px; border-radius:20px;
-                             font-size:11px; font-weight:700;">
-                    {{ payment.provider }}
-                </span>
-            {% endif %}
-        </td>
-        <td>
-            {% if payment.status == 'success' %}
-                <span style="background:#dcfce7; color:#16a34a;
-                             padding:3px 10px; border-radius:20px;
-                             font-size:11px; font-weight:700;">
-                    Success
-                </span>
-            {% elif payment.status == 'pending' %}
-                <span style="background:#fef9c3; color:#ca8a04;
-                             padding:3px 10px; border-radius:20px;
-                             font-size:11px; font-weight:700;">
-                    Pending
-                </span>
-            {% else %}
-                <span style="background:#fee2e2; color:#dc2626;
-                             padding:3px 10px; border-radius:20px;
-                             font-size:11px; font-weight:700;">
-                    Failed
-                </span>
-            {% endif %}
-        </td>
-        <td style="color:#9ca3af; font-size:12px;">
-            {{ payment.created_at|date:"d M Y, H:i" }}
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="8"
-            style="text-align:center; padding:48px; color:#9ca3af;">
-            <i class="bi bi-credit-card"
-               style="font-size:32px; display:block; margin-bottom:12px;"></i>
-            No payments recorded yet.
-        </td>
-    </tr>
-    {% endfor %}
-</tbody>
-    </table>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-num">#</th>
+                    <th class="col-receipt">Receipt No.</th>
+                    <th class="col-customer">Device / Customer</th>
+                    <th class="col-package">Package</th>
+                    <th class="col-amount">Amount</th>
+                    <th class="col-type">Type</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-date">Date & Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td class="col-num text-muted" style="font-size:12px;">
+                        {{ forloop.counter }}
+                    </td>
+                    <td class="col-receipt" style="font-family:monospace; font-size:12px;">
+                        {{ payment.reference_id|default:"—" }}
+                    </td>
+                    <td class="col-customer font-semibold">
+                        {{ payment.device.mac_address|default:"—" }}
+                        <br>
+                        <span class="text-muted" style="font-size:11px; font-weight:400;">
+                            {{ payment.phone_number|default:"" }}
+                        </span>
+                    </td>
+                    <td class="col-package">
+                        {{ payment.package.name|default:"—" }}
+                    </td>
+                    <td class="col-amount font-bold text-success">
+                        UGX {{ payment.amount|floatformat:0 }}
+                    </td>
+                    <td class="col-type">
+                        {% if payment.provider == 'mtn' %}
+                            <span class="badge badge-info"><i class="bi bi-phone-fill"></i> MTN MoMo</span>
+                        {% elif payment.provider == 'airtel' %}
+                            <span class="badge badge-failed"><i class="bi bi-phone-fill"></i> Airtel</span>
+                        {% elif payment.provider == 'walk_in' %}
+                            <span class="badge badge-warning"><i class="bi bi-cash"></i> Walk-in</span>
+                        {% else %}
+                            <span class="badge badge-muted">{{ payment.provider }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-status">
+                        {% if payment.status == 'success' %}
+                            <span class="badge badge-success">Success</span>
+                        {% elif payment.status == 'pending' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% else %}
+                            <span class="badge badge-failed">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-date text-muted" style="font-size:12px;">
+                        {{ payment.created_at|date:"d M Y, H:i" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="bi bi-credit-card" style="display:block;"></i>
+                        No payments recorded yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

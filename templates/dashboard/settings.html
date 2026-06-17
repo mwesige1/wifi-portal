@@ -6,129 +6,86 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">Settings</h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Configure your WiFi portal system from one place
-        </p>
+        <h5>Settings</h5>
+        <p>Configure your WiFi portal system from one place</p>
     </div>
 </div>
 
 <!-- ── Tabs ──────────────────────────────────────────── -->
-<div style="display:flex; gap:4px; margin-bottom:28px;
-            border-bottom:2px solid #f3f4f6; flex-wrap:wrap;">
+<div class="settings-tabs">
     {% for tab in tabs %}
     <button onclick="switchTab('{{ tab.key }}')"
             id="tab-btn-{{ tab.key }}"
-            style="padding:10px 20px; border:none; background:none;
-                   font-size:13px; font-weight:700; cursor:pointer;
-                   border-bottom:2px solid transparent;
-                   margin-bottom:-2px; color:#9ca3af;
-                   transition:all 0.2s;">
+            class="settings-tab-btn">
         <i class="{{ tab.icon }}"></i> {{ tab.label }}
     </button>
     {% endfor %}
 </div>
 
-<form method="post" action="{% url 'dashboard:settings' %}"
-      enctype="multipart/form-data">
+<form method="post" action="{% url 'dashboard:settings' %}" enctype="multipart/form-data">
     {% csrf_token %}
 
     <!-- ── Tab: General ───────────────────────────── -->
     <div id="tab-general" class="settings-tab">
-        <div class="row g-4">
-            <div class="col-md-8">
+        <div class="grid-8-4">
+            <div>
                 <div class="dash-table">
                     <div class="dash-table-header"><h6>Business Information</h6></div>
-                    <div style="padding:24px;">
-                        <div class="row g-3">
-
-                            <div class="col-md-6">
-                                <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Business Name</label>
-                                <input type="text" name="business_name"
-                                       value="{{ settings.business_name }}"
-                                       style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Business Name</label>
+                                <input type="text" name="business_name" value="{{ settings.business_name }}" class="form-input">
                             </div>
-
-                            <div class="col-md-6">
-                                <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Support Phone</label>
-                                <input type="text" name="support_phone"
-                                       value="{{ settings.support_phone }}"
-                                       placeholder="e.g. 0700123456"
-                                       style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
+                            <div class="form-group">
+                                <label class="form-label">Support Phone</label>
+                                <input type="text" name="support_phone" value="{{ settings.support_phone }}" placeholder="e.g. 0700123456" class="form-input">
                             </div>
-
-                            <div class="col-md-6">
-                                <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Support Email</label>
-                                <input type="email" name="support_email"
-                                       value="{{ settings.support_email }}"
-                                       placeholder="e.g. support@404tech.ug"
-                                       style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
+                            <div class="form-group">
+                                <label class="form-label">Support Email</label>
+                                <input type="email" name="support_email" value="{{ settings.support_email }}" placeholder="e.g. support@404tech.ug" class="form-input">
                             </div>
-
-                            <div class="col-md-6">
-                                <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Support WhatsApp</label>
-                                <input type="text" name="support_whatsapp"
-                                       value="{{ settings.support_whatsapp }}"
-                                       placeholder="e.g. 256700123456"
-                                       style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
+                            <div class="form-group">
+                                <label class="form-label">Support WhatsApp</label>
+                                <input type="text" name="support_whatsapp" value="{{ settings.support_whatsapp }}" placeholder="e.g. 256700123456" class="form-input">
                             </div>
-
-                            <div class="col-md-6">
-                                <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Portal URL</label>
-                                <input type="text" name="portal_url"
-                                       value="{{ settings.portal_url }}"
-                                       placeholder="e.g. wifi.404tech.ug"
-                                       style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
+                            <div class="form-group">
+                                <label class="form-label">Portal URL</label>
+                                <input type="text" name="portal_url" value="{{ settings.portal_url }}" placeholder="e.g. wifi.404tech.ug" class="form-input">
                             </div>
-
-                            <div class="col-md-6">
-                                <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Callback URL</label>
-                                <input type="text" name="callback_url"
-                                       value="{{ settings.callback_url }}"
-                                       placeholder="e.g. https://yourportal.com/payments/callback/"
-                                       style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
+                            <div class="form-group">
+                                <label class="form-label">Callback URL</label>
+                                <input type="text" name="callback_url" value="{{ settings.callback_url }}" placeholder="e.g. https://yourportal.com/payments/callback/" class="form-input">
                             </div>
-
-                            <div class="col-12">
-                                <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Business Logo</label>
+                            <div class="form-group full-width">
+                                <label class="form-label">Business Logo</label>
                                 {% if settings.logo %}
-                                <div style="margin-bottom:10px;">
-                                    <img src="{{ settings.logo.url }}" alt="Logo"
-                                         style="height:50px; border-radius:8px;">
+                                <div class="mb-1">
+                                    <img src="{{ settings.logo.url }}" alt="Logo" style="height:50px; border-radius:var(--r-sm);">
                                 </div>
                                 {% endif %}
-                                <input type="file" name="logo" accept="image/*"
-                                       style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; color:#6b7280;">
+                                <input type="file" name="logo" accept="image/*" class="form-input">
                             </div>
-
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-4">
+            <div>
                 <div class="dash-table">
                     <div class="dash-table-header"><h6>Portal Appearance</h6></div>
-                    <div style="padding:24px;">
-                        <div style="margin-bottom:20px;">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Brand Color</label>
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <input type="color" name="brand_color"
-                                       id="colorPicker"
-                                       value="{{ settings.brand_color }}"
-                                       style="width:48px; height:40px; border:none; border-radius:8px; cursor:pointer; padding:2px;">
-                                <input type="text" id="colorHex"
-                                       value="{{ settings.brand_color }}"
-                                       style="flex:1; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;"
-                                       readonly>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Brand Color</label>
+                            <div class="color-picker-row">
+                                <input type="color" name="brand_color" id="colorPicker" value="{{ settings.brand_color }}">
+                                <input type="text" id="colorHex" value="{{ settings.brand_color }}" class="form-input" readonly>
                             </div>
                         </div>
-                        <div>
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Portal Font</label>
-                            <select name="portal_font"
-                                    style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e; background:#fff;">
+                        <div class="form-group">
+                            <label class="form-label">Portal Font</label>
+                            <select name="portal_font" class="form-select">
                                 <option value="Inter" {% if settings.portal_font == 'Inter' %}selected{% endif %}>Inter (Default)</option>
                                 <option value="Poppins" {% if settings.portal_font == 'Poppins' %}selected{% endif %}>Poppins</option>
                                 <option value="Roboto" {% if settings.portal_font == 'Roboto' %}selected{% endif %}>Roboto</option>
@@ -143,34 +100,21 @@
 
     <!-- ── Tab: Portal ────────────────────────────── -->
     <div id="tab-portal" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>Portal Content</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Welcome Message</label>
-                            <textarea name="welcome_message" rows="3"
-                                      placeholder="e.g. Welcome to Optimum WiFi! Fast, reliable internet for everyone."
-                                      style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e; resize:vertical;">{{ settings.welcome_message }}</textarea>
-                        </div>
-
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Footer Text</label>
-                            <input type="text" name="footer_text"
-                                   value="{{ settings.footer_text }}"
-                                   placeholder="e.g. © 2026 404 Tech UG. All rights reserved."
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Terms & Conditions</label>
-                            <textarea name="terms_conditions" rows="5"
-                                      placeholder="Enter your terms and conditions here..."
-                                      style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e; resize:vertical;">{{ settings.terms_conditions }}</textarea>
-                        </div>
-
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>Portal Content</h6></div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label">Welcome Message</label>
+                        <textarea name="welcome_message" rows="3" placeholder="e.g. Welcome to Optimum WiFi!" class="form-textarea">{{ settings.welcome_message }}</textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Footer Text</label>
+                        <input type="text" name="footer_text" value="{{ settings.footer_text }}" placeholder="e.g. © 2026 404 Tech UG." class="form-input">
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Terms & Conditions</label>
+                        <textarea name="terms_conditions" rows="5" class="form-textarea">{{ settings.terms_conditions }}</textarea>
                     </div>
                 </div>
             </div>
@@ -179,44 +123,27 @@
 
     <!-- ── Tab: Free Trial ────────────────────────── -->
     <div id="tab-free_trial" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>Free Trial Configuration</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-12">
-                            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-                                <input type="checkbox" name="free_trial_enabled"
-                                       id="freeTrialEnabled"
-                                       {% if settings.free_trial_enabled %}checked{% endif %}
-                                       style="width:18px; height:18px; cursor:pointer;">
-                                <span style="font-size:13px; font-weight:700; color:#374151;">
-                                    Enable Free Trial on portal
-                                </span>
-                            </label>
-                            <p style="font-size:11px; color:#9ca3af; margin:8px 0 0 28px;">
-                                When enabled, new devices can connect for free once before paying.
-                            </p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Free Trial Duration</label>
-                            <input type="number" name="free_trial_duration"
-                                   value="{{ settings.free_trial_duration }}"
-                                   min="1" max="1440"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Duration Unit</label>
-                            <select name="free_trial_unit"
-                                    style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e; background:#fff;">
-                                <option value="minutes" {% if settings.free_trial_unit == 'minutes' %}selected{% endif %}>Minutes</option>
-                                <option value="hours" {% if settings.free_trial_unit == 'hours' %}selected{% endif %}>Hours</option>
-                            </select>
-                        </div>
-
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>Free Trial Configuration</h6></div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-check">
+                        <input type="checkbox" name="free_trial_enabled" {% if settings.free_trial_enabled %}checked{% endif %}>
+                        Enable Free Trial on portal
+                    </label>
+                    <p class="form-hint" style="margin-left:28px;">When enabled, new devices can connect for free once before paying.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Free Trial Duration</label>
+                        <input type="number" name="free_trial_duration" value="{{ settings.free_trial_duration }}" min="1" max="1440" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Duration Unit</label>
+                        <select name="free_trial_unit" class="form-select">
+                            <option value="minutes" {% if settings.free_trial_unit == 'minutes' %}selected{% endif %}>Minutes</option>
+                            <option value="hours" {% if settings.free_trial_unit == 'hours' %}selected{% endif %}>Hours</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -225,28 +152,17 @@
 
     <!-- ── Tab: Network ───────────────────────────── -->
     <div id="tab-network" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>Network Configuration</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Default Router IP</label>
-                            <input type="text" name="default_router_ip"
-                                   value="{{ settings.default_router_ip }}"
-                                   placeholder="e.g. 192.168.88.1"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Hotspot Network</label>
-                            <input type="text" name="hotspot_network"
-                                   value="{{ settings.hotspot_network }}"
-                                   placeholder="e.g. 192.168.88.0/24"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>Network Configuration</h6></div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Default Router IP</label>
+                        <input type="text" name="default_router_ip" value="{{ settings.default_router_ip }}" placeholder="e.g. 192.168.88.1" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hotspot Network</label>
+                        <input type="text" name="hotspot_network" value="{{ settings.hotspot_network }}" placeholder="e.g. 192.168.88.0/24" class="form-input">
                     </div>
                 </div>
             </div>
@@ -255,57 +171,30 @@
 
     <!-- ── Tab: Payments ──────────────────────────── -->
     <div id="tab-payments" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>Mobile Money Configuration</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-12">
-                            <p style="font-size:13px; font-weight:700; color:#1a1a2e; margin:0 0 16px;">
-                                MTN Mobile Money
-                            </p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">MTN Collection Number</label>
-                            <input type="text" name="mtn_collection_number"
-                                   value="{{ settings.mtn_collection_number }}"
-                                   placeholder="e.g. 0771234567"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">MTN API Key</label>
-                            <input type="password" name="mtn_api_key"
-                                   value="{{ settings.mtn_api_key }}"
-                                   placeholder="Your MTN MoMo API key"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-12">
-                            <hr style="border-color:#f3f4f6; margin:8px 0;">
-                            <p style="font-size:13px; font-weight:700; color:#1a1a2e; margin:16px 0;">
-                                Airtel Money
-                            </p>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Airtel Collection Number</label>
-                            <input type="text" name="airtel_collection_number"
-                                   value="{{ settings.airtel_collection_number }}"
-                                   placeholder="e.g. 0701234567"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Airtel API Key</label>
-                            <input type="password" name="airtel_api_key"
-                                   value="{{ settings.airtel_api_key }}"
-                                   placeholder="Your Airtel Money API key"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>Mobile Money Configuration</h6></div>
+            <div class="card-body">
+                <p class="form-section-title">MTN Mobile Money</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">MTN Collection Number</label>
+                        <input type="text" name="mtn_collection_number" value="{{ settings.mtn_collection_number }}" placeholder="e.g. 0771234567" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">MTN API Key</label>
+                        <input type="password" name="mtn_api_key" value="{{ settings.mtn_api_key }}" class="form-input">
+                    </div>
+                </div>
+                <hr class="form-divider">
+                <p class="form-section-title">Airtel Money</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Airtel Collection Number</label>
+                        <input type="text" name="airtel_collection_number" value="{{ settings.airtel_collection_number }}" placeholder="e.g. 0701234567" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Airtel API Key</label>
+                        <input type="password" name="airtel_api_key" value="{{ settings.airtel_api_key }}" class="form-input">
                     </div>
                 </div>
             </div>
@@ -314,46 +203,27 @@
 
     <!-- ── Tab: SMS ───────────────────────────────── -->
     <div id="tab-sms" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>SMS Configuration (Africa's Talking)</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-12">
-                            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-                                <input type="checkbox" name="sms_enabled"
-                                       id="smsEnabled"
-                                       {% if settings.sms_enabled %}checked{% endif %}
-                                       style="width:18px; height:18px; cursor:pointer;">
-                                <span style="font-size:13px; font-weight:700; color:#374151;">
-                                    Enable SMS notifications
-                                </span>
-                            </label>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">API Username</label>
-                            <input type="text" name="at_username"
-                                   value="{{ settings.at_username }}"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">API Key</label>
-                            <input type="password" name="at_api_key"
-                                   value="{{ settings.at_api_key }}"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Sender ID</label>
-                            <input type="text" name="sms_sender_id"
-                                   value="{{ settings.sms_sender_id }}"
-                                   placeholder="e.g. 404TECH"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>SMS Configuration (Africa's Talking)</h6></div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-check">
+                        <input type="checkbox" name="sms_enabled" {% if settings.sms_enabled %}checked{% endif %}>
+                        Enable SMS notifications
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">API Username</label>
+                        <input type="text" name="at_username" value="{{ settings.at_username }}" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">API Key</label>
+                        <input type="password" name="at_api_key" value="{{ settings.at_api_key }}" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sender ID</label>
+                        <input type="text" name="sms_sender_id" value="{{ settings.sms_sender_id }}" placeholder="e.g. 404TECH" class="form-input">
                     </div>
                 </div>
             </div>
@@ -362,40 +232,23 @@
 
     <!-- ── Tab: WhatsApp ──────────────────────────── -->
     <div id="tab-whatsapp" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>WhatsApp Business Configuration</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-12">
-                            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-                                <input type="checkbox" name="wa_enabled"
-                                       id="waEnabled"
-                                       {% if settings.wa_enabled %}checked{% endif %}
-                                       style="width:18px; height:18px; cursor:pointer;">
-                                <span style="font-size:13px; font-weight:700; color:#374151;">
-                                    Enable WhatsApp notifications
-                                </span>
-                            </label>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">WhatsApp Business Number</label>
-                            <input type="text" name="wa_number"
-                                   value="{{ settings.wa_number }}"
-                                   placeholder="e.g. 256771234567"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">API Token</label>
-                            <input type="password" name="wa_token"
-                                   value="{{ settings.wa_token }}"
-                                   placeholder="WhatsApp Business API token"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>WhatsApp Business Configuration</h6></div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-check">
+                        <input type="checkbox" name="wa_enabled" {% if settings.wa_enabled %}checked{% endif %}>
+                        Enable WhatsApp notifications
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp Business Number</label>
+                        <input type="text" name="wa_number" value="{{ settings.wa_number }}" placeholder="e.g. 256771234567" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">API Token</label>
+                        <input type="password" name="wa_token" value="{{ settings.wa_token }}" class="form-input">
                     </div>
                 </div>
             </div>
@@ -404,37 +257,21 @@
 
     <!-- ── Tab: Notifications ─────────────────────── -->
     <div id="tab-notifications" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>SMS Message Templates</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-12">
-                            <p style="font-size:12px; color:#9ca3af; margin:0 0 16px;">
-                                Use {name}, {amount}, {duration}, {code} as placeholders.
-                            </p>
-                        </div>
-
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Payment Confirmation SMS</label>
-                            <textarea name="sms_payment_template" rows="3"
-                                      style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e; resize:vertical;">{{ settings.sms_payment_template }}</textarea>
-                        </div>
-
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Session Expiry Warning SMS</label>
-                            <textarea name="sms_expiry_template" rows="3"
-                                      style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e; resize:vertical;">{{ settings.sms_expiry_template }}</textarea>
-                        </div>
-
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Voucher Delivery SMS</label>
-                            <textarea name="sms_voucher_template" rows="3"
-                                      style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e; resize:vertical;">{{ settings.sms_voucher_template }}</textarea>
-                        </div>
-
-                    </div>
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>SMS Message Templates</h6></div>
+            <div class="card-body">
+                <p class="form-hint mb-2">Use {name}, {amount}, {duration}, {code} as placeholders.</p>
+                <div class="form-group">
+                    <label class="form-label">Payment Confirmation SMS</label>
+                    <textarea name="sms_payment_template" rows="3" class="form-textarea">{{ settings.sms_payment_template }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Session Expiry Warning SMS</label>
+                    <textarea name="sms_expiry_template" rows="3" class="form-textarea">{{ settings.sms_expiry_template }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Voucher Delivery SMS</label>
+                    <textarea name="sms_voucher_template" rows="3" class="form-textarea">{{ settings.sms_voucher_template }}</textarea>
                 </div>
             </div>
         </div>
@@ -442,59 +279,36 @@
 
     <!-- ── Tab: Security ──────────────────────────── -->
     <div id="tab-security" class="settings-tab" style="display:none;">
-        <div class="col-md-8">
-            <div class="dash-table">
-                <div class="dash-table-header"><h6>Security Settings</h6></div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Session Timeout (minutes)</label>
-                            <input type="number" name="session_timeout"
-                                   value="{{ settings.session_timeout }}"
-                                   min="5" max="1440"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700; color:#374151; display:block; margin-bottom:6px;">Max Login Attempts</label>
-                            <input type="number" name="max_login_attempts"
-                                   value="{{ settings.max_login_attempts }}"
-                                   min="3" max="10"
-                                   style="width:100%; padding:10px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:13px; font-family:'Inter',sans-serif; outline:none; color:#1a1a2e;">
-                        </div>
-
-                        <div class="col-12">
-                            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:12px;">
-                                <input type="checkbox" name="require_https"
-                                       {% if settings.require_https %}checked{% endif %}
-                                       style="width:18px; height:18px; cursor:pointer;">
-                                <span style="font-size:13px; font-weight:700; color:#374151;">
-                                    Force HTTPS on portal
-                                </span>
-                            </label>
-                            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-                                <input type="checkbox" name="log_activity"
-                                       {% if settings.log_activity %}checked{% endif %}
-                                       style="width:18px; height:18px; cursor:pointer;">
-                                <span style="font-size:13px; font-weight:700; color:#374151;">
-                                    Enable admin activity logging
-                                </span>
-                            </label>
-                        </div>
-
+        <div class="dash-table" style="max-width:800px;">
+            <div class="dash-table-header"><h6>Security Settings</h6></div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Session Timeout (minutes)</label>
+                        <input type="number" name="session_timeout" value="{{ settings.session_timeout }}" min="5" max="1440" class="form-input">
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Login Attempts</label>
+                        <input type="number" name="max_login_attempts" value="{{ settings.max_login_attempts }}" min="3" max="10" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group mt-2">
+                    <label class="form-check" style="margin-bottom:12px;">
+                        <input type="checkbox" name="require_https" {% if settings.require_https %}checked{% endif %}>
+                        Force HTTPS on portal
+                    </label>
+                    <label class="form-check">
+                        <input type="checkbox" name="log_activity" {% if settings.log_activity %}checked{% endif %}>
+                        Enable admin activity logging
+                    </label>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ── Save Button ─────────────────────────────── -->
-    <div style="margin-top:28px;">
-        <button type="submit"
-                style="background:#2563eb; color:#fff; border:none;
-                       border-radius:10px; padding:12px 32px;
-                       font-size:14px; font-weight:700; cursor:pointer;">
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">
             <i class="bi bi-save"></i> Save Settings
         </button>
     </div>
@@ -505,25 +319,24 @@
 
 {% block extra_js %}
 <script>
-const tabKeys = {{ tabs|length }};
-const tabIds  = [{% for tab in tabs %}'{{ tab.key }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+var tabIds = [{% for tab in tabs %}'{{ tab.key }}'{% if not forloop.last %},{% endif %}{% endfor %}];
 
 function switchTab(active) {
-    tabIds.forEach(tab => {
+    tabIds.forEach(function(tab) {
         document.getElementById('tab-' + tab).style.display =
             tab === active ? 'block' : 'none';
-        const btn = document.getElementById('tab-btn-' + tab);
+        var btn = document.getElementById('tab-btn-' + tab);
         if (btn) {
-            btn.style.color        = tab === active ? '#2563eb' : '#9ca3af';
-            btn.style.borderBottom = tab === active
-                ? '2px solid #2563eb' : '2px solid transparent';
+            btn.className = tab === active
+                ? 'settings-tab-btn active'
+                : 'settings-tab-btn';
         }
     });
 }
 
 switchTab('general');
 
-document.getElementById('colorPicker').addEventListener('input', function () {
+document.getElementById('colorPicker').addEventListener('input', function() {
     document.getElementById('colorHex').value = this.value;
 });
 </script>

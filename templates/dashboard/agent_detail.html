@@ -6,183 +6,131 @@
 {% block content %}
 
 <!-- ── Header ────────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            {{ agent.name }}
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            {{ agent.location|default:"No location set" }} —
-            {{ agent.phone|default:"No phone" }}
-        </p>
+        <h5>{{ agent.name }}</h5>
+        <p>{{ agent.location|default:"No location set" }} — {{ agent.phone|default:"No phone" }}</p>
     </div>
-    <a href="{% url 'dashboard:voucher_agents' %}"
-       style="font-size:13px; color:#6b7280;
-              text-decoration:none; font-weight:600;">
-        ← Back to Agents
-    </a>
+    <a href="{% url 'dashboard:voucher_agents' %}" class="btn-back">← Back to Agents</a>
 </div>
 
 <!-- ── Stats Cards ───────────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-ticket-perforated-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Total Assigned</p>
-                <h4>{{ total_assigned }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">All vouchers</small>
-            </div>
+<div class="stats-row mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-ticket-perforated-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Total Assigned</p>
+            <h4>{{ total_assigned }}</h4>
+            <small>All vouchers</small>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-check-circle-fill" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Sold</p>
-                <h4>{{ total_sold }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">Redeemed</small>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Sold</p>
+            <h4>{{ total_sold }}</h4>
+            <small>Redeemed</small>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fefce8;">
-                <i class="bi bi-hourglass-split" style="color:#ca8a04;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Available</p>
-                <h4>{{ total_available }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">Not yet used</small>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-warning">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Available</p>
+            <h4>{{ total_available }}</h4>
+            <small>Not yet used</small>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-cash-coin" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Revenue Generated</p>
-                <h4>UGX {{ total_revenue|floatformat:0 }}</h4>
-                <small style="color:#9ca3af; font-size:11px;">
-                    Commission: UGX {{ commission_earned|floatformat:0 }}
-                </small>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Revenue Generated</p>
+            <h4>UGX {{ total_revenue|floatformat:0 }}</h4>
+            <small>Commission: UGX {{ commission_earned|floatformat:0 }}</small>
         </div>
     </div>
-
 </div>
 
-<!-- ── Filter + Voucher List ─────────────────────────── -->
-<div class="dash-table">
-    <div class="dash-table-header">
+<!-- ── Voucher List ──────────────────────────────────── -->
+<div class="dash-table agent-vouchers">
+    <div class="dash-table-header" style="flex-wrap:wrap; gap:12px;">
         <h6>Vouchers</h6>
-        <div style="display:flex; gap:8px;">
-            <a href="?status="
-               style="padding:6px 14px; border-radius:8px; font-size:12px;
-                      font-weight:600; text-decoration:none;
-                      {% if not status_filter %}background:#1a1a2e; color:#fff;
-                      {% else %}background:#f3f4f6; color:#374151;{% endif %}">
-                All
-            </a>
-            <a href="?status=available"
-               style="padding:6px 14px; border-radius:8px; font-size:12px;
-                      font-weight:600; text-decoration:none;
-                      {% if status_filter == 'available' %}background:#1a1a2e; color:#fff;
-                      {% else %}background:#f3f4f6; color:#374151;{% endif %}">
-                Available
-            </a>
-            <a href="?status=used"
-               style="padding:6px 14px; border-radius:8px; font-size:12px;
-                      font-weight:600; text-decoration:none;
-                      {% if status_filter == 'used' %}background:#1a1a2e; color:#fff;
-                      {% else %}background:#f3f4f6; color:#374151;{% endif %}">
-                Used
-            </a>
-            <a href="?status=expired"
-               style="padding:6px 14px; border-radius:8px; font-size:12px;
-                      font-weight:600; text-decoration:none;
-                      {% if status_filter == 'expired' %}background:#1a1a2e; color:#fff;
-                      {% else %}background:#f3f4f6; color:#374151;{% endif %}">
-                Expired
-            </a>
+        <div class="tab-pills" style="margin-bottom:0;">
+            <a href="?status=" class="tab-pill {% if not status_filter %}active{% endif %}">All</a>
+            <a href="?status=available" class="tab-pill {% if status_filter == 'available' %}active{% endif %}">Available</a>
+            <a href="?status=used" class="tab-pill {% if status_filter == 'used' %}active{% endif %}">Used</a>
+            <a href="?status=expired" class="tab-pill {% if status_filter == 'expired' %}active{% endif %}">Expired</a>
         </div>
     </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Code</th>
-                <th>Package</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Used By</th>
-                <th>Used At</th>
-                <th>Created</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for voucher in vouchers %}
-            <tr>
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ forloop.counter }}
-                </td>
-                <td>
-                    <span style="font-family:monospace; font-weight:700;
-                                 color:#1a1a2e; font-size:13px;
-                                 background:#f3f4f6; padding:3px 8px;
-                                 border-radius:6px;">
-                        {{ voucher.code }}
-                    </span>
-                </td>
-                <td style="color:#374151; font-size:13px;">
-                    {{ voucher.package.name }}
-                </td>
-                <td style="font-weight:700; color:#16a34a;">
-                    UGX {{ voucher.price_sold|floatformat:0 }}
-                </td>
-                <td>
-                    {% if voucher.status == 'available' %}
-                        <span class="badge-active">Available</span>
-                    {% elif voucher.status == 'used' %}
-                        <span class="badge-success">Used</span>
-                    {% elif voucher.status == 'giveaway' %}
-                        <span class="badge-pending">Giveaway</span>
-                    {% else %}
-                        <span class="badge-expired">Expired</span>
-                    {% endif %}
-                </td>
-                <td style="font-family:monospace; font-size:12px; color:#374151;">
-                    {{ voucher.used_by_device.mac_address|default:"—" }}
-                </td>
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ voucher.used_at|date:"d M Y, H:i"|default:"—" }}
-                </td>
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ voucher.created_at|date:"d M Y" }}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8"
-                    style="text-align:center; padding:48px; color:#9ca3af;">
-                    <i class="bi bi-ticket-perforated"
-                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
-                    No vouchers found for this filter.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-num">#</th>
+                    <th class="col-code">Code</th>
+                    <th class="col-package">Package</th>
+                    <th class="col-price">Price</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-used-by">Used By</th>
+                    <th class="col-used-at">Used At</th>
+                    <th class="col-created">Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for voucher in vouchers %}
+                <tr>
+                    <td class="col-num text-muted" style="font-size:12px;">{{ forloop.counter }}</td>
+                    <td class="col-code">
+                        <span class="voucher-code" style="background:var(--c-border-light); padding:3px 8px; border-radius:6px;">
+                            {{ voucher.code }}
+                        </span>
+                    </td>
+                    <td class="col-package">{{ voucher.package.name }}</td>
+                    <td class="col-price font-bold text-success">
+                        UGX {{ voucher.price_sold|floatformat:0 }}
+                    </td>
+                    <td class="col-status">
+                        {% if voucher.status == 'available' %}
+                            <span class="badge badge-success">Available</span>
+                        {% elif voucher.status == 'used' %}
+                            <span class="badge badge-muted">Used</span>
+                        {% elif voucher.status == 'giveaway' %}
+                            <span class="badge badge-pending">Giveaway</span>
+                        {% else %}
+                            <span class="badge badge-failed">Expired</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-used-by" style="font-family:monospace; font-size:12px;">
+                        {{ voucher.used_by_device.mac_address|default:"—" }}
+                    </td>
+                    <td class="col-used-at text-muted" style="font-size:12px;">
+                        {{ voucher.used_at|date:"d M Y, H:i"|default:"—" }}
+                    </td>
+                    <td class="col-created text-muted" style="font-size:12px;">
+                        {{ voucher.created_at|date:"d M Y" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="bi bi-ticket-perforated" style="display:block;"></i>
+                        No vouchers found for this filter.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

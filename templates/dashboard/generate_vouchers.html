@@ -6,43 +6,30 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Generate Vouchers
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Create a batch of unique voucher codes for a package
-        </p>
+        <h5>Generate Vouchers</h5>
+        <p>Create a batch of unique voucher codes for a package</p>
     </div>
-    <a href="{% url 'dashboard:vouchers' %}"
-       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
-        ← Back to Vouchers
-    </a>
+    <a href="{% url 'dashboard:vouchers' %}" class="btn-back">← Back to Vouchers</a>
 </div>
 
 <!-- ── Form ──────────────────────────────────────────── -->
 <form method="post" action="{% url 'dashboard:generate_vouchers' %}">
     {% csrf_token %}
 
-    <div class="dash-table mb-4">
+    <div class="dash-table mb-2">
         <div class="dash-table-header">
             <h6>Voucher Configuration</h6>
         </div>
-        <div style="padding:24px;">
-            <div class="row g-3">
+        <div class="card-body">
+            <div class="form-grid">
 
-                <!-- Package -->
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Package <span style="color:#dc2626;">*</span>
+                <div class="form-group">
+                    <label class="form-label">
+                        Package <span class="required">*</span>
                     </label>
-                    <select name="package" required
-                            style="width:100%; padding:10px 14px;
-                                   border:1px solid #e5e7eb; border-radius:10px;
-                                   font-size:13px; font-family:'Inter',sans-serif;
-                                   outline:none; color:#1a1a2e; background:#fff;">
+                    <select name="package" required class="form-select">
                         <option value="">— Select a package —</option>
                         {% for package in packages %}
                         <option value="{{ package.id }}">
@@ -54,132 +41,75 @@
                     </select>
                 </div>
 
-                <!-- Quantity -->
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Number of Vouchers <span style="color:#dc2626;">*</span>
+                <div class="form-group">
+                    <label class="form-label">
+                        Number of Vouchers <span class="required">*</span>
                     </label>
                     <input type="number" name="quantity"
                            value="1" min="1" max="500"
-                           required
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
-                    <p style="font-size:11px; color:#9ca3af; margin-top:4px;">
-                        Maximum 500 vouchers per batch
-                    </p>
+                           required class="form-input">
+                    <p class="form-hint">Maximum 500 vouchers per batch</p>
                 </div>
 
-                <!-- Prefix -->
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
+                <div class="form-group">
+                    <label class="form-label">
                         Voucher Prefix (optional — 1 letter max)
                     </label>
                     <input type="text" name="prefix"
-                           placeholder="e.g. A"
-                           maxlength="1"
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;
-                                  text-transform:uppercase;">
-                    <p style="font-size:11px; color:#9ca3af; margin-top:4px;">
-                        Prefix is added to front of code e.g. "A4KX92"
-                    </p>
+                           placeholder="e.g. A" maxlength="1"
+                           class="form-input"
+                           style="text-transform:uppercase;">
+                    <p class="form-hint">Prefix is added to front of code e.g. "A4KX92"</p>
                 </div>
 
-                <!-- Code Length -->
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Code Length <span style="color:#dc2626;">*</span>
+                <div class="form-group">
+                    <label class="form-label">
+                        Code Length <span class="required">*</span>
                     </label>
                     <input type="number" name="code_length"
                            value="6" min="5" max="12"
-                           required
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
-                    <p style="font-size:11px; color:#9ca3af; margin-top:4px;">
-                        Between 5 and 12 characters including prefix
-                    </p>
+                           required class="form-input">
+                    <p class="form-hint">Between 5 and 12 characters including prefix</p>
                 </div>
 
-                <!-- Batch Reference -->
-                <div class="col-md-6">
-                    <label style="font-size:12px; font-weight:700;
-                                  color:#374151; display:block; margin-bottom:6px;">
-                        Batch Reference (optional)
-                    </label>
+                <div class="form-group">
+                    <label class="form-label">Batch Reference (optional)</label>
                     <input type="text" name="batch_reference"
                            placeholder='e.g. "Morning-Batch-1"'
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
-                    <p style="font-size:11px; color:#9ca3af; margin-top:4px;">
-                        Groups vouchers from the same batch together
-                    </p>
+                           class="form-input">
+                    <p class="form-hint">Groups vouchers from the same batch together</p>
                 </div>
 
-                <!-- Giveaway Toggle -->
-                <!-- Agent -->
-<div class="col-md-6">
-    <label style="font-size:12px; font-weight:700;
-                  color:#374151; display:block; margin-bottom:6px;">
-        Assign to Agent (optional)
-    </label>
-    <select name="agent"
-            style="width:100%; padding:10px 14px;
-                   border:1px solid #e5e7eb; border-radius:10px;
-                   font-size:13px; font-family:'Inter',sans-serif;
-                   outline:none; color:#1a1a2e; background:#fff;">
-        <option value="">— No Agent (Walk-in / Online) —</option>
-        {% for agent in agents %}
-        <option value="{{ agent.id }}">
-            {{ agent.name }} — {{ agent.location }}
-        </option>
-        {% endfor %}
-    </select>
-    <p style="font-size:11px; color:#9ca3af; margin-top:4px;">
-        Assign these vouchers to a specific agent for tracking
-    </p>
-</div>
+                <div class="form-group">
+                    <label class="form-label">Assign to Agent (optional)</label>
+                    <select name="agent" class="form-select">
+                        <option value="">— No Agent (Walk-in / Online) —</option>
+                        {% for agent in agents %}
+                        <option value="{{ agent.id }}">
+                            {{ agent.name }} — {{ agent.location }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="form-hint">Assign these vouchers to a specific agent for tracking</p>
+                </div>
 
-<!-- Giveaway Toggle -->
-<div class="col-md-6">
-    <label style="display:flex; align-items:center; gap:8px;
-                  cursor:pointer; font-size:13px; font-weight:600;
-                  color:#374151; margin-top:24px;">
-        <input type="checkbox" name="is_giveaway"
-               style="width:16px; height:16px;">
-        Mark as Giveaway (not counted as revenue)
-    </label>
-</div>
+                <div class="form-group full-width">
+                    <label class="form-check">
+                        <input type="checkbox" name="is_giveaway">
+                        Mark as Giveaway (not counted as revenue)
+                    </label>
+                </div>
 
             </div>
         </div>
     </div>
 
     <!-- Action Buttons -->
-    <div style="display:flex; gap:12px;">
-        <button type="submit"
-                style="padding:12px 24px; background:#1a1a2e; color:#fff;
-                       border:none; border-radius:10px; font-size:13px;
-                       font-weight:600; cursor:pointer;
-                       font-family:'Inter',sans-serif;">
-            <i class="bi bi-plus-circle me-2"></i> Generate Vouchers
+    <div class="btn-group">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Generate Vouchers
         </button>
-        <a href="{% url 'dashboard:vouchers' %}"
-           style="padding:12px 24px; background:#f3f4f6; color:#374151;
-                  border-radius:10px; font-size:13px; font-weight:600;
-                  text-decoration:none;">
-            Cancel
-        </a>
+        <a href="{% url 'dashboard:vouchers' %}" class="btn btn-outline">Cancel</a>
     </div>
 
 </form>

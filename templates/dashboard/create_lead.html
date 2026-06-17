@@ -6,91 +6,57 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Add Lead
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Add a new potential customer to your sales pipeline
-        </p>
+        <h5>Add Lead</h5>
+        <p>Add a new potential customer to your sales pipeline</p>
     </div>
-    <a href="{% url 'dashboard:leads' %}"
-       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
-        ← Back to Leads
-    </a>
+    <a href="{% url 'dashboard:leads' %}" class="btn-back">← Back to Leads</a>
 </div>
 
 <!-- ── Form ──────────────────────────────────────────── -->
 <form method="post" action="{% url 'dashboard:create_lead' %}">
     {% csrf_token %}
 
-    <div class="row g-4">
+    <div class="grid-8-4">
 
         <!-- Left Column -->
-        <div class="col-md-8">
+        <div>
 
             <!-- Contact Information -->
-            <div class="dash-table mb-4">
+            <div class="dash-table mb-2">
                 <div class="dash-table-header">
                     <h6>Contact Information</h6>
                 </div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
+                <div class="card-body">
+                    <div class="form-grid">
 
-                        <!-- Full Name -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Full Name <span style="color:#dc2626;">*</span>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Full Name <span class="required">*</span>
                             </label>
                             <input type="text" name="full_name" required
                                    placeholder="e.g. Sarah Nakato"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   class="form-input">
                         </div>
 
-                        <!-- Phone -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Phone Number
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
                             <input type="text" name="phone_number"
-                                placeholder="e.g. 0701234567"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   placeholder="e.g. 0701234567"
+                                   class="form-input">
                         </div>
 
-                        <!-- Email -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Email Address
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
                             <input type="email" name="email"
                                    placeholder="e.g. sarah@example.com"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   class="form-input">
                         </div>
 
-                        <!-- Source -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Lead Source
-                            </label>
-                            <select name="source"
-                                    style="width:100%; padding:10px 14px;
-                                           border:1px solid #e5e7eb; border-radius:10px;
-                                           font-size:13px; font-family:'Inter',sans-serif;
-                                           outline:none; color:#1a1a2e; background:#fff;">
+                        <div class="form-group">
+                            <label class="form-label">Lead Source</label>
+                            <select name="source" class="form-select">
                                 <option value="">— Select Source —</option>
                                 <option value="Walk-in">Walk-in</option>
                                 <option value="Referral">Referral</option>
@@ -106,45 +72,28 @@
             </div>
 
             <!-- Lead Details -->
-            <div class="dash-table mb-4">
+            <div class="dash-table mb-2">
                 <div class="dash-table-header">
                     <h6>Lead Details</h6>
                 </div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
+                <div class="card-body">
+                    <div class="form-grid">
 
-                        <!-- Interested Package -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Interested Package
-                            </label>
-                            <select name="interested_package"
-                                    style="width:100%; padding:10px 14px;
-                                           border:1px solid #e5e7eb; border-radius:10px;
-                                           font-size:13px; font-family:'Inter',sans-serif;
-                                           outline:none; color:#1a1a2e; background:#fff;">
+                        <div class="form-group">
+                            <label class="form-label">Interested Package</label>
+                            <select name="interested_package" class="form-select">
                                 <option value="">— Select Package —</option>
                                 {% for package in packages %}
-    <option value="{{ package.id }}">
-    {{ package.name }} —
-    UGX {{ package.price|floatformat:0 }}
-</option>
+                                <option value="{{ package.id }}">
+                                    {{ package.name }} — UGX {{ package.price|floatformat:0 }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
 
-                        <!-- Assigned To -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Assign To (Staff)
-                            </label>
-                            <select name="assigned_to"
-                                    style="width:100%; padding:10px 14px;
-                                           border:1px solid #e5e7eb; border-radius:10px;
-                                           font-size:13px; font-family:'Inter',sans-serif;
-                                           outline:none; color:#1a1a2e; background:#fff;">
+                        <div class="form-group">
+                            <label class="form-label">Assign To (Staff)</label>
+                            <select name="assigned_to" class="form-select">
                                 <option value="">— Unassigned —</option>
                                 {% for user in staff_users %}
                                 <option value="{{ user.username }}">
@@ -154,20 +103,11 @@
                             </select>
                         </div>
 
-                        <!-- Notes -->
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Notes
-                            </label>
+                        <div class="form-group full-width">
+                            <label class="form-label">Notes</label>
                             <textarea name="notes" rows="4"
-                                      placeholder="Details about what the lead wants,
-when to follow up, any special requirements..."
-                                      style="width:100%; padding:10px 14px;
-                                             border:1px solid #e5e7eb; border-radius:10px;
-                                             font-size:13px; font-family:'Inter',sans-serif;
-                                             outline:none; color:#1a1a2e; resize:vertical;">
-                            </textarea>
+                                      placeholder="Details about what the lead wants, when to follow up, any special requirements..."
+                                      class="form-textarea"></textarea>
                         </div>
 
                     </div>
@@ -177,42 +117,34 @@ when to follow up, any special requirements..."
         </div>
 
         <!-- Right Column -->
-        <div class="col-md-4">
+        <div>
 
             <!-- Status -->
-            <div class="dash-table mb-4">
+            <div class="dash-table mb-2">
                 <div class="dash-table-header">
                     <h6>Pipeline Status</h6>
                 </div>
-                <div style="padding:24px;">
-                    <select name="status"
-                            style="width:100%; padding:10px 14px;
-                                   border:1px solid #e5e7eb; border-radius:10px;
-                                   font-size:13px; font-family:'Inter',sans-serif;
-                                   outline:none; color:#1a1a2e; background:#fff;">
+                <div class="card-body">
+                    <select name="status" class="form-select">
                         <option value="new">New</option>
                         <option value="contacted">Contacted</option>
                         <option value="converted">Converted</option>
                         <option value="lost">Lost</option>
                     </select>
-                    <p style="font-size:11px; color:#9ca3af; margin-top:8px;">
+                    <p class="form-hint mt-1">
                         Set the current stage of this lead in your pipeline.
                     </p>
                 </div>
             </div>
 
             <!-- Last Contacted -->
-            <div class="dash-table mb-4">
+            <div class="dash-table mb-2">
                 <div class="dash-table-header">
                     <h6>Last Contacted</h6>
                 </div>
-                <div style="padding:24px;">
-                    <input type="date" name="last_contacted"
-                           style="width:100%; padding:10px 14px;
-                                  border:1px solid #e5e7eb; border-radius:10px;
-                                  font-size:13px; font-family:'Inter',sans-serif;
-                                  outline:none; color:#1a1a2e;">
-                    <p style="font-size:11px; color:#9ca3af; margin-top:8px;">
+                <div class="card-body">
+                    <input type="date" name="last_contacted" class="form-input">
+                    <p class="form-hint mt-1">
                         When did you last speak to this lead?
                     </p>
                 </div>
@@ -220,22 +152,16 @@ when to follow up, any special requirements..."
 
             <!-- Save -->
             <div class="dash-table">
-                <div style="padding:24px;">
-                    <button type="submit"
-                            style="width:100%; background:#2563eb; color:#fff;
-                                   border:none; border-radius:10px; padding:12px;
-                                   font-size:14px; font-weight:700; cursor:pointer;">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-full">
                         <i class="bi bi-person-plus-fill"></i> Save Lead
                     </button>
-                    <a href="{% url 'dashboard:leads' %}"
-                       style="display:block; text-align:center; margin-top:12px;
-                              font-size:13px; color:#6b7280; text-decoration:none;">
-                        Cancel
-                    </a>
+                    <a href="{% url 'dashboard:leads' %}" class="cancel-link">Cancel</a>
                 </div>
             </div>
 
         </div>
+
     </div>
 </form>
 

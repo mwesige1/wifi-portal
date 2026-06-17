@@ -6,273 +6,191 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Equipment
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Track all physical assets — routers, access points, cables and more
-        </p>
+        <h5>Equipment</h5>
+        <p>Track all physical assets — routers, access points, cables and more</p>
     </div>
-    <a href="{% url 'dashboard:create_equipment' %}"
-       style="background:#2563eb; color:#fff; border:none; border-radius:10px;
-              padding:10px 20px; font-size:13px; font-weight:700;
-              text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+    <a href="{% url 'dashboard:create_equipment' %}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Add Equipment
     </a>
 </div>
 
 <!-- ── Summary Cards ─────────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-hdd-stack-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Total Assets</p>
-                <h4>{{ total_equipment|default:"0" }}</h4>
-            </div>
+<div class="stats-row mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-hdd-stack-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Total Assets</p>
+            <h4>{{ total_equipment|default:"0" }}</h4>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-check-circle-fill" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Available</p>
-                <h4>{{ available_count|default:"0" }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Available</p>
+            <h4>{{ available_count|default:"0" }}</h4>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fefce8;">
-                <i class="bi bi-activity" style="color:#ca8a04;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>In Use</p>
-                <h4>{{ in_use_count|default:"0" }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-warning">
+            <i class="bi bi-activity"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>In Use</p>
+            <h4>{{ in_use_count|default:"0" }}</h4>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fef2f2;">
-                <i class="bi bi-cash-coin" style="color:#dc2626;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Total Investment</p>
-                <h4 style="font-size:18px;">UGX {{ total_investment|floatformat:0 }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-danger">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Total Investment</p>
+            <h4>UGX {{ total_investment|floatformat:0 }}</h4>
         </div>
     </div>
-
 </div>
 
 <!-- ── Search Bar ─────────────────────────────────────── -->
-<form method="get" style="display:flex; gap:8px; max-width:400px; margin-bottom:16px;">
+<form method="get" class="search-box">
     {% if status_filter %}
     <input type="hidden" name="status" value="{{ status_filter }}">
     {% endif %}
-    <input type="text" name="search" value="{{ search|default:'' }}"
-           placeholder="Search by name, model or serial..."
-           style="flex:1; padding:10px 14px;
-                  border:1px solid #e5e7eb; border-radius:10px;
-                  font-size:13px; font-family:'Inter',sans-serif;
-                  outline:none; color:#1a1a2e;">
-    <button type="submit"
-            style="padding:10px 18px; background:#2563eb; color:#fff;
-                   border:none; border-radius:10px; font-size:13px;
-                   font-weight:600; cursor:pointer;">
+    <div class="search-input-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" name="search" value="{{ search|default:'' }}"
+               placeholder="Search by name, model or serial..."
+               class="search-input">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">
         <i class="bi bi-search"></i>
     </button>
     {% if search %}
     <a href="?{% if status_filter %}status={{ status_filter }}{% endif %}"
-       style="padding:10px 14px; background:#f3f4f6; color:#374151;
-              border-radius:10px; font-size:13px; font-weight:600;
-              text-decoration:none;">
-        Clear
-    </a>
+       class="btn btn-outline btn-sm">Clear</a>
     {% endif %}
 </form>
 
 <!-- ── Filter Tabs ────────────────────────────────────── -->
-<div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+<div class="tab-pills">
     <a href="?{% if search %}search={{ search }}{% endif %}"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if not status_filter %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
-        All
-    </a>
+       class="tab-pill {% if not status_filter %}active{% endif %}">All</a>
     {% for label, value in statuses %}
     <a href="?status={{ value }}{% if search %}&search={{ search }}{% endif %}"
-       style="padding:7px 18px; border-radius:20px; font-size:12px;
-              font-weight:700; text-decoration:none; border:1px solid #e5e7eb;
-              {% if status_filter == value %}
-                  background:#2563eb; color:#fff; border-color:#2563eb;
-              {% else %}
-                  background:#fff; color:#6b7280;
-              {% endif %}">
-        {{ label }}
-    </a>
+       class="tab-pill {% if status_filter == value %}active{% endif %}">{{ label }}</a>
     {% endfor %}
 </div>
 
 <!-- ── Equipment Table ───────────────────────────────── -->
-<div class="dash-table">
+<div class="dash-table equipment-table">
     <div class="dash-table-header">
         <h6>Asset Register</h6>
     </div>
-    <table class="table table-hover mb-0">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Model</th>
-                <th>Serial Number</th>
-                <th>Status</th>
-                <th>Location</th>
-                <th>Purchase Date</th>
-                <th>Price (UGX)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in equipment_list %}
-            <tr>
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ forloop.counter }}
-                </td>
-                <td style="font-weight:600; color:#1a1a2e;">
-                    {{ item.name }}
-                    {% if item.notes %}
-                    <br>
-                    <span style="font-size:11px; color:#9ca3af; font-weight:400;">
-                        {{ item.notes|truncatechars:30 }}
-                    </span>
-                    {% endif %}
-                </td>
-                <td>
-                    <span style="background:#f3f4f6; color:#374151;
-                                 padding:3px 10px; border-radius:20px;
-                                 font-size:11px; font-weight:600;">
-                        {{ item.equipment_type|default:"—" }}
-                    </span>
-                </td>
-                <td style="color:#374151;">
-                    {{ item.model|default:"—" }}
-                </td>
-                <td style="color:#9ca3af; font-size:12px; font-family:monospace;">
-                    {{ item.serial_number|default:"—" }}
-                </td>
-                <td>
-                    {% if item.status == 'available' %}
-                        <span style="background:#dcfce7; color:#16a34a;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            Available
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-num">#</th>
+                    <th class="col-name">Name</th>
+                    <th class="col-type">Type</th>
+                    <th class="col-model">Model</th>
+                    <th class="col-serial">Serial Number</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-location">Location</th>
+                    <th class="col-date">Purchase Date</th>
+                    <th class="col-price">Price (UGX)</th>
+                    <th class="col-action">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in equipment_list %}
+                <tr>
+                    <td class="col-num text-muted" style="font-size:12px;">
+                        {{ forloop.counter }}
+                    </td>
+                    <td class="col-name font-semibold">
+                        {{ item.name }}
+                        {% if item.notes %}
+                        <br>
+                        <span class="text-muted" style="font-size:11px; font-weight:400;">
+                            {{ item.notes|truncatechars:30 }}
                         </span>
-                    {% elif item.status == 'in_use' %}
-                        <span style="background:#fef9c3; color:#ca8a04;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            In Use
-                        </span>
-                    {% elif item.status == 'faulty' %}
-                        <span style="background:#fee2e2; color:#dc2626;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            Faulty
-                        </span>
-                    {% else %}
-                        <span style="background:#f3f4f6; color:#6b7280;
-                                     padding:3px 10px; border-radius:20px;
-                                     font-size:11px; font-weight:700;">
-                            Retired
-                        </span>
-                    {% endif %}
-                </td>
-                <td style="color:#374151;">
-                    {{ item.location|default:"—" }}
-                </td>
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ item.purchase_date|date:"d M Y"|default:"—" }}
-                </td>
-                <td style="font-weight:700; color:#1a1a2e;">
-                    {{ item.purchase_price|floatformat:0|default:"—" }}
-                </td>
-                <td>
-                    <div style="display:flex; gap:6px;">
-                        <a href="{% url 'dashboard:edit_equipment' item.id %}"
-                           style="background:#eff6ff; color:#2563eb; border:none;
-                                  border-radius:8px; padding:5px 10px; font-size:12px;
-                                  font-weight:600; text-decoration:none;">
-                            Edit
-                        </a>
-                        <form method="post"
-                              action="{% url 'dashboard:delete_equipment' item.id %}"
-                              id="del-eq-{{ item.id }}">
-                            {% csrf_token %}
-                            <div id="confirm-eq-{{ item.id }}"
-                                 style="display:none; gap:4px;">
-                                <button type="submit"
-                                        style="background:#dc2626; color:#fff; border:none;
-                                               border-radius:8px; padding:5px 10px;
-                                               font-size:12px; font-weight:700; cursor:pointer;">
-                                    Yes
-                                </button>
+                        {% endif %}
+                    </td>
+                    <td class="col-type">
+                        <span class="badge-neutral">{{ item.equipment_type|default:"—" }}</span>
+                    </td>
+                    <td class="col-model">{{ item.model|default:"—" }}</td>
+                    <td class="col-serial text-muted" style="font-family:monospace; font-size:12px;">
+                        {{ item.serial_number|default:"—" }}
+                    </td>
+                    <td class="col-status">
+                        {% if item.status == 'available' %}
+                            <span class="badge badge-success">Available</span>
+                        {% elif item.status == 'in_use' %}
+                            <span class="badge badge-warning">In Use</span>
+                        {% elif item.status == 'faulty' %}
+                            <span class="badge badge-failed">Faulty</span>
+                        {% else %}
+                            <span class="badge badge-muted">Retired</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-location">{{ item.location|default:"—" }}</td>
+                    <td class="col-date text-muted" style="font-size:12px;">
+                        {{ item.purchase_date|date:"d M Y"|default:"—" }}
+                    </td>
+                    <td class="col-price font-bold">
+                        {{ item.purchase_price|floatformat:0|default:"—" }}
+                    </td>
+                    <td class="col-action">
+                        <div class="action-group">
+                            <a href="{% url 'dashboard:edit_equipment' item.id %}"
+                               class="btn-edit">Edit</a>
+                            <form method="post"
+                                  action="{% url 'dashboard:delete_equipment' item.id %}"
+                                  id="del-eq-{{ item.id }}">
+                                {% csrf_token %}
+                                <div class="block-confirm" id="confirm-eq-{{ item.id }}">
+                                    <button type="submit" class="btn-cut-yes">Yes</button>
+                                    <button type="button"
+                                            onclick="cancelEqDel('{{ item.id }}')"
+                                            class="btn-cut-no">No</button>
+                                </div>
                                 <button type="button"
-                                        onclick="cancelEqDel('{{ item.id }}')"
-                                        style="background:#f3f4f6; color:#6b7280; border:none;
-                                               border-radius:8px; padding:5px 10px;
-                                               font-size:12px; font-weight:600; cursor:pointer;">
-                                    No
-                                </button>
-                            </div>
-                            <button type="button"
-                                    id="btn-eq-{{ item.id }}"
-                                    onclick="confirmEqDel('{{ item.id }}')"
-                                    style="background:#fef2f2; color:#dc2626; border:none;
-                                           border-radius:8px; padding:5px 10px; font-size:12px;
-                                           font-weight:600; cursor:pointer;">
-                                Delete
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="10"
-                    style="text-align:center; padding:48px; color:#9ca3af;">
-                    <i class="bi bi-hdd-stack"
-                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
-                    {% if search or status_filter %}
-                        No equipment found for your search.
-                    {% else %}
-                        No equipment recorded yet.
-                        <a href="{% url 'dashboard:create_equipment' %}"
-                           style="color:#2563eb; font-weight:600;">
-                            Add your first asset →
-                        </a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                                        id="btn-eq-{{ item.id }}"
+                                        onclick="confirmEqDel('{{ item.id }}')"
+                                        class="btn-cut">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="empty-state">
+                        <i class="bi bi-hdd-stack" style="display:block;"></i>
+                        {% if search or status_filter %}
+                            No equipment found for your search.
+                        {% else %}
+                            No equipment recorded yet.
+                            <a href="{% url 'dashboard:create_equipment' %}"
+                               style="color:var(--c-primary); font-weight:600;">
+                                Add your first asset →
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}
@@ -285,7 +203,7 @@ function confirmEqDel(id) {
 }
 function cancelEqDel(id) {
     document.getElementById('confirm-eq-' + id).style.display = 'none';
-    document.getElementById('btn-eq-' + id).style.display     = 'inline-block';
+    document.getElementById('btn-eq-' + id).style.display     = 'inline-flex';
 }
 </script>
 {% endblock %}

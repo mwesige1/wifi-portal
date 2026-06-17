@@ -6,142 +6,124 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Customer Feedback
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Star ratings and comments submitted by customers after connecting
-        </p>
+        <h5>Customer Feedback</h5>
+        <p>Star ratings and comments submitted by customers after connecting</p>
     </div>
 </div>
 
 <!-- ── Summary Cards ─────────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#eff6ff;">
-                <i class="bi bi-chat-square-text-fill" style="color:#2563eb;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Total Feedback</p>
-                <h4>{{ total_feedback|default:"0" }}</h4>
-            </div>
+<div class="stats-row mb-2">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-primary">
+            <i class="bi bi-chat-square-text-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Total Feedback</p>
+            <h4>{{ total_feedback|default:"0" }}</h4>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fefce8;">
-                <i class="bi bi-star-fill" style="color:#ca8a04;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Average Rating</p>
-                <h4>{{ average_rating|default:"0" }} / 5</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-warning">
+            <i class="bi bi-star-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Average Rating</p>
+            <h4>{{ average_rating|default:"0" }} / 5</h4>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#f0fdf4;">
-                <i class="bi bi-emoji-smile-fill" style="color:#16a34a;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Positive (4-5 ★)</p>
-                <h4>{{ positive_count|default:"0" }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-success">
+            <i class="bi bi-emoji-smile-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Positive (4-5 ★)</p>
+            <h4>{{ positive_count|default:"0" }}</h4>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="dash-stat-card">
-            <div class="dash-stat-icon" style="background:#fef2f2;">
-                <i class="bi bi-emoji-frown-fill" style="color:#dc2626;"></i>
-            </div>
-            <div class="dash-stat-info">
-                <p>Negative (1-2 ★)</p>
-                <h4>{{ negative_count|default:"0" }}</h4>
-            </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon icon-danger">
+            <i class="bi bi-emoji-frown-fill"></i>
+        </div>
+        <div class="dash-stat-info">
+            <p>Negative (1-2 ★)</p>
+            <h4>{{ negative_count|default:"0" }}</h4>
         </div>
     </div>
-
 </div>
 
 <!-- ── Feedback Table ─────────────────────────────────── -->
-<div class="dash-table">
+<div class="dash-table feedback-table">
     <div class="dash-table-header">
         <h6>All Feedback</h6>
     </div>
-    <table class="table table-hover mb-0">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Device / Customer</th>
-                <th>Rating</th>
-                <th>Comment</th>
-                <th>Package Used</th>
-                <th>Submitted</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for fb in feedback %}
-            <tr>
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ forloop.counter }}
-                </td>
-                <td style="font-weight:600; color:#1a1a2e;">
-                    {{ fb.device.mac_address|default:"Unknown" }}
-                </td>
-                <td>
-                    <div style="display:flex; gap:2px;">
-                        {% for i in "12345" %}
-                            {% if forloop.counter <= fb.rating %}
-                                <i class="bi bi-star-fill"
-                                   style="color:#f59e0b; font-size:13px;"></i>
-                            {% else %}
-                                <i class="bi bi-star"
-                                   style="color:#d1d5db; font-size:13px;"></i>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </td>
-                <td style="color:#374151; max-width:280px;">
-                    {% if fb.comment %}
-                        <span style="font-size:13px;">
-                            {{ fb.comment|truncatechars:80 }}
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-num">#</th>
+                    <th class="col-customer">Customer</th>
+                    <th class="col-rating">Rating</th>
+                    <th class="col-comment">Comment</th>
+                    <th class="col-package">Package Used</th>
+                    <th class="col-date">Submitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fb in feedback %}
+                <tr>
+                    <td class="col-num text-muted" style="font-size:12px;">
+                        {{ forloop.counter }}
+                    </td>
+                    <td class="col-customer font-semibold">
+                        {{ fb.device.mac_address|default:"Unknown" }}
+                    </td>
+                    <td class="col-rating">
+                        <div class="star-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= fb.rating %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="col-comment">
+                        {% if fb.comment %}
+                            <span class="comment-text">
+                                {{ fb.comment|truncatechars:80 }}
+                            </span>
+                        {% else %}
+                            <span class="comment-empty">No comment</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-package">
+                        {{ fb.session.package.name|default:"—" }}
+                    </td>
+                    <td class="col-date text-muted" style="font-size:12px;">
+                        {{ fb.created_at|date:"d M Y, H:i" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <i class="bi bi-star" style="display:block;"></i>
+                        No feedback received yet.<br>
+                        <span style="font-size:12px;">
+                            Feedback appears here once customers submit ratings
+                            from the connected page.
                         </span>
-                    {% else %}
-                        <span style="color:#d1d5db; font-size:12px;">
-                            No comment
-                        </span>
-                    {% endif %}
-                </td>
-                <td style="color:#374151;">
-                    {{ fb.session.package.name|default:"—" }}
-                </td>
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ fb.created_at|date:"d M Y, H:i" }}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6"
-                    style="text-align:center; padding:48px; color:#9ca3af;">
-                    <i class="bi bi-star"
-                       style="font-size:32px; display:block; margin-bottom:12px;"></i>
-                    No feedback received yet. <br>
-                    <span style="font-size:12px;">
-                        Feedback appears here once customers submit ratings
-                        from the connected page.
-                    </span>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

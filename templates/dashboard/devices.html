@@ -6,147 +6,112 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Devices
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            {{ devices.count }} unique device{{ devices.count|pluralize }}
-            have connected to this network
-        </p>
+        <h5>Devices</h5>
+        <p>{{ devices.count }} unique device{{ devices.count|pluralize }} have connected to this network</p>
     </div>
 </div>
 
 <!-- ── Devices Table ─────────────────────────────────── -->
-<div class="dash-table">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>MAC Address</th>
-                <th>Phone Number</th>
-                <th>Total Spent</th>
-                <th>Sessions</th>
-                <th>First Seen</th>
-                <th>Last Seen</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for device in devices %}
-            <tr>
-
-                <!-- MAC Address -->
-                <td>
-                    <span style="font-family:monospace; font-weight:600;
-                                 font-size:12px; color:#1a1a2e;">
+<div class="dash-table devices-table">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-mac">MAC Address</th>
+                    <th class="col-phone">Phone Number</th>
+                    <th class="col-spent">Total Spent</th>
+                    <th class="col-sessions">Sessions</th>
+                    <th class="col-first-seen">First Seen</th>
+                    <th class="col-last-seen">Last Seen</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-action">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device in devices %}
+                <tr>
+                    <td class="col-mac" style="font-family:monospace; font-size:12px;">
                         {{ device.mac_address }}
-                    </span>
-                </td>
+                    </td>
 
-                <!-- Phone Number -->
-                <td style="font-weight:500; color:#374151;">
-                    {{ device.phone_number|default:"—" }}
-                </td>
+                    <td class="col-phone font-semibold">
+                        {{ device.phone_number|default:"—" }}
+                    </td>
 
-                <!-- Total Spent -->
-                <td>
-                    <span style="font-weight:700; color:#16a34a;">
+                    <td class="col-spent font-bold text-success">
                         {{ device.total_spent|floatformat:0 }} UGX
-                    </span>
-                </td>
+                    </td>
 
-                <!-- Session Count -->
-                <td>
-                    <span style="font-weight:600; color:#2563eb;">
+                    <td class="col-sessions font-semibold" style="color:var(--c-primary);">
                         {{ device.session_count }}
-                    </span>
-                </td>
+                    </td>
 
-                <!-- First Seen -->
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ device.first_seen|date:"d M Y, h:i A" }}
-                </td>
+                    <td class="col-first-seen text-muted" style="font-size:12px;">
+                        {{ device.first_seen|date:"d M Y, h:i A" }}
+                    </td>
 
-                <!-- Last Seen -->
-                <td style="color:#9ca3af; font-size:12px;">
-                    {{ device.last_seen|date:"d M Y, h:i A" }}
-                </td>
+                    <td class="col-last-seen text-muted" style="font-size:12px;">
+                        {{ device.last_seen|date:"d M Y, h:i A" }}
+                    </td>
 
-                <!-- Block Status -->
-                <td>
-                    {% if device.is_blocked %}
-                        <span class="badge-failed">Blocked</span>
-                    {% else %}
-                        <span class="badge-active">Allowed</span>
-                    {% endif %}
-                </td>
+                    <td class="col-status">
+                        {% if device.is_blocked %}
+                            <span class="badge badge-failed">Blocked</span>
+                        {% else %}
+                            <span class="badge badge-success">Allowed</span>
+                        {% endif %}
+                    </td>
 
-                <!-- Block / Unblock Button -->
-                <td>
-                    <form method="post"
-      action="{% url 'dashboard:block_device' device.id %}"
-      id="block-form-{{ device.id }}">
-    {% csrf_token %}
-    <div id="confirm-block-{{ device.id }}"
-         style="display:none; gap:4px;">
-        <button type="submit"
-                style="background:#dc2626; color:#fff; border:none;
-                       border-radius:8px; padding:5px 10px;
-                       font-size:12px; font-weight:700; cursor:pointer;">
-            Yes
-        </button>
-        <button type="button"
-                onclick="cancelBlock('{{ device.id }}')"
-                style="background:#f3f4f6; color:#6b7280; border:none;
-                       border-radius:8px; padding:5px 10px;
-                       font-size:12px; font-weight:600; cursor:pointer;">
-            No
-        </button>
+                    <td class="col-action">
+                        <form method="post"
+                              action="{% url 'dashboard:block_device' device.id %}"
+                              id="block-form-{{ device.id }}">
+                            {% csrf_token %}
+                            <div class="block-confirm" id="confirm-block-{{ device.id }}">
+                                <button type="submit" class="btn-cut-yes">
+                                    <i class="bi bi-check-lg"></i> Yes
+                                </button>
+                                <button type="button"
+                                        onclick="cancelBlock('{{ device.id }}')"
+                                        class="btn-cut-no">
+                                    <i class="bi bi-x-lg"></i> No
+                                </button>
+                            </div>
+                            {% if device.is_blocked %}
+                            <button type="button"
+                                    id="btn-block-{{ device.id }}"
+                                    onclick="confirmBlock('{{ device.id }}')"
+                                    class="btn-unblock">
+                                <i class="bi bi-unlock"></i> Unblock
+                            </button>
+                            {% else %}
+                            <button type="button"
+                                    id="btn-block-{{ device.id }}"
+                                    onclick="confirmBlock('{{ device.id }}')"
+                                    class="btn-block">
+                                <i class="bi bi-ban"></i> Block
+                            </button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="bi bi-phone" style="display:block;"></i>
+                        No devices have connected yet
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    {% if device.is_blocked %}
-        <button type="button"
-                id="btn-block-{{ device.id }}"
-                onclick="confirmBlock('{{ device.id }}')"
-                style="background:#f0fdf4; border:1px solid #bbf7d0;
-                       color:#16a34a; padding:5px 12px;
-                       border-radius:8px; font-size:12px;
-                       font-weight:600; cursor:pointer;">
-            <i class="bi bi-unlock me-1"></i> Unblock
-        </button>
-    {% else %}
-        <button type="button"
-                id="btn-block-{{ device.id }}"
-                onclick="confirmBlock('{{ device.id }}')"
-                style="background:#fef2f2; border:1px solid #fecaca;
-                       color:#dc2626; padding:5px 12px;
-                       border-radius:8px; font-size:12px;
-                       font-weight:600; cursor:pointer;">
-            <i class="bi bi-ban me-1"></i> Block
-        </button>
-    {% endif %}
-</form>
-                </td>
-
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8"
-                    style="text-align:center; color:#9ca3af;
-                           padding:48px; font-size:14px;">
-                    <i class="bi bi-phone"
-                       style="font-size:32px; display:block; margin-bottom:12px;">
-                    </i>
-                    No devices have connected yet
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 </div>
 
 {% endblock %}
+
 {% block extra_js %}
 <script>
 function confirmBlock(id) {
@@ -155,7 +120,7 @@ function confirmBlock(id) {
 }
 function cancelBlock(id) {
     document.getElementById('confirm-block-' + id).style.display = 'none';
-    document.getElementById('btn-block-' + id).style.display     = 'inline-block';
+    document.getElementById('btn-block-' + id).style.display     = 'inline-flex';
 }
 </script>
 {% endblock %}

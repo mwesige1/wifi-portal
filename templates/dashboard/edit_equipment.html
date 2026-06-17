@@ -6,63 +6,44 @@
 {% block content %}
 
 <!-- ── Header Row ────────────────────────────────────── -->
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="page-header">
     <div>
-        <h5 style="font-weight:800; color:#1a1a2e; margin:0;">
-            Edit Equipment
-        </h5>
-        <p style="font-size:13px; color:#9ca3af; margin:4px 0 0;">
-            Update details for {{ item.name }}
-        </p>
+        <h5>Edit Equipment</h5>
+        <p>Update details for {{ item.name }}</p>
     </div>
-    <a href="{% url 'dashboard:equipment' %}"
-       style="font-size:13px; color:#6b7280; text-decoration:none; font-weight:600;">
-        ← Back to Equipment
-    </a>
+    <a href="{% url 'dashboard:equipment' %}" class="btn-back">← Back to Equipment</a>
 </div>
 
 <!-- ── Form ──────────────────────────────────────────── -->
 <form method="post" action="{% url 'dashboard:edit_equipment' item.id %}">
     {% csrf_token %}
 
-    <div class="row g-4">
+    <div class="grid-8-4">
 
         <!-- Left Column -->
-        <div class="col-md-8">
+        <div>
 
             <!-- Basic Info -->
-            <div class="dash-table mb-4">
+            <div class="dash-table mb-2">
                 <div class="dash-table-header">
                     <h6>Equipment Details</h6>
                 </div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
+                <div class="card-body">
+                    <div class="form-grid">
 
-                        <!-- Name -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Equipment Name <span style="color:#dc2626;">*</span>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Equipment Name <span class="required">*</span>
                             </label>
                             <input type="text" name="name" required
-                                   value="{{ item.name }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   value="{{ item.name }}" class="form-input">
                         </div>
 
-                        <!-- Type -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Equipment Type <span style="color:#dc2626;">*</span>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Equipment Type <span class="required">*</span>
                             </label>
-                            <select name="equipment_type" required
-                                    style="width:100%; padding:10px 14px;
-                                           border:1px solid #e5e7eb; border-radius:10px;
-                                           font-size:13px; font-family:'Inter',sans-serif;
-                                           outline:none; color:#1a1a2e; background:#fff;">
+                            <select name="equipment_type" required class="form-select">
                                 <option value="Router" {% if item.equipment_type == "Router" %}selected{% endif %}>Router</option>
                                 <option value="Access Point" {% if item.equipment_type == "Access Point" %}selected{% endif %}>Access Point</option>
                                 <option value="Switch" {% if item.equipment_type == "Switch" %}selected{% endif %}>Switch</option>
@@ -73,87 +54,40 @@
                             </select>
                         </div>
 
-                        <!-- Model -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Model
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Model</label>
                             <input type="text" name="model"
-                                   value="{{ item.model|default:'' }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   value="{{ item.model|default:'' }}" class="form-input">
                         </div>
 
-                        <!-- Serial Number -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Serial Number
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Serial Number</label>
                             <input type="text" name="serial_number"
-                                   value="{{ item.serial_number|default:'' }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   value="{{ item.serial_number|default:'' }}" class="form-input">
                         </div>
 
-                        <!-- Vendor -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Vendor
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Vendor</label>
                             <input type="text" name="vendor"
-                                   value="{{ item.vendor|default:'' }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   value="{{ item.vendor|default:'' }}" class="form-input">
                         </div>
 
-                        <!-- Assigned To -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Assigned To
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Assigned To</label>
                             <input type="text" name="assigned_to"
-                                   value="{{ item.assigned_to|default:'' }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   value="{{ item.assigned_to|default:'' }}" class="form-input">
                         </div>
 
-                        <!-- Location -->
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Location
-                            </label>
+                        <div class="form-group full-width">
+                            <label class="form-label">Location</label>
                             <input type="text" name="location"
-                                   value="{{ item.location|default:'' }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   value="{{ item.location|default:'' }}" class="form-input">
                         </div>
 
-                        <!-- Notes -->
-                        <div class="col-12">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Notes
-                            </label>
+                        <div class="form-group full-width">
+                            <label class="form-label">Notes</label>
                             <textarea name="notes" rows="3"
-                                      style="width:100%; padding:10px 14px;
-                                             border:1px solid #e5e7eb; border-radius:10px;
-                                             font-size:13px; font-family:'Inter',sans-serif;
-                                             outline:none; color:#1a1a2e; resize:vertical;">{{ item.notes|default:'' }}</textarea>
+                                      class="form-textarea">{{ item.notes|default:'' }}</textarea>
                         </div>
 
                     </div>
@@ -161,54 +95,32 @@
             </div>
 
             <!-- Purchase Info -->
-            <div class="dash-table mb-4">
+            <div class="dash-table mb-2">
                 <div class="dash-table-header">
                     <h6>Purchase Information</h6>
                 </div>
-                <div style="padding:24px;">
-                    <div class="row g-3">
+                <div class="card-body">
+                    <div class="form-grid-3">
 
-                        <!-- Purchase Date -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Purchase Date
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Purchase Date</label>
                             <input type="date" name="purchase_date"
                                    value="{{ item.purchase_date|date:'Y-m-d'|default:'' }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   class="form-input">
                         </div>
 
-                        <!-- Price -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Purchase Price (UGX)
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Purchase Price (UGX)</label>
                             <input type="number" name="purchase_price"
                                    value="{{ item.purchase_price|default:'' }}"
-                                   min="0" step="1000"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   min="0" step="1000" class="form-input">
                         </div>
 
-                        <!-- Warranty Expiry -->
-                        <div class="col-md-6">
-                            <label style="font-size:12px; font-weight:700;
-                                          color:#374151; display:block; margin-bottom:6px;">
-                                Warranty Expiry
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">Warranty Expiry</label>
                             <input type="date" name="warranty_expiry"
                                    value="{{ item.warranty_expiry|date:'Y-m-d'|default:'' }}"
-                                   style="width:100%; padding:10px 14px;
-                                          border:1px solid #e5e7eb; border-radius:10px;
-                                          font-size:13px; font-family:'Inter',sans-serif;
-                                          outline:none; color:#1a1a2e;">
+                                   class="form-input">
                         </div>
 
                     </div>
@@ -218,19 +130,15 @@
         </div>
 
         <!-- Right Column -->
-        <div class="col-md-4">
+        <div>
 
             <!-- Status -->
-            <div class="dash-table mb-4">
+            <div class="dash-table mb-2">
                 <div class="dash-table-header">
                     <h6>Status</h6>
                 </div>
-                <div style="padding:24px;">
-                    <select name="status"
-                            style="width:100%; padding:10px 14px;
-                                   border:1px solid #e5e7eb; border-radius:10px;
-                                   font-size:13px; font-family:'Inter',sans-serif;
-                                   outline:none; color:#1a1a2e; background:#fff;">
+                <div class="card-body">
+                    <select name="status" class="form-select">
                         <option value="available" {% if item.status == "available" %}selected{% endif %}>Available</option>
                         <option value="in_use" {% if item.status == "in_use" %}selected{% endif %}>In Use</option>
                         <option value="faulty" {% if item.status == "faulty" %}selected{% endif %}>Faulty</option>
@@ -241,18 +149,11 @@
 
             <!-- Save -->
             <div class="dash-table">
-                <div style="padding:24px;">
-                    <button type="submit"
-                            style="width:100%; background:#2563eb; color:#fff;
-                                   border:none; border-radius:10px; padding:12px;
-                                   font-size:14px; font-weight:700; cursor:pointer;">
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary w-full">
                         <i class="bi bi-save"></i> Save Changes
                     </button>
-                    <a href="{% url 'dashboard:equipment' %}"
-                       style="display:block; text-align:center; margin-top:12px;
-                              font-size:13px; color:#6b7280; text-decoration:none;">
-                        Cancel
-                    </a>
+                    <a href="{% url 'dashboard:equipment' %}" class="cancel-link">Cancel</a>
                 </div>
             </div>
 
