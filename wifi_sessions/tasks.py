@@ -4,6 +4,7 @@ from portal.models import WiFiSession
 from network.mikrotik import revoke_internet_access, grant_internet_access
 import subprocess
 import logging
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -237,40 +238,47 @@ def restore_router_rules():
 @shared_task
 def check_router_health():
     """
-    Runs every 5 minutes via Celery Beat.
-
-    Checks all registered MikroTik routers
-    to see if they are online or offline.
-    Updates the status in the database so the
-    dashboard health monitor stays accurate.
+    Runs every 60 seconds via Celery Beat.
+    Direct routers — checks API reachability.
+    WireGuard routers — checks if polled recently.
+    A WireGuard router is online if it polled within
+    the last 30 seconds via the command queue endpoint.
     """
-
     from network.models import MikroTikRouter
     from network.mikrotik import is_router_reachable
 
     routers = MikroTikRouter.objects.all()
+    cutoff  = timezone.now() - timedelta(seconds=30)
 
     for router in routers:
         try:
-            # ── Use connection_address not ip_address ──
-            # connection_address returns gateway_ip for direct routers
-            # and wireguard_tunnel_ip for WireGuard routers
-            # ip_address field may be None — this was the bug
-            reachable = is_router_reachable(router.connection_address)
+            if router.connection_type == 'wireguard':
+                # ── WireGuard router ───────────────────────
+                # VPS cannot reach router directly
+                # Router polls every 2s — if last_seen is recent it's online
+                if router.last_seen and router.last_seen >= cutoff:
+                    router.status = 'online'
+                else:
+                    router.status = 'offline'
+                router.save()
 
-            old_status    = router.status
-            router.status = 'online' if reachable else 'offline'
+            else:
+                # ── Direct router ──────────────────────────
+                # Try to reach via API directly
+                reachable     = is_router_reachable(router.connection_address)
+                old_status    = router.status
+                router.status = 'online' if reachable else 'offline'
 
-            if reachable:
-                router.last_seen = timezone.now()
+                if reachable:
+                    router.last_seen = timezone.now()
 
-            router.save()
+                router.save()
 
-            if old_status != router.status:
-                logger.warning(
-                    f"Router {router.identity} changed: "
-                    f"{old_status} → {router.status}"
-                )
+                if old_status != router.status:
+                    logger.warning(
+                        f"Router {router.identity} changed: "
+                        f"{old_status} → {router.status}"
+                    )
 
         except Exception as e:
             logger.error(
@@ -278,7 +286,6 @@ def check_router_health():
             )
 
     return f"Health check completed for {routers.count()} routers"
-
 
 def get_current_ip(mac_address):
     """

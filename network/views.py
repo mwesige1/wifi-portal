@@ -1,3 +1,4 @@
+from django.db import router
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -355,6 +356,13 @@ def get_commands(request, router_id):
         return JsonResponse({'status': 'error'}, status=405)
 
     from django.http import HttpResponse
+
+    # Update last_seen on every poll — used by health check
+    # This marks WireGuard routers as online when they poll
+    router = get_object_or_404(MikroTikRouter, id=router_id)
+    router.last_seen = timezone.now()
+    router.status    = 'online'
+    router.save()
 
     commands = RouterCommand.objects.filter(
         router_id=router_id,
