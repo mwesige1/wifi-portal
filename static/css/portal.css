@@ -711,33 +711,60 @@ img    { max-width: 100%; height: auto; display: block; }
 .appeal-box p { font-size: .78rem; color: var(--txt-sec); line-height: 1.7; }
 .appeal-box a { color: var(--gold); font-weight: 700; text-decoration: none; }
 
-/* ── Voucher quick-redeem bar (Buy Data tab) ── */
-.voucher-bar {
-    display: flex; align-items: center;
-    margin: 0 14px 12px;
-    background: rgba(0,0,0,.4);
-    border: 1.5px solid var(--navy-border);
-    border-radius: 60px; overflow: hidden;
-    min-height: 52px;
-    transition: border-color .25s, box-shadow .25s;
+
+
+/* ── Quick Voucher Redeem Row (Buy Data tab) ── */
+.quick-voucher-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  align-items: center;
+  padding: 17px 20px;
 }
-.voucher-bar:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px var(--glow); }
-.voucher-bar-input {
-    flex: 1; min-width: 0; height: 52px;
-    padding: 0 8px 0 20px;
-    background: transparent; border: none; outline: none;
-    font-size: .95rem; color: var(--txt); letter-spacing: 1px;
+
+.quick-voucher-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(245, 166, 35, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--txt-main);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-sizing: border-box;
 }
-.voucher-bar-input::placeholder { color: var(--txt-muted); letter-spacing: 0; }
-.voucher-bar-btn {
-    flex-shrink: 0; height: 44px; margin: 0 5px;
-    padding: 0 16px;
-    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-    border-radius: 60px;
-    font-family: 'Syne', sans-serif; font-size: .78rem; font-weight: 800;
-    color: var(--navy-deep);
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    white-space: nowrap;
-    transition: transform .15s, filter .15s;
+
+.quick-voucher-input::placeholder {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+color: var(--txt);
 }
-.voucher-bar-btn:active { transform: scale(.96); filter: brightness(.96); }
+
+.quick-voucher-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.quick-voucher-btn {
+  height: 44px;
+  min-width: 62px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-size: .76rem;
+  border: none;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--navy-deep);
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.quick-voucher-btn:active {
+  transform: scale(0.97);
+}

@@ -16,7 +16,7 @@
       <div class="wifi-bars">
         <span></span><span></span><span></span><span></span>
       </div>
-      <div class="biz-name">{{ settings.business_name|default:"Optimum Lab Hotspot" }}</div>
+      <div class="biz-name">{{ settings.business_name|default:"KEVID TECH CO.LTD" }}</div>
     </div>
     <div class="ad-strip">
       <span class="ad-strip-inner">
@@ -39,8 +39,7 @@
     <!-- TABS -->
     <div class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('buy',this)">💎 Buy Data</button>
-      <button class="tab-btn"        onclick="switchTab('voucher',this)">🎟️ Voucher</button>
-      <button class="tab-btn"        onclick="switchTab('buyvoucher',this)">🛒 Buy Voucher</button>
+      <button class="tab-btn"        onclick="switchTab('buyvoucher',this)">🎟️ Buy Voucher</button>
     </div>
 
     <!-- ── TAB 1: BUY DATA ── -->
@@ -50,6 +49,14 @@
         <span><strong>Smart TV?</strong> If login page doesn't appear, visit
           <a href="http://neverssl.com" target="_blank">neverssl.com</a></span>
       </div>
+
+      <div class="quick-voucher-row">
+  <input type="text" class="quick-voucher-input" id="quickVoucherInput"
+         placeholder="Enter voucher code"
+         maxlength="20" autocomplete="off"
+         oninput="formatVoucherInput(this)">
+  <button type="button" class="quick-voucher-btn" onclick="quickRedeemVoucher()">Enter</button>
+</div>
       <span class="sec-label">⚡ Choose your plan &amp; connect instantly</span>
 
       <div class="pkg-list">
@@ -83,40 +90,7 @@
       <p class="pkg-hint">💳 Pay via Mobile Money and get connected instantly</p>
     </div>
 
-    <!-- ── TAB 2: VOUCHER ── -->
-    <div class="tab-panel" id="panel-voucher">
-      <div class="tv-notice">
-        <span>📺</span>
-        <span><strong>Smart TV?</strong> Open TV browser and visit
-          <a href="http://neverssl.com" target="_blank">neverssl.com</a></span>
-      </div>
-      <span class="sec-label">🎟️ Enter your voucher code</span>
-
-      <div class="voucher-wrap">
-        <form method="post" action="{% url 'payments:redeem_voucher' %}" id="voucherRedeemForm">
-          {% csrf_token %}
-          <input type="hidden" name="mac_address" value="{{ mac_address }}">
-          <div class="v-field">
-            <span class="v-icon">🎟️</span>
-            <input type="text" class="v-input"
-                   name="voucher_code" id="voucherInput"
-                   placeholder="Enter voucher code  (e.g. ABCD-EFGH)"
-                   maxlength="20" autocomplete="off"
-                   oninput="formatVoucherInput(this)">
-          </div>
-          {% if voucher_error %}
-          <div class="v-error">❌ {{ voucher_error }}</div>
-          {% endif %}
-          <span class="note-lbl">ℹ️ Code received via SMS or from our agent</span>
-          <button type="button" class="btn-cta" onclick="redeemVoucher()">
-            <span id="voucherRedeemBtnText">🔌 Connect to Internet</span>
-            <div class="spin" id="voucherRedeemSpinner"></div>
-          </button>
-        </form>
-        <div id="voucherRedeemStatus"></div>
-      </div>
-    </div>
-
+    
     <!-- ── TAB 3: BUY VOUCHER ── -->
     <div class="tab-panel" id="panel-buyvoucher">
       <div class="tv-notice">
@@ -434,7 +408,7 @@
         }
       });
     }, 3000);
-    setTimeout(function() { clearInterval(iv); }, 120000);
+    setTimeout(function() { clearInterval(iv); }, 45000);
   }
 
   function closeDirectModal()         { document.getElementById('directModal').classList.remove('open'); document.body.style.overflow = ''; }
@@ -540,7 +514,7 @@
       })
       .catch(function() {});
     }, 3000);
-    setTimeout(function() { clearInterval(iv); }, 120000);
+    setTimeout(function() { clearInterval(iv); }, 45000);
   }
 
   function copyVoucherCode(code) {
@@ -594,11 +568,51 @@
   function closeVoucherModal()         { document.getElementById('voucherModal').classList.remove('open'); document.body.style.overflow = ''; }
   function closeVoucherModalOutside(e) { if (e.target === document.getElementById('voucherModal')) closeVoucherModal(); }
   function goToVoucherTab() {
-    closeVoucherModal();
-    var voucherBtn = document.querySelectorAll('.tab-btn')[1];
-    switchTab('voucher', voucherBtn);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  closeVoucherModal();
+  var buyDataBtn = document.querySelectorAll('.tab-btn')[0];
+  switchTab('buy', buyDataBtn);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(function() {
+    document.getElementById('quickVoucherInput').focus();
+  }, 300);
   }
+  /* ── Quick redeem from Buy Data tab ── */
+function quickRedeemVoucher() {
+  var input = document.getElementById('quickVoucherInput');
+  var code  = input.value.trim();
+  if (!code) { showToast('❌ Please enter a voucher code.'); return; }
+
+  var btn = document.querySelector('.quick-voucher-btn');
+  btn.textContent = '...';
+
+  fetch('https://optimuminnovationhotspot.com/payments/redeem-voucher/', {
+    method : 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({
+      voucher_code: code.replace(/-/g,''),
+      mac_address : '{{ mac_address }}',
+      ip_address  : '{{ ip_address }}',
+      router_id   : '{{ router_id }}'
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Enter';
+    if (data.status === 'success') {
+      showToast('✅ Connected! Redirecting...');
+      setTimeout(function() {
+        window.location.href = '/connected/?mac={{ mac_address }}';
+      }, 1500);
+    } else {
+      showToast('❌ ' + (data.message || 'Invalid voucher code.'));
+      shakeEl('quickVoucherInput');
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Enter';
+    showToast('❌ Network error. Please try again.');
+  });
+}
 
   /* ── Redeem voucher ── */
   function redeemVoucher() {
