@@ -370,8 +370,19 @@
       if (data.status === 'pending' || data.status === 'success') {
         if (isFree || data.status === 'success') {
           document.getElementById('directResult').innerHTML =
-            '<div class="r-ok"><div class="ico">✅</div><div class="msg">Connected!</div><div class="sub">Redirecting you now...</div></div>';
-          setTimeout(function() { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; }, 2000);
+            '<div class="r-ok"><div class="ico">✅</div><div class="msg">Connected!</div><div class="sub">Verifying internet connection...</div></div>';
+
+          setTimeout(function() {
+            var img = new Image();
+            img.onload  = function() { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; };
+            img.onerror = function() { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; };
+            img.src = 'http://connectivitycheck.gstatic.com/generate_204?t=' + Date.now();
+
+            setTimeout(function() {
+              window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac;
+            }, 1500);
+          }, 1000);
+
         } else {
           document.getElementById('directResult').innerHTML =
             '<div class="r-info"><div>📱</div><strong>Check Your Phone</strong>Enter your PIN to confirm payment</div>';
@@ -615,10 +626,18 @@ function quickRedeemVoucher() {
   .then(function(data) {
     btn.textContent = 'Enter';
     if (data.status === 'success') {
-      showToast('✅ Connected! Redirecting...');
+      showToast('✅ Connected! Verifying...');
       setTimeout(function() {
-        window.location.href = '/connected/?mac={{ mac_address }}';
-      }, 1500);
+        var img = new Image();
+        img.onload  = function() { window.location.href = '/connected/?mac={{ mac_address }}'; };
+        img.onerror = function() { window.location.href = '/connected/?mac={{ mac_address }}'; };
+        img.src = 'http://connectivitycheck.gstatic.com/generate_204?t=' + Date.now();
+
+        setTimeout(function() {
+          window.location.href = '/connected/?mac={{ mac_address }}';
+        }, 1500);
+      }, 500);
+
     } else {
       showToast('❌ ' + (data.message || 'Invalid voucher code.'));
       shakeEl('quickVoucherInput');
@@ -655,9 +674,20 @@ function quickRedeemVoucher() {
       btnTxt.textContent    = '🔌 Connect to Internet';
       spinner.style.display = 'none';
       if (data.status === 'success') {
-        document.getElementById('voucherRedeemStatus').innerHTML =
-          '<div class="r-ok"><div class="ico">✅</div><div class="msg">Voucher Redeemed!</div><div class="sub">Connecting you now...</div></div>';
-        setTimeout(function() { window.location.href = '/connected/?mac={{ mac_address }}'; }, 2000);
+      document.getElementById('voucherRedeemStatus').innerHTML =
+        '<div class="r-ok"><div class="ico">✅</div><div class="msg">Voucher Redeemed!</div><div class="sub">Verifying internet connection...</div></div>';
+
+      setTimeout(function() {
+        var img = new Image();
+        img.onload  = function() { window.location.href = '/connected/?mac={{ mac_address }}'; };
+        img.onerror = function() { window.location.href = '/connected/?mac={{ mac_address }}'; };
+        img.src = 'http://connectivitycheck.gstatic.com/generate_204?t=' + Date.now();
+
+        setTimeout(function() {
+          window.location.href = '/connected/?mac={{ mac_address }}';
+        }, 1500);
+      }, 1000);
+
       } else {
         document.getElementById('voucherRedeemStatus').innerHTML =
           '<div class="r-err">❌ ' + (data.message || 'Invalid voucher code.') + '</div>';
