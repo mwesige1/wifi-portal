@@ -156,31 +156,28 @@ def router_detail(request, router_id):
         'now'           : now,
     })
 
-
 @login_required
 def router_reboot(request, router_id):
     """
-    Reboots a specific router remotely.
+    Queues a reboot command for the router.
+    Router executes it on its next poll cycle.
     Only accepts POST for security.
-    Works through WireGuard tunnel.
     """
     router = get_object_or_404(MikroTikRouter, id=router_id)
 
     if request.method == 'POST':
-        success = reboot_router(router=router)
-        if success:
-            return JsonResponse({
-                'status' : 'success',
-                'message': f'{router.identity} reboot command sent.'
-            })
-        else:
-            return JsonResponse({
-                'status' : 'error',
-                'message': f'Failed to reboot {router.identity}. Check connection.'
-            })
+        RouterCommand.objects.create(
+            router      = router,
+            action      = 'reboot',
+            mac_address = '',
+            ip_address  = '',
+        )
+        return JsonResponse({
+            'status' : 'success',
+            'message': f'Reboot command queued for {router.identity}. It will reboot within a few seconds.'
+        })
 
     return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
-
 
 @login_required
 def router_refresh_stats(request, router_id):
@@ -391,8 +388,8 @@ def get_commands(request, router_id):
             lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}"] }} on-error={{}}')
             lines.append(f':do {{ /ip hotspot ip-binding add mac-address="{mac}" type=blocked comment="WiFiPortal_Blocked_{mac}" }} on-error={{}}')
 
-        elif cmd.action == 'unblock':
-            lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}" type=blocked] }} on-error={{}}')
+        elif cmd.action == 'reboot':
+            lines.append(':do { /system reboot } on-error={}')
 
         # Confirm command executed
         lines.append(

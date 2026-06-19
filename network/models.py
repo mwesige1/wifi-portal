@@ -146,6 +146,7 @@ class RouterCommand(models.Model):
         ('revoke', 'Revoke Internet'),
         ('block',  'Block Device'),
         ('unblock','Unblock Device'),
+        ('reboot', 'Reboot Router'),
     ]
 
     STATUS_CHOICES = [

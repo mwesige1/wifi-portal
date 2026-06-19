@@ -154,44 +154,50 @@
         <td class="col-last-seen mobile-hide text-muted" style="font-size:12px;">
             {{ router.last_seen|date:"d M Y, H:i"|default:"Never" }}
         </td>
-        <td class="col-action">
-            <div class="action-group">
-                <a href="{% url 'network:router_detail' router.id %}"
-                   class="btn-view">
-                    <i class="bi bi-bar-chart-line"></i> Details
-                </a>
-                <a href="{% url 'dashboard:edit_router' router.id %}"
-                   class="btn-icon btn-icon-warning">
-                    <i class="bi bi-pencil"></i>
-                </a>
-                <button onclick="refreshRouter({{ router.id }}, this)"
-                        class="btn-icon btn-icon-success">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
-                <button onclick="rebootRouter({{ router.id }}, '{{ router.identity }}')"
-                        class="btn-icon btn-icon-danger">
-                    <i class="bi bi-power"></i>
-                </button>
-                <form method="post"
-                      action="{% url 'dashboard:delete_router' router.id %}"
-                      id="del-router-{{ router.id }}"
-                      style="display:inline-flex;">
-                    {% csrf_token %}
-                    <div class="block-confirm" id="confirm-router-{{ router.id }}">
-                        <button type="submit" class="btn-cut-yes">Yes</button>
-                        <button type="button"
-                                onclick="cancelRouterDel('{{ router.id }}')"
-                                class="btn-cut-no">No</button>
-                    </div>
-                    <button type="button"
-                            id="btn-router-{{ router.id }}"
-                            onclick="confirmRouterDel('{{ router.id }}')"
-                            class="btn-icon btn-icon-danger">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </form>
+
+
+<td class="col-action">
+    <div class="action-group">
+        <a href="{% url 'network:router_detail' router.id %}"
+           class="btn-view">
+            <i class="bi bi-bar-chart-line"></i> Details
+        </a>
+        <a href="{% url 'dashboard:edit_router' router.id %}"
+           class="btn-icon btn-icon-warning mobile-hide">
+            <i class="bi bi-pencil"></i>
+        </a>
+        <button onclick="refreshRouter({{ router.id }}, this)"
+                class="btn-icon btn-icon-success">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <button onclick="rebootRouter({{ router.id }}, '{{ router.identity }}')"
+                class="btn-icon btn-icon-danger">
+            <i class="bi bi-power"></i>
+        </button>
+        <form method="post"
+              action="{% url 'dashboard:delete_router' router.id %}"
+              id="del-router-{{ router.id }}"
+              class="mobile-hide"
+              style="display:inline-flex;">
+            {% csrf_token %}
+            <div class="block-confirm" id="confirm-router-{{ router.id }}">
+                <button type="submit" class="btn-cut-yes">Yes</button>
+                <button type="button"
+                        onclick="cancelRouterDel('{{ router.id }}')"
+                        class="btn-cut-no">No</button>
             </div>
-        </td>
+            <button type="button"
+                    id="btn-router-{{ router.id }}"
+                    onclick="confirmRouterDel('{{ router.id }}')"
+                    class="btn-icon btn-icon-danger">
+                <i class="bi bi-trash"></i>
+            </button>
+        </form>
+    </div>
+</td>
+
+
+
     </tr>
     {% empty %}
     <tr>
