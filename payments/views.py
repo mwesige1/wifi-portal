@@ -735,18 +735,12 @@ def buy_voucher(request):
         order_type   = 'voucher',
     )
 
-    if provider == 'mtn':
-        result = mtn.request_payment(
-            phone_number = phone_number,
-            amount       = package.price,
-            order_id     = order.id
-        )
-    else:
-        result = airtel.request_payment(
-            phone_number = phone_number,
-            amount       = package.price,
-            order_id     = order.id
-        )
+    result = iotec.request_payment(
+    phone_number = phone_number,
+    amount       = package.price,
+    order_id     = order.id,
+    provider     = provider
+    )
 
     if result['status'] == 'pending':
         order.reference_id = result['reference_id']
