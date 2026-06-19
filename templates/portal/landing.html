@@ -395,12 +395,28 @@
       fetch('https://optimuminnovationhotspot.com/payments/status/' + orderId + '/')
       .then(function(r) { return r.json(); })
       .then(function(data) {
+        
         if (data.status === 'success') {
-          clearInterval(iv);
-          document.getElementById('directResult').innerHTML =
-            '<div class="r-ok"><div class="ico">✅</div><div class="msg">Connected Successfully!</div><div class="sub">You are now connected to the internet.</div></div>';
-          showToast('✅ Connected! Enjoy your internet.');
-          setTimeout(function() { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; }, 2500);
+            clearInterval(iv);
+            document.getElementById('directResult').innerHTML =
+              '<div class="r-ok"><div class="ico">✅</div><div class="msg">Connected Successfully!</div><div class="sub">Verifying internet connection...</div></div>';
+            showToast('✅ Connected! Enjoy your internet.');
+
+            // Trigger OS-level connectivity re-check so the captive
+            // portal popup auto-closes instead of staying stuck.
+            // Android checks generate_204, iOS/macOS checks hotspot-detect.html
+            setTimeout(function() {
+              var img = new Image();
+              img.onload  = function() { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; };
+              img.onerror = function() { window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac; };
+              img.src = 'http://connectivitycheck.gstatic.com/generate_204?t=' + Date.now();
+
+              // Fallback redirect regardless, in case image check hangs
+              setTimeout(function() {
+                window.location.href = 'https://optimuminnovationhotspot.com/connected/?mac=' + mac;
+              }, 1500);
+            }, 1000);
+
         } else if (data.status === 'failed') {
           clearInterval(iv);
           document.getElementById('directResult').innerHTML =
