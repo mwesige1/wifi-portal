@@ -69,9 +69,9 @@ urlpatterns = [
     # ── Router Command Queue ───────────────────────────
     # MikroTik polls this for pending commands
     path(
-        'router/<int:router_id>/commands/',
-        views.get_commands,
-        name='get_commands'
+    'router/<str:router_identity>/commands/',
+    views.get_commands,
+    name='get_commands'
     ),
 
     # MikroTik confirms command execution

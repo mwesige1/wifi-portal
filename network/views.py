@@ -341,28 +341,33 @@ def register_router(request):
         'router_id': router.id,
     })
 
-
 @csrf_exempt
-def get_commands(request, router_id):
+def get_commands(request, router_identity):
     """
     Called by MikroTik router every 5 seconds.
     Returns a RouterOS-executable script with pending commands.
     Router downloads and runs it directly.
+    Looks up router by identity instead of numeric ID so the
+    auto-provisioning script is fully self-contained.
     """
     if request.method != 'GET':
         return JsonResponse({'status': 'error'}, status=405)
 
     from django.http import HttpResponse
 
+    try:
+        router = MikroTikRouter.objects.get(identity=router_identity)
+    except MikroTikRouter.DoesNotExist:
+        return HttpResponse('# Router not registered\r\n', content_type='text/plain')
+
     # Update last_seen on every poll — used by health check
-    # This marks WireGuard routers as online when they poll
-    router = get_object_or_404(MikroTikRouter, id=router_id)
+    # This marks WireGuard/direct routers as online when they poll
     router.last_seen = timezone.now()
     router.status    = 'online'
     router.save()
 
     commands = RouterCommand.objects.filter(
-        router_id=router_id,
+        router=router,
         status='pending'
     ).order_by('created_at')
 
@@ -390,7 +395,7 @@ def get_commands(request, router_id):
 
         elif cmd.action == 'unblock':
             lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}" type=blocked] }} on-error={{}}')
-        
+
         elif cmd.action == 'reboot':
             # Confirm execution BEFORE rebooting since the router
             # won't survive long enough to confirm afterward
@@ -415,6 +420,10 @@ def get_commands(request, router_id):
 
     script = '\r\n'.join(lines) + '\r\n'
     return HttpResponse(script, content_type='text/plain')
+
+
+
+
 
 @csrf_exempt
 def confirm_command(request, command_id):
