@@ -388,8 +388,21 @@ def get_commands(request, router_id):
             lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}"] }} on-error={{}}')
             lines.append(f':do {{ /ip hotspot ip-binding add mac-address="{mac}" type=blocked comment="WiFiPortal_Blocked_{mac}" }} on-error={{}}')
 
+        elif cmd.action == 'unblock':
+            lines.append(f':do {{ /ip hotspot ip-binding remove [find mac-address="{mac}" type=blocked] }} on-error={{}}')
+        
         elif cmd.action == 'reboot':
+            # Confirm execution BEFORE rebooting since the router
+            # won't survive long enough to confirm afterward
+            lines.append(
+                f'/tool fetch url="{base_url}/network/command/{cmd.id}/confirm/" '
+                f'http-method=post '
+                f'http-header-field="Content-Type: application/json" '
+                f'http-data="{{\\\"success\\\":true}}" '
+                f'output=none'
+            )
             lines.append(':do { /system reboot } on-error={}')
+            continue
 
         # Confirm command executed
         lines.append(
