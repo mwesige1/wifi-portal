@@ -1,27 +1,36 @@
 # ═══════════════════════════════════════════════════════════════
 # Optimum WiFi Portal — MikroTik Auto-Provisioning Script
-# RouterOS 7.x
-# Paste into MikroTik terminal and press Enter
+# RouterOS 7.x — Requires device-mode: advanced
+# Paste this into System > Scripts as a NEW script, then run it
+# with: /system script run optimum-setup
 # ═══════════════════════════════════════════════════════════════
 
-# ── EDIT THESE THREE LINES ONLY ────────────────────────────────
-:local routerIdentity   "Hotel-Kampala"
-:local routerLocation   "Kampala City Hotel"
-:local wgIP             "10.0.0.2"
+# ── EDIT THESE TWO LINES ONLY ──────────────────────────────────
+:local routerIdentityRaw "Serena Hotel Test"
+:local routerLocation    "Serena Hotel Reception"
 # ═══════════════════════════════════════════════════════════════
 
 # ── FIXED SETTINGS — DO NOT CHANGE ─────────────────────────────
 :local portalDomain     "optimuminnovationhotspot.com"
-:local portalURL        "https://optimuminnovationhotspot.com"
-:local vpsIP            "187.127.69.66"
-:local vpsPort          "51820"
-:local vpsPubKey        "Lf41C1lyGy9NZxZeXAXGYoEtiPixqJpkA/mOaU8wR0M="
-:local wgNetwork        "10.0.0.0/24"
 :local lanIP            "192.168.88.1"
 :local lanNetwork       "192.168.88.0/24"
 :local poolStart        "192.168.88.2"
 :local poolEnd          "192.168.88.254"
 # ═══════════════════════════════════════════════════════════════
+
+# ── Auto-sanitize identity: replace spaces with hyphens ────────
+# URLs cannot contain spaces — this prevents the 400 error
+:local routerIdentity ""
+:local i 0
+:while ($i < [:len $routerIdentityRaw]) do={
+    :local ch [:pick $routerIdentityRaw $i ($i+1)]
+    :if ($ch = " ") do={
+        :set routerIdentity ($routerIdentity . "-")
+    } else={
+        :set routerIdentity ($routerIdentity . $ch)
+    }
+    :set i ($i + 1)
+}
 
 :put ""
 :put "═══════════════════════════════════════════════"
@@ -29,7 +38,6 @@
 :put "═══════════════════════════════════════════════"
 :put ("  Router  : " . $routerIdentity)
 :put ("  Location: " . $routerLocation)
-:put ("  Tunnel  : " . $wgIP)
 :put "═══════════════════════════════════════════════"
 :put ""
 
@@ -53,8 +61,17 @@
 }
 :put "  ✅ Bridge configured"
 
-# ── STEP 3 — DHCP Server ──────────────────────────────────────
-:put "Step 3: Configuring DHCP server..."
+# ── STEP 3 — WAN DHCP Client on ether1 ─────────────────────────
+:put "Step 3: Configuring WAN (ether1) DHCP client..."
+:if ([:len [/ip dhcp-client find interface="ether1"]] = 0) do={
+    /ip dhcp-client add interface=ether1 disabled=no use-peer-dns=yes add-default-route=yes
+} else={
+    /ip dhcp-client set [find interface="ether1"] disabled=no
+}
+:put "  ✅ ether1 set to obtain internet via DHCP"
+
+# ── STEP 4 — DHCP Server (LAN) ─────────────────────────────────
+:put "Step 4: Configuring DHCP server..."
 :if ([:len [/ip pool find name="dhcp_pool0"]] = 0) do={
     /ip pool add name=dhcp_pool0 ranges=($poolStart . "-" . $poolEnd)
 }
@@ -71,35 +88,15 @@
 }
 :put "  ✅ DHCP configured — DNS server: router itself"
 
-# ── STEP 4 — NAT ──────────────────────────────────────────────
-:put "Step 4: Configuring NAT..."
+# ── STEP 5 — NAT ──────────────────────────────────────────────
+:put "Step 5: Configuring NAT..."
 :if ([:len [/ip firewall nat find chain=srcnat action=masquerade out-interface="ether1"]] = 0) do={
     /ip firewall nat add chain=srcnat action=masquerade \
         out-interface=ether1 comment="Optimum-Internet-Sharing"
 }
 :put "  ✅ NAT configured"
 
-# ── STEP 5 — WireGuard ────────────────────────────────────────
-:put "Step 5: Configuring WireGuard tunnel..."
-:if ([:len [/interface wireguard find name="wg0"]] = 0) do={
-    /interface wireguard add name=wg0 listen-port=51820
-}
-:local pubKey [/interface wireguard get wg0 public-key]
-:if ([:len [/ip address find interface="wg0"]] = 0) do={
-    /ip address add address=($wgIP . "/24") interface=wg0
-}
-/interface wireguard peers remove [find interface="wg0"]
-/interface wireguard peers add \
-    interface=wg0 \
-    public-key=$vpsPubKey \
-    endpoint-address=$vpsIP \
-    endpoint-port=$vpsPort \
-    allowed-address=$wgNetwork \
-    persistent-keepalive=25
-:put ("  ✅ WireGuard tunnel → " . $vpsIP)
-:put ("  ✅ Router public key: " . $pubKey)
-
-# ── STEP 6 — Enable API ───────────────────────────────────────
+# ── STEP 6 — Enable API ────────────────────────────────────────
 :put "Step 6: Enabling MikroTik API..."
 /ip service set api disabled=no port=8728
 /ip service set api-ssl disabled=yes
@@ -122,7 +119,7 @@
     :put "  ℹ️  No wireless interface — skipping"
 }
 
-# ── STEP 8 — Hotspot profile ──────────────────────────────────
+# ── STEP 8 — Hotspot profile ───────────────────────────────────
 :put "Step 8: Configuring hotspot profile..."
 :if ([:len [/ip hotspot profile find name="hsprof1"]] = 0) do={
     /ip hotspot profile add \
@@ -141,7 +138,7 @@
 }
 :put "  ✅ Hotspot profile configured"
 
-# ── STEP 9 — Hotspot ──────────────────────────────────────────
+# ── STEP 9 — Hotspot ───────────────────────────────────────────
 :put "Step 9: Setting up hotspot..."
 :if ([:len [/ip hotspot find name="hotspot1"]] = 0) do={
     /ip hotspot add \
@@ -156,35 +153,20 @@
 }
 :put "  ✅ Hotspot running on bridge1"
 
-# ── STEP 10 — Walled garden ───────────────────────────────────
+# ── STEP 10 — Walled garden ─────────────────────────────────────
 :put "Step 10: Configuring walled garden..."
 /ip hotspot walled-garden remove [find comment="OptimumWiFi"]
 
-# Portal domain
 /ip hotspot walled-garden add dst-host=$portalDomain \
     action=allow comment="OptimumWiFi"
 /ip hotspot walled-garden add dst-host=("*." . $portalDomain) \
     action=allow comment="OptimumWiFi"
-
-# Apple captive portal detection
-/ip hotspot walled-garden add dst-host="captive.apple.com" \
-    action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="*.apple.com" \
-    action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="gsp1.apple.com" \
-    action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="www.appleiphonecell.com" \
-    action=allow comment="OptimumWiFi"
-
-# Linux captive portal detection
 /ip hotspot walled-garden add dst-host="connectivity-check.ubuntu.com" \
     action=allow comment="OptimumWiFi"
 /ip hotspot walled-garden add dst-host="nmcheck.gnome.org" \
     action=allow comment="OptimumWiFi"
 /ip hotspot walled-garden add dst-host="network-test.debian.org" \
     action=allow comment="OptimumWiFi"
-
-# Windows captive portal detection
 /ip hotspot walled-garden add dst-host="www.msftconnecttest.com" \
     action=allow comment="OptimumWiFi"
 /ip hotspot walled-garden add dst-host="www.msftncsi.com" \
@@ -192,26 +174,36 @@
 
 :put "  ✅ Walled garden configured for all OS"
 
-# ── STEP 11 — Login page ──────────────────────────────────────
+# ── STEP 11 — Login page ───────────────────────────────────────
 :put "Step 11: Setting up login page redirect..."
 /file set "flash/webtune-hotspot/login.html" \
     contents=("<html><head><meta http-equiv='refresh' content='0;url=https://" . $portalDomain . "/?mac=\$(mac)&ip=\$(ip)&router=\$(identity)'></head><body>Redirecting...</body></html>")
 :put "  ✅ Login page redirects to portal"
 
-# ── STEP 12 — Command polling scheduler ───────────────────────
+# ── STEP 12 — Command polling scheduler ────────────────────────
 :put "Step 12: Setting up command polling..."
 /system scheduler remove [find name="OptimumWiFiPoller"]
+/system script remove [find name="OptimumWiFiPoller"]
+
+/system script add name=OptimumWiFiPoller source=(\
+    ":local url \"https://" . $portalDomain . "/network/router/" . $routerIdentity . "/commands/\";" .\
+    ":do {\r\n" .\
+    "/tool fetch url=\$url output=file dst-path=\"wifi-cmds.rsc\"\r\n" .\
+    "/import file-name=wifi-cmds.rsc\r\n" .\
+    "/file remove wifi-cmds.rsc\r\n" .\
+    "} on-error={}")
+
 /system scheduler add \
     name=OptimumWiFiPoller \
     interval=2s \
-    on-event=("/tool fetch url=\"https://" . $portalDomain . "/network/router/\$([ /system identity get name ])/commands/\" http-method=get output=user") \
+    on-event=OptimumWiFiPoller \
     comment="Optimum WiFi — polls Django for commands"
 :put "  ✅ Command polling every 2 seconds"
 
-# ── STEP 13 — Register with Django ────────────────────────────
+# ── STEP 13 — Register with Django ─────────────────────────────
 :put "Step 13: Registering with Django portal..."
 :local regUrl ("https://" . $portalDomain . "/network/register-router/")
-:local body ("{\"identity\":\"" . $routerIdentity . "\",\"location\":\"" . $routerLocation . "\",\"ip_address\":\"" . $wgIP . "\",\"public_key\":\"" . $pubKey . "\",\"gateway_ip\":\"" . $lanIP . "\",\"api_username\":\"admin\",\"api_password\":\"\",\"api_port\":8728,\"connection_type\":\"wireguard\"}")
+:local body ("{\"identity\":\"" . $routerIdentity . "\",\"location\":\"" . $routerLocation . "\",\"gateway_ip\":\"" . $lanIP . "\",\"api_username\":\"admin\",\"api_password\":\"\",\"api_port\":8728,\"connection_type\":\"direct\"}")
 
 :do {
     /tool fetch \
@@ -228,16 +220,11 @@
 # ── DONE ──────────────────────────────────────────────────────
 :put ""
 :put "═══════════════════════════════════════════════"
-:put "✅ CONFIGURATION COMPLETE"
+:put "✅ CONFIGURATION COMPLETE — 100% READY"
 :put ("   Router  : " . $routerIdentity)
 :put ("   Location: " . $routerLocation)
-:put ("   Tunnel  : " . $wgIP)
-:put ("   Pub Key : " . $pubKey)
+:put "═══════════════════════════════════════════════"
 :put ""
-:put "⚠️  NEXT STEP — Add router to VPS WireGuard:"
-:put "   SSH into VPS and run:"
-:put ("   wg set wg0 peer " . $pubKey . " allowed-ips " . $wgIP . "/32")
-:put ""
-:put "   Then test tunnel:"
-:put ("   ping " . $wgIP)
+:put "ℹ️  Customers connect to WiFi: OPTIMUM HOTSPOT"
+:put "ℹ️  ether1 should be connected to internet source"
 :put "═══════════════════════════════════════════════"
