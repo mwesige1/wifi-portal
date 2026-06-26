@@ -6,8 +6,8 @@
 # ═══════════════════════════════════════════════════════════════
 
 # ── EDIT THESE TWO LINES ONLY ──────────────────────────────────
-:local routerIdentityRaw "Serena Hotel Test"
-:local routerLocation    "Serena Hotel Reception"
+:local routerIdentityRaw "kabalagala"
+:local routerLocation    "kabalagala"
 # ═══════════════════════════════════════════════════════════════
 
 # ── FIXED SETTINGS — DO NOT CHANGE ─────────────────────────────
@@ -96,6 +96,12 @@
 }
 :put "  ✅ NAT configured"
 
+
+# ── STEP 5B — DNS Resolver ──────────────────────────────────────
+:put "Step 5B: Configuring DNS resolver..."
+/ip dns set allow-remote-requests=yes servers=8.8.8.8,8.8.4.4
+:put "  ✅ DNS resolver enabled"
+
 # ── STEP 6 — Enable API ────────────────────────────────────────
 :put "Step 6: Enabling MikroTik API..."
 /ip service set api disabled=no port=8728
@@ -108,7 +114,7 @@
 :put "Step 7: Configuring WiFi..."
 :if ([:len [/interface wireless find]] > 0) do={
     /interface wireless set [find] \
-        ssid="OPTIMUM HOTSPOT" \
+        ssid="FASTER WIFI" \
         mode=ap-bridge \
         disabled=no
     :if ([:len [/interface bridge port find interface="wlan1" bridge=bridge1]] = 0) do={
@@ -127,16 +133,18 @@
         hotspot-address=$lanIP \
         dns-name=$lanIP \
         login-by=cookie \
-        html-directory=flash/webtune-hotspot \
+        html-directory=hotspot \
         http-cookie-lifetime=1d
 } else={
     /ip hotspot profile set [find name="hsprof1"] \
         hotspot-address=$lanIP \
         dns-name=$lanIP \
         login-by=cookie \
+        html-directory=hotspot \
         http-cookie-lifetime=1d
 }
 :put "  ✅ Hotspot profile configured"
+
 
 # ── STEP 9 — Hotspot ───────────────────────────────────────────
 :put "Step 9: Setting up hotspot..."
@@ -161,24 +169,53 @@
     action=allow comment="OptimumWiFi"
 /ip hotspot walled-garden add dst-host=("*." . $portalDomain) \
     action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="connectivity-check.ubuntu.com" \
-    action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="nmcheck.gnome.org" \
-    action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="network-test.debian.org" \
-    action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="www.msftconnecttest.com" \
-    action=allow comment="OptimumWiFi"
-/ip hotspot walled-garden add dst-host="www.msftncsi.com" \
-    action=allow comment="OptimumWiFi"
 
-:put "  ✅ Walled garden configured for all OS"
+:put "  ✅ Walled garden configured"
 
-# ── STEP 11 — Login page ───────────────────────────────────────
-:put "Step 11: Setting up login page redirect..."
-/file set "flash/webtune-hotspot/login.html" \
-    contents=("<html><head><meta http-equiv='refresh' content='0;url=https://" . $portalDomain . "/?mac=\$(mac)&ip=\$(ip)&router=\$(identity)'></head><body>Redirecting...</body></html>")
-:put "  ✅ Login page redirects to portal"
+# ── STEP 11 — Hotspot HTML pages ───────────────────────────────
+:put "Step 11: Setting up hotspot pages..."
+
+:local loginContent ("<html><head><meta http-equiv='refresh' content='0;url=https://" . $portalDomain . "/?mac=\$(mac)&ip=\$(ip)&router=\$(identity)'></head><body>Redirecting...</body></html>")
+
+:local redirectContent "<html><head><meta http-equiv='refresh' content='0; url=\$(link-redirect)'></head><body>Redirecting...</body></html>"
+
+:local aloginContent "<html><head><meta http-equiv='refresh' content='0; url=\$(link-redirect)'></head><body>Connecting...</body></html>"
+
+:local errorContent "<html><body><h1>Error</h1><p>\$(error)</p><a href='\$(link-login)'>Try again</a></body></html>"
+
+:local logoutContent "<html><body><h1>Logged Out</h1><a href='\$(link-login)'>Login again</a></body></html>"
+
+:if ([:len [/file find name="hotspot/login.html"]] = 0) do={
+    /file add name="hotspot/login.html" contents=$loginContent
+} else={
+    /file set "hotspot/login.html" contents=$loginContent
+}
+
+:if ([:len [/file find name="hotspot/redirect.html"]] = 0) do={
+    /file add name="hotspot/redirect.html" contents=$redirectContent
+} else={
+    /file set "hotspot/redirect.html" contents=$redirectContent
+}
+
+:if ([:len [/file find name="hotspot/alogin.html"]] = 0) do={
+    /file add name="hotspot/alogin.html" contents=$aloginContent
+} else={
+    /file set "hotspot/alogin.html" contents=$aloginContent
+}
+
+:if ([:len [/file find name="hotspot/error.html"]] = 0) do={
+    /file add name="hotspot/error.html" contents=$errorContent
+} else={
+    /file set "hotspot/error.html" contents=$errorContent
+}
+
+:if ([:len [/file find name="hotspot/logout.html"]] = 0) do={
+    /file add name="hotspot/logout.html" contents=$logoutContent
+} else={
+    /file set "hotspot/logout.html" contents=$logoutContent
+}
+
+:put "  ✅ All hotspot pages configured"
 
 # ── STEP 12 — Command polling scheduler ────────────────────────
 :put "Step 12: Setting up command polling..."
